@@ -1,0 +1,52 @@
+
+.footer {
+	background: #4f4f4f;
+	display: block;
+	float: left;
+	@include padding(76px 0 0);
+	width: 100%;
+
+	& h3 {
+		color: #c1c1c1;
+		font-size: 1.4em;
+		@include margin(0 0 25px);
+		text-transform: uppercase;
+	}
+	& .footer-top {
+		border-bottom: 1px solid #6d6d6d;
+		display: block;
+		@include padding(0 0 45px);
+
+		& li {
+			color: #c1c1c1;
+			display: block;
+			font-family: $main-font-light;
+			font-size: 1.24em;
+			list-style: none;
+			@include margin(0 0 8px);
+	    @include breakpoint(large){
+	      font-size: 1.14em;
+	    }
+
+			& a {
+				color: #c1c1c1;
+
+				&:hover {
+					color: #fff;
+				}
+			}
+		}
+	}
+	& .copyright-pk {
+		color: #c1c1c1;
+		display: block;
+		@include padding(25px 0 22px);
+		text-align: center;
+
+		& p {
+			font-family: $main-font-light;
+			font-size: 1.09em;
+			@include no-margin;
+		}
+	}
+}
