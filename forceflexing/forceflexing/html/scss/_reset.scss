@@ -1,0 +1,165 @@
+/** RESET only css **/
+* {
+	&,
+	&:after,
+	&:before {
+		@include box-sizing;
+	}
+}
+
+label {
+	font-weight: normal;
+}
+
+fieldset {
+	border: none;
+	margin: 0;
+	padding: 0;
+}
+
+input,
+select,
+textarea {
+	@include appearance(none);
+	background-clip: border-box;
+	margin: 0;
+	outline: 0;
+	vertical-align: top;
+	width: 100%;
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+	width: auto;
+	height: auto;
+}
+
+input[type='checkbox'] {
+	appearance: checkbox;
+}
+
+input[type='radio'] {
+	appearance: radio;
+}
+
+select[multiple],
+select[size],
+textarea {
+	height: auto;
+}
+// remove dropdown for IE10
+select::-ms-expand {
+	display: none;
+}
+//remove IE11 select element selected option state
+select:focus::-ms-value {
+	background-color: transparent;
+	color: inherit;
+}
+//Allow only vertical resizing of textareas
+textarea {
+	resize: vertical;
+}
+//remove search controls
+input[type='search']::-webkit-search-decoration {
+	display: none;
+}
+
+a {
+	@include is_link($link-color,$link-hover-color);
+	text-decoration: none !important;
+	@include transition;
+
+	&:hover {
+		color: #000;
+	}
+}
+
+*:focus,
+.btn.focus,
+.btn:focus,
+.btn:hover {
+	outline: none !important;
+}
+
+img {
+	max-width: $width-full;
+}
+
+b,
+strong {
+	font-family: $main-font-bold;
+	font-weight: normal;
+}
+
+em,
+i {
+	font-family: $main-font-italic;
+	font-style: normal;
+}
+
+.clr {
+	border: 0;
+	clear: both;
+	height: 0;
+}
+
+body,
+html {
+	width: $width-full;
+	height: 100%;
+}
+
+blockquote,
+caption,
+dd,
+dl,
+figure,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+legend,
+ol,
+p,
+pre,
+table,
+td,
+th,
+ul {
+	margin: 0;
+	padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+	font-weight: normal;
+}
+
+.inline {
+	display: inline-block !important;
+}
+
+.block {
+	display: block !important;
+}
+
+.shown {
+	display:inline-block;
+	&.block {
+		display: block;
+	}
+}
+
+.hidden {
+	display: none;
+}

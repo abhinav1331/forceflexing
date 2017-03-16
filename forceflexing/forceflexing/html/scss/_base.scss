@@ -1,0 +1,31 @@
+/** BASE css **/
+
+body {
+	background: $white;
+	color: $primary-color;
+	font-family: $main-font-regular;
+	font-size: 14px;
+	overflow-x: hidden;
+	@include padding(99px 0 0);
+	-webkit-text-stroke: rgba(255, 255, 255, 0.01) 0.1px;
+	@include breakpoint(large) {
+		font-size: 13px;
+	}
+}
+p {
+	font-size: 1.15em;
+}
+
+button,
+input[type="submit"] {
+	&:active {
+		@include box-shadow( inset 0 0 15px rgba(0, 0, 0, 0.08));
+	}
+}
+.container {
+	@include breakpoint(x-large) {
+		padding-left: 0;
+		padding-right: 0;
+		width: 1574px;
+	}
+}
