@@ -1,5 +1,4 @@
 <?php
-
 class View {
 
 	private $pageVars = array();
@@ -18,12 +17,10 @@ class View {
 	public function render()
 	{
 		extract($this->pageVars);
-
 		ob_start();
 		require($this->template);
 		echo ob_get_clean();
 	}
-    
 }
 
 ?>

@@ -1,13 +1,20 @@
 <?php
-
 class Controller {
 	
-	public function loadModel($name)
+	public function loadModel($name,$folder='')
 	{
-		require(APP_DIR .'models/'. strtolower($name) .'.php');
-
-		$model = new $name;
-		return $model;
+		if(isset($folder) && $folder!='')
+		{
+			require(APP_DIR .'models/'.$folder.'/'. strtolower($name) .'.php');
+			$model = new $name;
+			return $model;
+		}
+		else
+		{
+			require(APP_DIR .'models/'. strtolower($name) .'.php');
+			$model = new $name;
+			return $model;
+		}
 	}
 	
 	public function loadView($name)
@@ -35,10 +42,8 @@ class Controller {
 	public function redirect($loc)
 	{
 		global $config;
-		
-		header('Location: '. $config['base_url'] . $loc);
+		header('Location: '. $config['base_url'] . $loc.'/');
 	}
-    
+	
 }
-
 ?>

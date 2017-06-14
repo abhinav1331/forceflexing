@@ -32,4 +32,18 @@ class Home extends Controller
 		$this->loadview('home/login')->render();	
 		$this->loadview('main/footer')->render();			
 	}
+	
+	public function logout()
+	{
+		echo "aaaaaaaaaaaaaaaaaaaaaaaaaa";
+		/*if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || isset($_SESSION['force_username']) && isset($_SESSION['force_password'])) {
+			unset($_COOKIE['force_username']);		
+			unset($_SESSION['force_username']);		
+			unset($_COOKIE['force_password']);		
+			unset($_SESSION['force_password']);
+			$this->redirect('');
+		} else {
+			$this->redirect('');
+		}*/
+	}
 }

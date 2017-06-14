@@ -48,23 +48,43 @@
                 <input name="user_name" value="<?php if(isset($_POST['user_name'])): echo $_POST['user_name']; endif; ?>" type="text" placeholder="User Name">
               </div>
               <div class="col-sm-6">
-                <input name="company_name" value="<?php if(isset($_POST['cmpy_name'])): echo $_POST['cmpy_name']; endif; ?>" type="text" placeholder="Company Name">
+                <!--<input name="company_name" value="<?php //if(isset($_POST['cmpy_name'])): echo $_POST['cmpy_name']; endif; ?>" type="text" placeholder="Company Name">-->
+				<select name="company_name">
+                  <option value="">Select Type</option>
+				 <?php
+				 if(isset($_POST['company_name']))
+					 $catnam=$_POST['company_name'];
+				 else
+					  $catnam="";
+					if(!empty($categories)) 
+					{
+						foreach($categories as $category)
+						{
+							if($catnam == $category['category_name'])
+								$selected= "selected";
+							else
+								$selected= "";
+							?>
+							 <option <?=$selected;?> value="<?=$category['category_name'];?>"><?=$category['category_name'];?></option>
+							 <?php
+						}
+					}
+					?>
+				 </select>
               </div>
               <div class="col-sm-6">
                 <select name="country">
-                  <option>India</option>
-                  <option>Australia</option>
-                  <option>Canada</option>
+				  <?php echo $instance->countries->show_countries(); ?>
                 </select>
               </div>
               <div class="col-sm-6">
                 <input name="email" value="<?php if(isset($_POST['email'])): echo $_POST['email']; endif; ?>" type="text" placeholder="Email">
               </div>
               <div class="col-sm-6">
-                <input name="password" id="password" value="<?php if(isset($_POST['pass'])): echo $_POST['pass']; endif; ?>" type="text" placeholder="Password">
+                <input name="password" id="password" value="<?php if(isset($_POST['password'])): echo $_POST['password']; endif; ?>" type="password" placeholder="Password">
               </div>
 			  <div class="col-sm-6">
-                <input name="con_pass" value="<?php if(isset($_POST['con_pass'])): echo $_POST['con_pass']; endif; ?>" type="text" placeholder="Confirm Password">
+                <input name="con_pass" value="<?php if(isset($_POST['con_pass'])): echo $_POST['con_pass']; endif; ?>" type="password" placeholder="Confirm Password">
               </div>
 			   <input type="hidden" name="user_role" value="contractor">
               <!--<div class="col-sm-12">

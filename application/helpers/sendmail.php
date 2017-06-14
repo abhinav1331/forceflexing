@@ -9,7 +9,7 @@ class SendMail
 		$this->headers = $header;
 	}
 
-	public function setparameters($to="",$subject="",$from="",$message="")
+	public function setparameters($to="",$subject="",$message="",$from="sc7618009@gmail.com")
 	{
 		if (!isset($to) || empty($to)) 
 		{

@@ -1,42 +1,48 @@
+<?php 
+/*echo "<pre>";
+print_r($states);
+echo "</pre>";*/
+ ?>
 <main role="main">
   <section class="page-wrap">
     <div class="container">
       <div class="page-main">
         <section class="post-job-wrapper">
           <h1>Post a Job</h1>
-          <form>
-            <div class="emp-job-cat">
-              <div class="row">
-                <div class="col-sm-6">
-                  <h3>Previous job</h3>
-                  <select name="previous-job" class="input">
-                    <option>Please select</option>
-                    <option>Please select</option>
-                    <option>Please select</option>
-                    <option>Please select</option>
-                  </select>
-                </div>
-                <div class="col-sm-6">
-                  <h3>Choose a category selector</h3>
-                  <select name="previous-job" class="input">
-                    <option>Please select</option>
-                    <option>Please select</option>
-                    <option>Please select</option>
-                    <option>Please select</option>
-                  </select>
+          <form action="" method="post" name="post_job" id="post_job"  enctype="multipart/form-data">
+            <?php if (count($url) != 0) {
+              ?>
+              <div class="emp-job-cat">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <h3>Previous job</h3>
+                    <select name="previous-job" class="input" onchange="onchangeSelectPre(this);">
+                      <option value="">Select Old Jobs</option>
+                     <?php 
+                     foreach($url as $ur) {
+                      ?>
+                      <option value="<?php echo $ur['id'] ?>"><?php echo $ur['job_title']; ?></option>
+                      <?php
+                     }
+                      ?>
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
+              <?php
+            } ?>
+           
             <div class="emp-job-description">
               <h2>Describe the job</h2>
               <h3>Name your job posting</h3>
-              <input placeholder="Please type name of job" type="text" class="input">
+              <input name="jp_title" id="jp_title" placeholder="Please type name of job" type="text" class="input">
               <h3>Description of job</h3>
               <div class="char-left">5000 characters left</div>
-              <textarea id="post-job-desc" name="" cols="" rows="" class="input resizable large" placeholder="Type message"></textarea>
+              <textarea id="jp_desc" name="jp_desc" cols="" rows="" class="input resizable large" placeholder="Type message"></textarea>
             </div>
+			
             <div class="attach-file">
-              <input class="input-file" id="my-file" type="file">
+              <input class="input-file" id="my-file" type="file" name="fileUpload">
               <label tabindex="0" for="my-file" class="input-file-trigger"><i class="attachment-icon"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="214 138 181 375" xml:space="preserve">
                 <path d="M263.173,227.048v196.001c0,22.934,18.656,41.59,41.596,41.59c22.939,0,41.589-18.649,41.589-41.59V200.665h-0.188
 	c-1.971-34.938-30.942-62.787-66.378-62.787c-35.429,0-64.388,27.849-66.358,62.787h-0.188v218.619
@@ -47,156 +53,170 @@
               <code class="file-return"></code>
               <p>The file can be up to 5 mb in size.</p>
             </div>
+			
             <div class="emp-hires">
-              <h3>How many employees do you need to hire for this job?</h3>
-              <label class="radio-custom">
-                <input type="radio" name="empRequired" value="radio" id="empRequired_1" checked>
-                <span class="radio"></span>One</label>
-              <label class="radio-custom">
-                <input type="radio" name="empRequired" value="radio" id="empRequired_2">
-                <span class="radio"></span>Multiple</label>
-              <select name="" class="input inline small">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-              </select>
-            </div>
+				<h3>How many employees do you need to hire for this job?</h3>
+				<label class="radio-custom">
+					<input type="radio" name="jp_reqemp" id="jp_reqemp_one" value="one" id="empRequired_1" checked>
+					<span class="radio"></span>One
+				</label>
+				<label class="radio-custom">
+					<input type="radio" name="jp_reqemp" id="jp_reqemp_mul" value="multiple" id="empRequired_2">
+					<span class="radio"></span>Multiple
+				</label>
+				<input type="number" id="jp_mul_emp" name="jp_mul_emp" class="input inline small"> 
+			</div>
+			
             <div class="emp-job-activity">
               <h3>Does this Job include one or multiple Activities: </h3>
               <label class="radio-custom">
-                <input type="radio" name="one" value="one1" id="jobActivity_1" checked>
-                <span class="radio"></span>One</label>
-              <label class="radio-custom">
-                <input type="radio" name="one" value="one1" id="jobActivity_2">
-                <span class="radio"></span>Multiple</label>
+                <input type="radio" id="jp_activities_one" name="jp_activities" value="one"  checked>
+                <span class="radio"></span>One
+			</label>
+            <label class="radio-custom">
+                <input type="radio" id="jp_activities_mul" name="jp_activities" value="multiple">
+                <span class="radio"></span>Multiple
+			</label>
+          <div class="buttons-add-rmove">
+          <input onclick="addActivity();" style="display:none !important;" type="button" value="+" id="btn-add-activity" name="btn-add-activity" class="input inline small">
+          </div>
               <div class="emp-job-activity-details one">
-                <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                  <tr>
-                    <th scope="row">Activites Name:</th>
-                    <td><div class="row">
-                        <div class="col-md-7">
-                          <input name="" type="text" class="input small half-width">
-                        </div>
-                      </div></td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Select:</th>
-                    <td><label class="radio-custom">
-                        <input type="radio" name="empAct1" value="radio" id="empAct1_1" checked>
-                        <span class="radio"></span>fixed start and stop time <a href="javascript:void(0);" class="calendar-icon">date</a></label>
-                      <span class="sep">or</span>
-                      <label class="radio-custom">
-                        <input type="radio" name="empAct1" value="radio" id="empAct1_2">
-                        <span class="radio"></span>flexible start/stop <a href="javascript:void(0);" class="calendar-icon">date</a></label></td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Fixed:</th>
-                    <td><div class="row">
-                        <div class="col-md-6">
-                          <div class="row">
-                            <div class="col-md-6">
-                              <select name="" class="input small calendar-icon">
-                                <option>start date</option>
-                              </select>
+                <div class="activityReunion" id="activityReunion1">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <th scope="row">Activites Name:</th>
+                      <td>
+  						<div class="row">
+  							<div class="col-md-7">
+  							  <input name="jp_activity_name[]" id="jp_activity_name" type="text" class="input small half-width">
+  							</div>
+  						</div>
+  					</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Select:</th>
+                      <td>
+  						<label class="radio-custom">
+                          <input type="radio" name="jp_start_stop_time1[]" value="fixed" id="jp_start_stop_time_fix" checked>
+                          <span class="radio"></span>fixed start and stop time <a href="javascript:void(0);" class="calendar-icon">date</a></label>
+  						
+  						<span class="sep">or</span>
+  						
+  						<label class="radio-custom">
+                          <input type="radio" name="jp_start_stop_time1[]" value="flexible" id="jp_start_stop_time_flex">
+                          <span class="radio"></span>flexible start/stop <a href="javascript:void(0);" class="calendar-icon">date</a></label>
+  					</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Fixed:</th>
+                      <td><div class="row">
+                          <div class="col-md-6">
+                            <div class="row">
+                              <div class="col-md-6">
+                                <input type="text" name="jp_act_start_date[]" id="jp_act_start_date" class="input small calendar-icon jp_act_start_date" placeholder="start date">
+                              </div>
+                              <div class="col-md-6">
+                                <input type="text"  name="jp_act_start_time[]" id="jp_act_start_time" class="input small watch-icon jp_act_start_time" placeholder="start time">
+                              </div>
                             </div>
-                            <div class="col-md-6">
-                              <select name="" class="input small watch-icon">
-                                <option>start time</option>
-                              </select>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="row">
+                              <div class="col-md-6">
+                                <input type="text" name="jp_act_end_date[]" id="jp_act_end_date" class="input small calendar-icon jp_act_start_date" placeholder="finish date">
+                              </div>
+                              <div class="col-md-6">
+                                <input type="text"  name="jp_act_end_time[]" id="jp_act_end_time" class="input small watch-icon jp_act_start_time" placeholder="finish time">
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <div class="col-md-6">
-                          <div class="row">
-                            <div class="col-md-6">
-                              <select name="" class="input small calendar-icon">
-                                <option>finish date</option>
-                              </select>
-                            </div>
-                            <div class="col-md-6">
-                              <select name="" class="input small watch-icon">
-                                <option>finish time</option>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                      </div></td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Enter address:</th>
-                    <td><div class="row">
-                        <div class="col-md-6">
-                          <div class="row">
-                            <div class="col-md-6">
-                              <select name="" class="input small">
-                                <option>street</option>
-                              </select>
-                            </div>
-                            <div class="col-md-6">
-                              <select name="" class="input small">
-                                <option>city</option>
-                              </select>
+  					</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Enter address:</th>
+                      <td><div class="row">
+                          <div class="col-md-6">
+                            <div class="row">
+  							<div class="col-md-6">
+                                
+                                <select onchange="onchangeState(this);" data-attribute='activityReunion1' name="jp_act_state[]" id="sel12 stateId" class="input small states">
+                                   <option value="">Select State</option>
+                                   <?php 
+                                   foreach($states as $state) {
+                                    ?>
+                                    <option value="<?php echo $state['id']; ?>"><?php echo $state['name']; ?></option>
+                                    <?php
+                                   }
+                                    ?>
+                                </select>
+                              </div>
+  							               <div class="col-md-6">
+                                <select onchange="ourChange(this)" name="jp_act_city[]" id="sel13 cityId" class="input small cities">
+                                   <option value="">Select City</option>
+                                </select>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="row">
-                            <div class="col-md-6">
-                              <select name="" class="input small">
-                                <option>state</option>
-                              </select>
-                            </div>
-                            <div class="col-md-6">
-                              <select name="" class="input small">
-                                <option>zip</option>
-                              </select>
+                          <div class="col-md-6">
+                            <div class="row">
+                              <div class="col-md-6">
+  				                      <input type="text" class="input small" name="jp_act_street[]" id="jp_act_street" placeholder="street" >
+                                <!--<select name="" class="input small">
+                                  <option>street</option>
+                                </select>-->
+                              </div>
+                              <div class="col-md-6">
+                                <input type="text" class="input small" name="jp_act_zip[]" id="jp_act_zip"  placeholder="zip" onkeyup="isValidPostalCode(this)">
+                                <div class="messahe-zip"></div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div></td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Name contact:</th>
-                    <td><div class="row">
-                        <div class="col-md-6">
-                          <input name="" type="text" placeholder="first name" class="input small">
-                        </div>
-                        <div class="col-md-6">
-                          <input name="" type="text" placeholder="last name" class="input small">
-                        </div>
-                      </div></td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Contact:</th>
-                    <td><div class="row">
-                        <div class="col-md-6">
-                          <input name="" type="text" placeholder="phone" class="input small">
-                        </div>
-                        <div class="col-md-6">
-                          <input name="" type="text" placeholder="email" class="input small">
-                        </div>
-                      </div></td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Notes/tasks:</th>
-                    <td><textarea name="" cols="" rows="" class="input small" placeholder="text here"></textarea></td>
-                  </tr>
-                </table>
+                        </div></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Name contact:</th>
+                      <td><div class="row">
+                          <div class="col-md-6">
+                            <input name="jp_act_cont_fname[]" id="jp_act_cont_fname" type="text" placeholder="first name" class="input small">
+                          </div>
+                          <div class="col-md-6">
+                            <input name="jp_act_cont_lname[]" id="jp_act_cont_lname" type="text" placeholder="last name" class="input small">
+                          </div>
+                        </div></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Contact:</th>
+                      <td><div class="row">
+                          <div class="col-md-6">
+                            <input name="jp_act_cont_phne[]" id="jp_act_cont_phne" type="text" placeholder="phone" class="input small">
+                          </div>
+                          <div class="col-md-6">
+                            <input name="jp_act_cont_email[]" id="jp_act_cont_email" type="text" placeholder="email" class="input small">
+                          </div>
+                        </div></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Notes/tasks:</th>
+                      <td><textarea name="jp_act_notes[]" id="jp_act_notes" cols="" rows="" class="input small" placeholder="text here"></textarea></td>
+                    </tr>
+                  </table>
+                </div>
                 <div class="multiple-selected-option">
-                  <h3>Distance of the employee from the Job location</h3>
-                  <label for="actCondition1" class="custom-checkbox">
-                    <input id="actCondition1" type="checkbox">
-                    <span class="custom-check"></span> Yes, all activities must be completed by the applying contractor</label>
-                  <label for="actCondition2" class="custom-checkbox">
-                    <input id="actCondition2" type="checkbox">
-                    <span class="custom-check"></span> No, the contractor can select a minimum of
-                    <select name="" class="input inline x-small">
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                    </select>
+                  <h3>Activites completed by contractor</h3>
+                  <label for="actCondition1" class="radio-custom">
+                    <input id="actCondition1" name="jp_actvty_comp" type="radio" value="yes">
+                   <span class="radio"></span> Yes, all activities must be completed by the applying contractor</label>
+                  <label for="actCondition2" class="radio-custom">
+                    <input id="actCondition2" name="jp_actvty_comp" type="radio" value="no">
+                    <span class="radio"></span> No, the contractor can select a minimum of
+                    <input type="number" name="jp_num_of_actvty" id="jp_num_of_actvty" class="input inline x-small" disabled>
+                  <!--   <select name="jp_num_of_actvty" id="jp_num_of_actvty" class="input inline x-small">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                  </select> -->
                     Activity(s) </label>
                 </div>
               </div>
@@ -205,7 +225,7 @@
               <h3>Distance of the employee from the Job location</h3>
               <div class="distance-table">
                 <label class="radio-custom">
-                  <input type="radio" name="empDistance1" value="radio" id="empDistance_1" checked>
+                  <input type="radio" name="jp_empDistance" value="5" id="jp_empDistance_5" checked>
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 18 200 164" xml:space="preserve">
                   <g>
                     <path d="M100,18c-45.216,0-82,36.784-82,82c0,45.218,36.784,82,82,82c45.218,0,82-36.782,82-82C182,54.784,145.218,18,100,18
@@ -239,7 +259,7 @@
                   </g>
                   </svg> <span class="label-text">5 miles</span> <span class="radio"></span> </label>
                 <label class="radio-custom">
-                  <input type="radio" name="empDistance1" value="radio" id="empDistance_2">
+                  <input type="radio" name="jp_empDistance" value="30" id="jp_empDistance_30">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 18 200 164" xml:space="preserve">
                   <g>
                     <path d="M100,18c-45.216,0-82,36.784-82,82c0,45.218,36.784,82,82,82c45.218,0,82-36.782,82-82C182,54.784,145.218,18,100,18
@@ -273,7 +293,7 @@
                   </g>
                   </svg> <span class="label-text">30 miles</span> <span class="radio"></span> </label>
                 <label class="radio-custom">
-                  <input type="radio" name="empDistance1" value="radio" id="empDistance_3">
+                  <input type="radio" name="jp_empDistance" value="60" id="jp_empDistance_60">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 18 200 164" xml:space="preserve">
                   <g>
                     <path d="M100,18c-45.216,0-82,36.784-82,82c0,45.218,36.784,82,82,82c45.218,0,82-36.782,82-82C182,54.784,145.218,18,100,18
@@ -307,7 +327,7 @@
                   </g>
                   </svg> <span class="label-text">60 miles</span> <span class="radio"></span> </label>
                 <label class="radio-custom">
-                  <input type="radio" name="empDistance1" value="radio" id="empDistance_4">
+                  <input type="radio" name="jp_empDistance" value="120" id="jp_empDistance_120">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 18 200 164" xml:space="preserve">
                   <g>
                     <path d="M100,18c-45.216,0-82,36.784-82,82c0,45.218,36.784,82,82,82c45.218,0,82-36.782,82-82C182,54.784,145.218,18,100,18
@@ -341,7 +361,7 @@
                   </g>
                   </svg> <span class="label-text">120 miles</span> <span class="radio"></span> </label>
                 <label class="radio-custom">
-                  <input type="radio" name="empDistance1" value="radio" id="empDistance_5">
+                  <input type="radio" name="jp_empDistance" value="250" id="jp_empDistance_250">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 18 200 164" xml:space="preserve">
                   <g>
                     <path d="M100,18c-45.216,0-82,36.784-82,82c0,45.218,36.784,82,82,82c45.218,0,82-36.782,82-82C182,54.784,145.218,18,100,18
@@ -375,7 +395,7 @@
                   </g>
                   </svg> <span class="label-text">250 miles</span> <span class="radio"></span> </label>
                 <label class="radio-custom">
-                  <input type="radio" name="empDistance1" value="radio" id="empDistance_6">
+                  <input type="radio" name="jp_empDistance" value="nopreference" id="jp_empDistance_nopref">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 18 200 164" xml:space="preserve">
                   <g>
                     <path d="M100,18c-45.216,0-82,36.784-82,82c0,45.218,36.784,82,82,82c45.218,0,82-36.782,82-82C182,54.784,145.218,18,100,18
@@ -414,12 +434,12 @@
               <h3>Required skills and training</h3>
               <div class="row">
                 <div class="col-md-7">
-                  <input placeholder="Enter skills" type="text" class="input">
+                  <input placeholder="Enter skills" name="jp_tr_skills" id="jp_tr_skills" type="text" class="input">
                 </div>
               </div>
               <div class="row">
                 <div class="col-md-7">
-                  <select name="previous-job" class="input">
+                  <select name="jp_tr_skills_courses"  id="jp_tr_skills_courses" class="input">
                     <option>Select multiple courses</option>
                     <option>Please select</option>
                     <option>Please select</option>
@@ -431,12 +451,12 @@
                 <div class="col-md-7">
                   <div class="row">
                     <div class="col-md-6">
-                      <select name="" class="input calendar-icon">
+                      <select name="jp_tr_com_date" id="jp_tr_com_date" class="input calendar-icon">
                         <option>Completion date</option>
                       </select>
                     </div>
                     <div class="col-md-6">
-                      <select name="" class="input pass-score-icon">
+                      <select name="jp_tr_pass_score" id="jp_tr_pass_score" class="input pass-score-icon">
                         <option>Required Pass Score</option>
                       </select>
                     </div>
@@ -449,8 +469,8 @@
               <div class="pay-toggle">
                 <div class="row">
                   <div class="col-sm-6">
-                    <label for="payRate_1" class="radio-custom active">
-                      <input type="radio" name="payRate" value="radio" id="payRate_1" checked>
+                    <label for="jp_payRate_hourly" class="radio-custom active">
+                      <input type="radio" name="jp_payRate" value="hourly" id="jp_payRate_hourly" checked>
                       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 10 200 180" xml:space="preserve" fill="#a1a1a1">
                       <g>
                         <g>
@@ -500,12 +520,12 @@
                       </g>
                       </svg> <span class="label-text">Pay by the hour</span> </label>
                     <div class="pay-figure">
-                      <input name="" type="text" value="$40/hr">
+                      <input name="jp_payRate_hourly_val" id="jp_payRate_hourly_val" type="text" Placeholder="$40/hr">
                     </div>
                   </div>
                   <div class="col-sm-6">
-                    <label for="payRate_2" class="radio-custom active">
-                      <input type="radio" name="payRate" value="radio" id="payRate_2">
+                    <label for="jp_payRate_fixed" class="radio-custom">
+                      <input type="radio" name="jp_payRate" value="fixed" id="jp_payRate_fixed">
                       <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="58.559 166.161 486.625 494.839" xml:space="preserve" fill="#a1a1a1">
                       <g>
                         <g>
@@ -536,31 +556,32 @@
                       </g>
                       </svg> <span class="label-text">Pay a fixed price</span> </label>
                     <div class="pay-figure">
-                      <input name="" type="text" value="$200">
+                      <input name="jp_payRate_fixed_val" id="jp_payRate_fixed_val" type="text" Placeholder="$200">
                     </div>
                   </div>
                 </div>
               </div>
               <div class="emp-flex-rates">
-                <label for="flexRate" class="custom-checkbox">
-                  <input id="flexRate" type="checkbox" checked>
+                <label for="jp_flexRate" class="custom-checkbox">
+                  <input id="jp_flexRate" name="jp_flexRate" type="checkbox" checked>
                   <span class="custom-check"></span> flex the rate</label>
-                <h3>If you want to flex the rate choose from the following options</h3>
+                <div class="flex_rate_details">
+				<h3>If you want to flex the rate choose from the following options</h3>
                 <h4>Flex frequency</h4>
                 <ul>
                   <li>
                     <label class="radio-custom">
-                      <input type="radio" name="empFlex" value="empFlex" id="empFlex_1" checked>
+                      <input type="radio" name="jp_flex_freq" value="1" id="jp_flex_freq_1" checked>
                       <span class="radio"></span> Flex 1 times</label>
                   </li>
                   <li>
                     <label class="radio-custom">
-                      <input type="radio" name="empFlex" value="empFlex2" id="empFlex_2">
+                      <input type="radio" name="jp_flex_freq" value="2" id="jp_flex_freq_2">
                       <span class="radio"></span> Flex 2 times</label>
                   </li>
                   <li>
                     <label class="radio-custom">
-                      <input type="radio" name="empFlex" value="empFlex3" id="empFlex_3">
+                      <input type="radio" name="jp_flex_freq" value="3" id="jp_flex_freq_3">
                       <span class="radio"></span> Flex 3 times</label>
                   </li>
                 </ul>
@@ -568,34 +589,27 @@
                   <div class="row">
                     <div class="col-sm-6">
                       <label>Date the flex</label>
-                      <div class="emp-flex-interval">
-                        <select name="" class="input calendar-icon">
+                      <div class="emp-flex-interval emp-flex-date-interval" name="jp_flex_interval" id="jp_flex_interval">
+                        <input type="text" name="flex-month-date[]" class="input calendar-icon flex-date-picker">
+                        <!-- <select name="flex-month-date[]" class="input calendar-icon">
                           <option>2 months out</option>
-                        </select>
-                      </div>
-                      <div class="emp-flex-interval">
-                        <select name="" class="input calendar-icon">
-                          <option>2 months out</option>
-                        </select>
+                        </select> -->
                       </div>
                     </div>
                     <div class="col-sm-6">
                       <label>Flex amount</label>
-                      <div class="emp-flex-interval">
-                        <select name="" class="input percent-icon">
+                      <div class="emp-flex-interval emp-flex-completion-interval" id="jp_flex_amount" name="jp_flex_amount">
+                        <input type="text" name="flex-month-completion[]" class="input percent-icon">
+                        <!-- <select name="flex-month-completion[]" class="input percent-icon">
                           <option>Completion date</option>
-                        </select>
-                      </div>
-                      <div class="emp-flex-interval">
-                        <select name="" class="input percent-icon">
-                          <option>Completion date</option>
-                        </select>
+                        </select> -->
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+			</div>
             <div class="emp-additional-pay-options">
               <h3>Additional payment questions:</h3>
               <ul>
@@ -603,28 +617,31 @@
                   <table>
                     <tr>
                       <td>Will employer pay for additional hours worked</td>
-                      <td><label for="addtnHoursYes" class="custom-checkbox">
-                          <input id="addtnHoursYes" type="checkbox" checked>
-                          <span class="custom-check"></span> Yes</label>
-                        <label for="addtnHoursNo" class="custom-checkbox">
-                          <input id="addtnHoursNo" type="checkbox">
-                          <span class="custom-check"></span> No</label></td>
+                      <td><label for="jp_pay_additonal_hours_yes" class="radio-custom">
+                          <input id="jp_pay_additonal_hours_yes" name="jp_pay_additonal_hours" value="yes" type="radio" checked>
+                          <span class="radio"></span> Yes</label>
+                        <label for="jp_pay_additonal_hours_no" class="radio-custom">
+                          <input id="jp_pay_additonal_hours_no" name="jp_pay_additonal_hours" value="no" type="radio">
+                          <span class="radio"></span> No</label></td>
                     </tr>
-                    <tr>
-                      <td>Set allowable time before activity</td>
-                      <td><select name="" class="input inline small">
+                   <tr class="allowable_time">
+                      <td>
+						<p>Set allowable time before activity</p>
+                        <p>Set allowable time after activity</p>
+					 </td>
+                      <td><select name="jp_allw_time_bfr_acti" id="jp_allw_time_bfr_acti" class="input inline small">
                           <option>15 min</option>
                           <option>30 min</option>
                           <option>60 min</option>
-                        </select></td>
-                    </tr>
-                    <tr>
-                      <td>Set allowable time after activity</td>
-                      <td><select name="" class="input inline small">
+                        </select>
+                        
+                        <select name="jp_allw_time_aftr_acti" id="jp_allw_time_aftr_acti" class="input inline small">
                           <option>15 min</option>
                           <option>30 min</option>
                           <option>60 min</option>
-                        </select></td>
+                        </select>
+                        <input type="text" placeholder="Allowable Overages" class="input small" name="allowwable_overages">
+                      </td>
                     </tr>
                   </table>
                 </li>
@@ -632,12 +649,94 @@
                   <table>
                     <tr>
                       <td>Is travel cost covered (we will use standard US reimbursement rate on miles)</td>
-                      <td><label for="travelCostYes" class="custom-checkbox">
-                          <input id="travelCostYes" type="checkbox">
-                          <span class="custom-check"></span> Yes</label>
-                        <label for="travelCostNo" class="custom-checkbox">
-                          <input id="travelCostNo" type="checkbox">
-                          <span class="custom-check"></span> No</label></td>
+                      <td><label for="jp_travelCost_Yes" class="radio-custom">
+                          <input id="jp_travelCost_Yes" name="jp_travelCost" value="yes" type="radio" checked>
+                          <span class="radio"></span> Yes</label>
+                        <label for="jp_travelCost_No" class="radio-custom">
+                          <input id="jp_travelCost_No" name="jp_travelCost" value="no" type="radio">
+                          <span class="radio"></span> No</label></td>
+                    </tr>
+                  </table>
+                </li>
+                <li>
+                  <table>
+                    <tr>
+                      <td>Experience Level</td>
+                      <td><label for="jp_experianced_level_entry" class="radio-custom">
+                          <input id="jp_experianced_level_entry" name="experianceEntry" value="entry_level" type="radio" checked>
+                          <span class="radio"></span> Entry Level</label>
+                          <label for="jp_experianced_intermediate" class="radio-custom">
+                          <input id="jp_experianced_intermediate" name="experianceEntry" value="intermediate" type="radio">
+                          <span class="radio"></span> Intermediate</label>
+                        <label for="jp_experianced_level_expert" class="radio-custom">
+                          <input id="jp_experianced_level_expert" name="experianceEntry" value="expert" type="radio">
+                          <span class="radio"></span> Expert</label></td>
+                    </tr>
+                  </table>
+                </li>
+                <li>
+                  <table>
+                    <tr>
+                      <td>Hours Per Week</td>
+                      <td><label for="hours_parttyme" class="radio-custom">
+                          <input id="hours_parttyme" name="hours_per_week" value="part_time" type="radio" checked>
+                          <span class="radio"></span>Part Time</label>
+                          <label for="hours_fullTime" class="radio-custom">
+                          <input id="hours_fullTime" name="hours_per_week" value="full_time" type="radio">
+                          <span class="radio"></span>Full Time</label></td>
+                    </tr>
+                  </table>
+                </li>
+                <li>
+                  <table>
+                    <tr>
+                      <td>Overnight Travel</td>
+                      <td>
+                        <label for="over_night_yes" class="radio-custom">
+                        <input id="over_night_yes" name="over_night_travel" value="yes" type="radio" checked>
+                        <span class="radio"></span>Yes</label>
+                        <label for="over_night_no" class="radio-custom">
+                        <input id="over_night_no" name="over_night_travel" value="no" type="radio">
+                        <span class="radio"></span>No</label>
+                        <label for="over_night_no_specified" class="radio-custom">
+                        <input id="over_night_no_specified" name="over_night_travel" value="not_specified" type="radio">
+                        <span class="radio"></span>Not Specified</label>
+                      </td>
+                    </tr>
+                  </table>
+                </li>
+
+
+
+                <li>
+                  <table>
+                    <tr>
+                      <td>Job Speciality</td>
+                      <td>
+                        <select name="job_speciality" id="" class="input">
+                          <option value="Brand ambassador">Brand ambassador</option>
+                          <option value="Events Staff">Events Staff</option>
+                          <option value="Retail sales merchandiser">Retail sales merchandiser</option>
+                          <option value="Product demonstrator/Promoter">Product demonstrator/Promoter</option>
+                          <option value="Sales Consultant">Sales Consultant</option>
+                          <option value="Field Technician">Field Technician</option>
+                          <option value="Field sales/marketing representative">Field sales/marketing representative</option>
+                          <option value="Trainer">Trainer</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </table>
+                </li>
+
+
+
+                <li>
+                  <table>
+                    <tr>
+                      <td>Hours Billed</td>
+                      <td>
+                        <input class="input small" id="hours_billed" name="hours_billed" placeholder="Hours Billed" type="text">                        
+                      </td>
                     </tr>
                   </table>
                 </li>
@@ -647,40 +746,93 @@
                       <td> What other expenses are covered </td>
                     </tr>
                     <tr>
-                      <td><label for="Food" class="custom-checkbox">
-                          <input id="Food" type="checkbox">
-                          <span class="custom-check"></span> Food</label>
-                        <label for="Parking" class="custom-checkbox">
-                          <input id="Parking" type="checkbox">
-                          <span class="custom-check"></span> Parking</label>
-                        <label for="Tolls" class="custom-checkbox">
-                          <input id="Tolls" type="checkbox">
-                          <span class="custom-check"></span> Tolls</label>
-                        <label for="Tips" class="custom-checkbox">
-                          <input id="Tips" type="checkbox">
-                          <span class="custom-check"></span> Tips</label>
-                        <label for="Other" class="custom-checkbox">
-                          <input id="Other" type="checkbox">
-                          <span class="custom-check"></span> Other</label>
-                        <div class="emp-other-expenses has-toolip-arrow">
-                          <label for="Food1" class="custom-checkbox">
-                            <input id="Food1" type="checkbox">
-                            <span class="custom-check"></span> Food</label>
-                          <label for="Food2" class="custom-checkbox">
-                            <input id="Food2" type="checkbox">
-                            <span class="custom-check"></span> Food</label>
-                          <a href="javascript:void(0);" class="add-plus-btn">Add more</a> </div></td>
+                        <td>
+                        <label for="jp_other_expenses_food" class="custom-checkbox">
+                          <input id="jp_other_expenses_food" value="food" name="jp_other_expenses[]" type="checkbox">
+                          <span class="custom-check"></span> Food
+                        </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Food Expences" disabled>
+                      </td>
                     </tr>
+                    <tr>
+                        <td>
+                        <label for="jp_other_expenses_parking" class="custom-checkbox">
+                        <input id="jp_other_expenses_parking" value="parking" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Parking
+                      </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Parking Expences" disabled>
+                      </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        <label for="jp_other_expenses_tolls" class="custom-checkbox">
+                          <input id="jp_other_expenses_tolls" value="tolls" name="jp_other_expenses[]" type="checkbox">
+                          <span class="custom-check"></span> Tolls
+                        </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Tolls Expences" disabled>
+                      </td>
+                    </tr>
+                    <tr>
+                        <td>
+                         <label for="jp_other_expenses_tips" class="custom-checkbox">
+                        <input id="jp_other_expenses_tips" value="tips" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Tips
+                      </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Tips Expences" disabled>
+                      </td>
+                    </tr>
+                    <tr>
+                        <td>
+                       <label for="jp_other_expenses_other" class="custom-checkbox">
+                        <input id="jp_other_expenses_other"  value="other" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Other
+                      </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Other Expences" disabled>
+                      </td>
+                    </tr>
+                      <!-- <label for="jp_other_expenses_parking" class="custom-checkbox">
+                        <input id="jp_other_expenses_parking" value="parking" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Parking
+                      </label>
+                      
+                      <label for="jp_other_expenses_tolls" class="custom-checkbox">
+                        <input id="jp_other_expenses_tolls" value="tolls" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Tolls
+                      </label>
+                      
+                      <label for="jp_other_expenses_tips" class="custom-checkbox">
+                        <input id="jp_other_expenses_tips" value="tips" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Tips
+                      </label>
+                      
+                      <label for="jp_other_expenses_other" class="custom-checkbox">
+                        <input id="jp_other_expenses_other"  value="other" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Other
+                      </label>
+                                  
+                       </td>
+                                          </tr> -->
                   </table>
                 </li>
               </ul>
             </div>
+			
             <div class="emp-preferences">
               <h3>Employee Preferences</h3>
               <div class="employee-type">
                 <h4>Employee Type</h4>
                 <div class="emp-pref-table"><label class="radio-custom">
-                  <input type="radio" name="preferences" value="No preference" id="preferences_1" checked="">
+                  <input type="radio" name="jp_preferences" value="no_preference" id="jp_preferences_no" checked="">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 29 200 142" xml:space="preserve">
                   <g>
                     <path d="M46.534,134.936c0.542,0.43,1.183,0.625,1.819,0.625c0.856,0,1.707-0.365,2.273-1.094c1.013-1.247,0.798-3.08-0.455-4.093
@@ -706,7 +858,7 @@
                   </g>
                   </svg> <span class="label-text">No preference</span> <span class="radio"></span> </label>
                 <label class="radio-custom">
-                  <input type="radio" name="preferences" value="Agency" id="preferences_2">
+                  <input type="radio" name="jp_preferences" value="agency" id="jp_preferences_agency">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" viewBox="154 116 304 575" xml:space="preserve">
                   <g>
                     <g>
@@ -729,7 +881,7 @@
                   </g>
                   </svg> <span class="label-text">Agency</span> <span class="radio"></span> </label>
                 <label class="radio-custom">
-                  <input type="radio" name="preferences" value="independent" id="preferences_3">
+                  <input type="radio" name="jp_preferences" value="independent" id="jp_preferences_independent">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 13 200 175" xml:space="preserve">
 <g>
   <path d="M129.464,115.834l-0.445-0.201c-1.063-0.483-2.135-0.94-3.226-1.367c-1.192-0.479-2.4-0.919-3.628-1.332
@@ -766,58 +918,58 @@
 </svg>  <span class="label-text">independent</span> <span class="radio"></span> </label></div>
               </div>
               <div class="hours-billed">
-                <h4>Hours billed on site</h4>
+                <h4>Jobs completed on Site</h4>
                 <label class="radio-custom">
-                  <input type="radio" name="hoursBilled" value="no preference" id="hoursBilled_1">
+                  <input type="radio" name="jp_jobs_completed" value="no_preference" id="jp_jobs_completed_nopref" checked>
                   <span class="radio"></span> no preference</label>
                 <label class="radio-custom">
-                  <input type="radio" name="hoursBilled" value="1 hour" id="hoursBilled_2">
-                  <span class="radio"></span> 1 hour</label>
+                  <input type="radio" name="jp_jobs_completed" value="1-50" id="jp_jobs_completed_1-50">
+                  <span class="radio"></span>1-50</label>
                 <label class="radio-custom">
-                  <input type="radio" name="hoursBilled" value="10 hour" id="hoursBilled_3">
-                  <span class="radio"></span> 10 hours</label>
+                  <input type="radio" name="jp_jobs_completed" value="50-100" id="jp_jobs_completed_50-100">
+                  <span class="radio"></span>50-100</label>
                 <label class="radio-custom">
-                  <input type="radio" name="hoursBilled" value="100 hour" id="hoursBilled_4">
-                  <span class="radio"></span> 100 hours</label>
+                  <input type="radio" name="jp_jobs_completed" value="100-500" id="jp_jobs_completed_100-500">
+                  <span class="radio"></span>100-500</label>
                 <label class="radio-custom">
-                  <input type="radio" name="hoursBilled" value="500 hour" id="hoursBilled_5">
-                  <span class="radio"></span> 500 hours</label>
+                  <input type="radio" name="jp_jobs_completed" value="above_500" id="jp_jobs_completed_above500">
+                  <span class="radio"></span> Above 500</label>
               </div>
               <div class="row language-industry">
                 <div class="col-md-6">
                   <h4>Language</h4>
-                  <select name="Language" class="input">
-                    <option>English</option>
-                    <option>Please select</option>
-                    <option>Please select</option>
-                    <option>Please select</option>
-                  </select>
+                  <input type="text"  name="jp_language" id="jp_language" class="input" Placeholder="Select language">
+                 <!--  <select name="jp_language" id="jp_language" class="input">
+                   <option>English</option>
+                   <option>Please select</option>
+                   <option>Please select</option>
+                   <option>Please select</option>
+                 </select> -->
                 </div>
                 <div class="col-md-6">
                   <h4>Industry Knowledge</h4>
-                  <input placeholder="" type="text" class="input">
+                  <input name="industry_knowledge" placeholder="Industry Knowledge" id="industry_knowledge" type="text" class="input">
                 </div>
               </div>
               <div class="ask-questions">
                 <h4>Ask question(s)</h4>
-                <textarea name="" cols="" rows="" class="input" placeholder="type question"></textarea>
-                <div class="new-ques-added"> <a href="javascript:void();" class="remove-ques-btn"><span class="sr-only">Remove this question</span><i class="fa fa-times" aria-hidden="true"></i></a>
-                  <textarea name="" cols="" rows="" class="input" placeholder="type question"></textarea>
-                </div>
-                <a href="javascript:void();" class="add-ques-btn btn btn-blue">Add question</a> </div>
+                <div class="new-ques-added">
+                <textarea name="quiestions[]" cols="" rows="" class="input" placeholder="type question"></textarea></div>
+               
+                <a href="javascript:void(0)" onclick="functionToAddQuiestions();" class="add-ques-btn btn btn-blue">Add question</a> </div>
               <div class="type-of-employees">
                 <h4>Type of employees </h4>
                 <label class="radio-custom">
-                  <input type="radio" name="empType" value="no preference" id="empType_1">
+                  <input type="radio" name="jp_emp_type" value="anyone" id="jp_emp_type_anyone" checked>
                   <span class="radio"></span> anyone</label>
                 <label class="radio-custom">
-                  <input type="radio" name="empType" value="no preference" id="empType_2">
+                  <input type="radio" name="jp_emp_type" value="invite_only" id="jp_emp_type_anyone_invite">
                   <span class="radio"></span> invite only</label>
               </div>
             </div>
             <div class="job-post-btns">
-              <button type="submit" class="btn btn-blue">Post job</button>
-              <button type="submit" class="btn btn-gray">Post job</button>
+              <button type="button" class="btn btn-blue preview-jobpost">Preview</button>
+              <button type="submit" class="btn btn-gray" onclick="postingAJob();">Post job</button>
             </div>
           </form>
         </section>
@@ -825,3 +977,9 @@
     </div>
   </section>
 </main>
+<?php 
+if(isset($postedJob)) {
+  ?>
+  <?php
+}
+ ?>

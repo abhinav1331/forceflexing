@@ -51,19 +51,18 @@
               </div>
               <div class="col-sm-6">
                 <select name="country">
-                  <option>India</option>
-                  <option>Australia</option>
-                  <option>Canada</option>
+				  <?php echo $instance->countries->show_countries(); ?>
                 </select>
+              
               </div>
               <div class="col-sm-6">
                 <input name="email" type="text" value="<?php if(isset($_POST['email'])): echo $_POST['email']; endif; ?>" placeholder="Email">
               </div>
               <div class="col-sm-6">
-                <input name="password" id="password" type="text" value="<?php if(isset($_POST['pass'])): echo $_POST['pass']; endif; ?>"  placeholder="Password">
+                <input name="password" id="password" type="password" value="<?php if(isset($_POST['pass'])): echo $_POST['pass']; endif; ?>"  placeholder="Password">
               </div>
               <div class="col-sm-6">
-                <input name="con_pass" value="<?php if(isset($_POST['con_pass'])): echo $_POST['con_pass']; endif; ?>" type="text" placeholder="Confirm Password">
+                <input name="con_pass" value="<?php if(isset($_POST['con_pass'])): echo $_POST['con_pass']; endif; ?>" type="password" placeholder="Confirm Password">
               </div>
 			  <input type="hidden" name="user_role" value="employer">
               <div class="col-sm-12">

@@ -141,15 +141,17 @@ class Model
 				}
 			$x++;
 		}	
-
 		$this->beginTransaction();	
 		$this->query("INSERT INTO $table ($keys) VALUES($values)");
 		foreach($data as $ke => $vals)
 		{
 			$this->bind(':'.$ke.'',$vals);
 		}
-		$this->execute();		
-		return $last_id = $this->lastInsertId();	// Get last Inserted Record Id
+		$this->execute();	
+		$last_id = $this->lastInsertId();	// Get last Inserted Record Id
+			$this->cancelTransaction();	
+			return $last_id;
+		
 	
 	}
 	
@@ -167,6 +169,22 @@ class Model
 		$this->query("SELECT * FROM $table");
 		return $result = $this->resultset();
 	}
+	//get the table record with simple where condition
+	public function get_table_data($table,$field,$value,$order="DESC")
+	{
+		if($table == "flex_roles")
+			$orderby="roleid";
+		else
+			$orderby="id";
+		$this->query("SELECT * FROM `".$table."` WHERE `".$field."` = '".$value."' order by ".$orderby." ".$order."");
+		return $result = $this->resultset();
+	}
+	
+	public function custom_where($where,$table)
+	{
+		$this->query("SELECT * FROM `".$table."` WHERE $where");
+		return $result = $this->resultset();
+	}
 	
 	public function get_record_count($table,$field,$value)
 	{
@@ -174,11 +192,16 @@ class Model
 		$result = $this->resultset();
 		return $testing = $this->rowCount();
 	}
-	
+	public function get_record_count1($table,$field,$value)
+	{
+		$this->query("SELECT * FROM $table WHERE `$field` Like '%".$value."%'");
+		$result = $this->resultset();
+		return $testing = $this->rowCount();
+	}
+			
 	//update data for a table
 	public function update($data,$wherekey,$whereval,$table)
 	{
-		
 		/* update function */
 		$updata ='';	
 		$total = count($data);
@@ -187,32 +210,121 @@ class Model
 		{
 			if($x==$total)
 				{	
-					$updata .=$key.'="'. $val.'"'; 	
+					$updata .=$key."='". $val."'"; 	
 				}
 			else
 				{	
-					$updata .=$key.'="'. $val.'",'; 
+					$updata .=$key."='". $val. "',"; 
 				}
 			$x++;
 		}
 		$query='UPDATE '.$table.' SET ' .$updata.' WHERE '.$wherekey.' = "'.$whereval.'"';
 		$this->beginTransaction();	
 		$this->query($query);
-		$this->execute();		
+		$this->execute();
+		$this->endTransaction();			
 	}
 	
 	//fetch a particular column
 	public function get_single_row_columns($column,$wherekey, $whereval,$table)
 	{
+	
 		if(is_array($column))
 			$columns=implode(",",$column);
 		else
 			$columns=$column;
 		$query=$this->query("SELECT $columns FROM $table  WHERE  $wherekey = :id");
+	
 	    $this->bind(':id',$whereval);
 		return $row= $this->single();
 	}
+
+	public function get_single_row_columns1($column,$wherekey, $whereval,$table)
+	{
+		$query=$this->query("SELECT $column FROM $table  WHERE  $wherekey = $whereval");
+		return $row= $this->resultset();
+	}
+	public function get_Double_row_columns($column,$wherekey1, $whereval1,$wherekey, $whereval,$table)
+	{
+		$query=$this->query("SELECT $column FROM $table  WHERE  `$wherekey` = '$whereval' AND `$wherekey1` = '$whereval1'");
+		return $row= $this->resultset();
+	}
 	
+	public function login_user($email)
+	{
+		$login_user_data=$this->get_single_row('username',$email,PREFIX.'users');
+		return $login_user_data;
+	}
+	
+	public function get_filterjob($table, $searchItem , $userId , $jobType , $fixedRange , $hourlyRange , $experianceLevel , $travelDistance , $projectDuration)
+	{
+		$string="";
+		if ($searchItem != "") 
+		{
+			$string .= "`job_title`  LIKE '%".$searchItem."%' OR `job_description` LIKE '%".$searchItem."%'"."&&  ";
+		}
+		if ($jobType != "") 
+		{
+			$string .= "`job_type` = '".$jobType."' &&";
+		}
+		$string.= "`job_visibility` = 'anyone'";
+		$qry="SELECT * FROM $table where ".$string."";
+		$this->query($qry);
+		return $result = $this->resultset();	
+		//return $table.$searchItem.$userId.$jobType.$fixedRange.$hourlyRange.$experianceLevel.$travelDistance.$projectDuration;
+	}
+	public function data_filter($query)
+	{
+		$this->query($query);
+		return $result = $this->resultset();	
+	}
+	
+	public function get_all_mul_cond($where_cond,$table,$order)
+	{
+		$where ='';	
+		$total = count($where_cond);
+		$x = 1;
+		foreach($where_cond as $key => $val)
+		{
+			if($x==$total)
+				{	
+					$where .=$key."='". $val."'"; 	
+				}
+			else
+				{	
+					$where .=$key."='". $val. "' and "; 
+				}
+			$x++;
+		}
+		if($table == "flex_roles")
+			$orderby="roleid";
+		else
+			$orderby="id";
+		
+		$query='select * from '.$table.' where '.$where.' order by '.$orderby.' '.$order.'';
+		$this->query($query);
+		return $result = $this->resultset();	
+	}
+
+
+	public function check_CConversation_id($table,$wherevalue,$wherevalue2)
+	{
+		$this->query("SELECT * FROM $table Where `conv_to` = $wherevalue AND `conv_from` = $wherevalue2");
+		return $result = $this->resultset();
+	}
+
+	public function check_ccontractor_saved_check($table,$wherevalue,$wherevalue2)
+	{
+		$this->query("SELECT * FROM $table Where `contractor_id` = $wherevalue AND `job_id` = $wherevalue2");
+		return $result = $this->resultset();
+	}
+
+	public function delete_all_record($table , $column , $value)
+	{
+		echo $query="DELETE From `".$table."` WHERE `".$column."` = '".$value."'";
+		$this->query($query);
+		$this->execute();
+	}
 	
 }//end class db
 

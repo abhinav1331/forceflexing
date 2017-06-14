@@ -7,50 +7,63 @@ class Registration extends Controller
 	public $Linkedin;	
 	public $session;	
 	public $SendMail;
+	public $countries;
 	public function __construct()
 	{
 		$loader =  array(
 			'api_key' => '81l4b3asq8ir1j', 
 			'api_secret' => 'DGdLucwPsfVF9CBc', 
-			'callback_url' => 'http://force.imarkclients.com/registration/linkedin/'
+			'callback_url' => 'http://force.imarkclients.com/registration/register/'
 		);
 
 		$this->Validator = $this->loadHelper('validator');
 		$this->session = $this->loadHelper('session_helper');
 		$this->Model = $this->loadModel('Registration_Model');
+		$this->LModel = $this->loadModel('Login_Model');
 		$this->LinkedIn = $this->loadHelper('linkedin', $loader);
 		$this->SendMail=$this->loadHelper('sendmail');
-		
+		$this->countries = $this->loadHelper('options');
 	}
 	
 	public function contractor()
 	{
-		$postdata=array();
-		$code=array();
-		$key=array();
-		// $url = $this->LinkedIn->getLoginUrl(
-			// array(
-				// LinkedIn::SCOPE_BASIC_PROFILE, 
-				// LinkedIn::SCOPE_EMAIL_ADDRESS, 
-				// LinkedIn::SCOPE_COMPANY_ADMIN, 
-				// LinkedIn::SCOPE_WRITE_SHARE
-			// )
-		// );
-		
-		$type='contractor';
-		if(isset($_POST['registration']))
-		{	
-			$postdata=$_POST;
-		}
-		if(isset($_GET['code']))
+		if(isset($_SESSION['registered_user']) ) 
 		{
-			$code=$_REQUEST['code'];
+			if($_SESSION['registered_user'] == "true")
+			{
+				$user_role = $_SESSION['linkedin'];
+				unset($_SESSION['name']);
+				$this->load_view('Thanks for your registration!!',$user_role,'success');
+			}
+		} else {
+			
+			$postdata=array();
+			$code=array();
+			$key=array();
+			// $url = $this->LinkedIn->getLoginUrl(
+				// array(
+					// LinkedIn::SCOPE_BASIC_PROFILE, 
+					// LinkedIn::SCOPE_EMAIL_ADDRESS, 
+					// LinkedIn::SCOPE_COMPANY_ADMIN, 
+					// LinkedIn::SCOPE_WRITE_SHARE
+				// )
+			// );
+			
+			$type='contractor';
+			if(isset($_POST['registration']))
+			{	
+				$postdata=$_POST;
+			}
+			if(isset($_GET['code']))
+			{
+				$code=$_REQUEST['code'];
+			}
+			if(isset($_GET['key']))
+			{
+				$key=array("key" => $_GET['key'],"key_email" => $_GET['email']);
+			}
+			$this->register($type,$postdata,$code,$key);
 		}
-		if(isset($_GET['key']))
-		{
-			$key=array("key" => $_GET['key'],"key_email" => $_GET['email']);
-		}
-		$this->register($type,$postdata,$code,$key);
 	}
 	
 	public function validate_cont()
@@ -61,7 +74,7 @@ class Registration extends Controller
 		
 		/*	Validation Rules FOr data Posted  */
 		$this->Validator->validation_rules(array(
-				'first_name'    => 'required|alpha_numeric|max_len,100|min_len,6',
+				'first_name'    => 'required|alpha_numeric|max_len,100',
 				'password'    => 'required|max_len,100|min_len,6',
 				'email'       => 'required|valid_email', 				
 			));
@@ -79,31 +92,42 @@ class Registration extends Controller
 	
 	public function employer()
 	{
-		$type='employer';
-		$postdata=array();
-		$code=array();
-		$key=array();
-		if(isset($_POST['registration']))
-		{	
-			$postdata=$_POST;
-		}
-		if(isset($_GET['code']))
-		{
-			$code=$_REQUEST['code'];
-		}
-		if(isset($_GET['key']))
-		{
-			$key=array("key" => $_GET['key'],"key_email" => $_GET['email']);
-		}
+		if(isset($_SESSION['registered_user'])) {
+			$user_role = $_SESSION['linkedin'];
+			
+			$this->load_view('Thanks for your registration!!',$user_role,'success');
+			unset($_SESSION['name']);
+		} else {
+			$type='employer';
+			$postdata=array();
+			$code=array();
+			$key=array();
+			if(isset($_POST['registration']))
+			{	
+				$postdata=$_POST;
+			}
+			if(isset($_GET['code']))
+			{
+				$code=$_REQUEST['code'];
+			}
+			if(isset($_GET['key']))
+			{
+				$key=array("key" => $_GET['key'],"key_email" => $_GET['email']);
+			}
 		$this->register($type,$postdata,$code,$key);
+		}
 	}
-	public function linkedin() 
+	/*public function linkedin() 
 	{
 		if ($_SESSION['linkedin'] == "employer") {
 			if(isset($_GET['code'])) {
 			$token = $this->LinkedIn->getAccessToken($_REQUEST['code']);
 			$token_expires = $this->LinkedIn->getAccessTokenExpiration();
 			$info = $this->LinkedIn->get('/people/~:(id,email-address,first-name,last-name,location,picture-url,public-profile-url,formatted-name,positions)');
+			echo "<pre>";
+			print_r($info);
+			echo "</pre>";
+			die();
 			$_SESSION['myData'] = $info;
 			$_SESSION['myData']['positions']['values']['0']['company']['name'];
 			 $data =  array(
@@ -150,7 +174,7 @@ class Registration extends Controller
 
 		}
 		}
-	}
+	}*/
 	public function success()
 	{
 			$email=$this->session->get('current_user');
@@ -160,57 +184,89 @@ class Registration extends Controller
 			$role_name=strtolower($role['role_name']);
 			if($role_name =="contractor")
 			{
-				$this->loadview('main/header')->render();
-				$this->loadview('contractor/job_search/navigation')->render();
-				$this->loadview('contractor/job_search/index')->render();	
-				$this->loadview('main/footer')->render();
+				$this->redirect('contractor/find_job');
 			}
 			if($role_name == "employer")
 			{
-				$this->loadview('main/header')->render();
-				$this->loadview('Employer/postjob/navigation')->render();
-				$this->loadview('Employer/postjob/index')->render();	
-				$this->loadview('main/footer')->render();
+				$this->redirect('postjob/');
 			}
 	}
 	
-	public function register($type,$postdata='',$code='',$key='')
-	{
-		
+	public function register($type,$postdata='',$code='',$key='') {
 		//fetch the role id
-		$url = $this->LinkedIn->getLoginUrl(
-			array(
-				LinkedIn::SCOPE_BASIC_PROFILE, 
-				LinkedIn::SCOPE_EMAIL_ADDRESS, 
-				LinkedIn::SCOPE_COMPANY_ADMIN, 
-				LinkedIn::SCOPE_WRITE_SHARE
-			)
-		);
-		if(isset($code) && !empty($code)) 
-		{
-			print_r($code);
-			exit();
-			$token = $this->LinkedIn->getAccessToken($code);
-			$token_expires = $this->LinkedIn->getAccessTokenExpiration();
-			$info = $this->LinkedIn->get('/people/~:(id,email-address,first-name,last-name,location,picture-url,public-profile-url,formatted-name,positions)');
-			$_SESSION['myData'] = $info;
-			$_SESSION['myData']['positions']['values']['0']['company']['name'];
-			 $data =  array(
-				 'first_name'=>$_SESSION['myData']['firstName'], 
-				 'last_name'=>$_SESSION['myData']['lastName'], 
-				 'company_name'=>$_SESSION['myData']['positions']['values']['0']['company']['name'],
-				 'country'=>$_SESSION['myData']['location']['country']['code'],
-				 'email'=>$_SESSION['myData']['emailAddress'],
-				 'password'=>$_SESSION['myData']['id'],
-				 'role'=>'contractor',
-				 'connected_with'=>'LINKEDIN',
-				 'created_date'=>date("Y-m-d"),
-				 'modified_date'=>date("Y-m-d"),
-				 'is_verified'=>'1',
-				 'username'=>$_SESSION['myData']['id']
-			);
-				$Results = $this->Model->Insert_users($data,'flex_users');	 			//Calling Model Function to Insert Value in Table
-				$this->redirect('registration/success');
+		if(isset($_REQUEST['code']) && !empty($_REQUEST['code'])) {
+			if($_SESSION['linkedin'] == "Login") {
+				$token = $this->LinkedIn->getAccessToken($_REQUEST['code']);
+				$token_expires = $this->LinkedIn->getAccessTokenExpiration();
+				$info = $this->LinkedIn->get('/people/~:(id,email-address,first-name,last-name,location,picture-url,public-profile-url,formatted-name,positions)');
+				$_SESSION['myData'] = $info;
+				$_SESSION['myData']['positions']['values']['0']['company']['name'];
+				$datarecord22 = $this->LModel->Check_loggin_credentials(PREFIX.'users','email',$_SESSION['myData']['emailAddress']);
+				if(count($datarecord22) == 0) {
+					$message = "User Not Registered";
+					$this->loadview('main/header')->render();
+					$this->loadview('Employer/signup/navigation')->render();			
+					$template = $this->loadview('home/login-new');
+					$template->set('error',$message);
+					$template->set('instance',$this);
+					$template->render();
+					$this->loadview('main/footer')->render();
+				} else {
+						setcookie('force_username', $datarecord22[0]['username'], time()+60*60*24*90);
+						setcookie('force_password', $datarecord22[0]['password'], time()+60*60*24*90);
+						$_SESSION['force_username'] = $datarecord22[0]['username'];
+						$_SESSION['force_password'] = $datarecord22[0]['password'];
+						$role = $datarecord22[0]['role'];
+							if($role == 3) {
+								$this->redirect('contractor/find_job');
+							} elseif($role == 2) {
+								$this->redirect('employer/job_report');
+							}
+				}
+			} else {
+				if($_SESSION['linkedin'] == "contractor") { $role= 3; } else { $role = 2; }
+				$token = $this->LinkedIn->getAccessToken($_REQUEST['code']);
+				$token_expires = $this->LinkedIn->getAccessTokenExpiration();
+				$info = $this->LinkedIn->get('/people/~:(id,email-address,first-name,last-name,location,picture-url,public-profile-url,formatted-name,positions)');
+				$_SESSION['myData'] = $info;
+				$_SESSION['myData']['positions']['values']['0']['company']['name'];
+				 $data =  array(
+					 'first_name'=>$_SESSION['myData']['firstName'], 
+					 'last_name'=>$_SESSION['myData']['lastName'], 
+					 'company_name'=>$_SESSION['myData']['positions']['values']['0']['company']['name'],
+					 'country'=>$_SESSION['myData']['location']['country']['code'],
+					 'email'=>$_SESSION['myData']['emailAddress'],
+					 'password'=>$_SESSION['myData']['id'],
+					 'role'=>$role,
+					 'connected_with'=>'LINKEDIN',
+					 'created_date'=>date("Y-m-d"),
+					 'modified_date'=>date("Y-m-d"),
+					 'is_verified'=>'1',
+					 'username'=>$_SESSION['myData']['id']
+				);
+					$user_role = $_SESSION['linkedin'];
+					$_SESSION['registered_user'] = "True";
+					$datarecord = $this->LModel->Check_loggin_credentials(PREFIX.'users','email',$_SESSION['myData']['emailAddress']);
+					if(count($datarecord) == 0) {
+						$Results = $this->Model->Insert_users($data,'flex_users');	 			//Calling Model Function to Insert Value in Table
+						$this->redirect('registration/'.$user_role);
+					//$this->load_view('Thanks for your registration!!',$user_role,'success');
+					} else {
+						$datarecord11 = $this->LModel->Check_loggin_credentials(PREFIX.'users','email',$_SESSION['myData']['emailAddress']);
+						$role = $datarecord11[0]['role'];
+						setcookie('force_username', $datarecord11[0]['username'], time()+60*60*24*90);
+						setcookie('force_password', $datarecord11[0]['password'], time()+60*60*24*90);
+						$_SESSION['force_username'] = $datarecord11[0]['username'];
+						$_SESSION['force_password'] = $datarecord11[0]['password'];
+
+						if($role == 3) {
+							$this->redirect('contractor/find_job');
+						} elseif($role == 2) {
+							$this->redirect('employer/job_report');
+						}
+					}
+			}
+				
 
 		}
 		if(isset($postdata) && !empty($postdata))
@@ -266,11 +322,11 @@ class Registration extends Controller
 						$file=APP_DIR.'email_templates/registration_success.html';
 						$emailBody = file_get_contents($file);
 						$search  = array('[[fname]]', '[[lname]]','[[username]]','[[country]]','[[email]]','[[pagelink]]');
-						$replace = array($row['first_name'],$row['last_name'],$row['username'],$row['country'],$row['email'], SITEURL.'/registration/contractor/?email='.$row['email'].'&key='.$row['token']);
+						$replace = array($row['first_name'],$row['last_name'],$row['username'],$row['country'],$row['email'], SITEURL.'registration/'.$user_role.'/?email='.$row['email'].'&key='.$row['token']);
 						$emailBody  = str_replace($search, $replace, $emailBody);
 						
 						//send mail
-						$this->SendMail->setparameters($row['email'],'Registration','sc7618009@gmail.com',$emailBody);
+						$this->SendMail->setparameters($row['email'],'Registration',$emailBody);
 						$this->load_view('Thanks for your registration!! Kindly Confirm your Email by clicking on the link we sent you.',$user_role,'success');
 					}				
 				}
@@ -292,10 +348,16 @@ class Registration extends Controller
 			$keys=$key['key'];
 			$key_email=$key['key_email'];
 			
-			$token=$this->Model->Get_column('token','email',$key_email,PREFIX.'users');
+			$userdata=$this->Model->Get_row('email',$key_email,PREFIX.'users');
 			//if token matches
-			if($token['token'] == $keys)
+			if($userdata['token'] == $keys)
 			{
+				/*set cookie and session*/
+				setcookie('force_username', $userdata['username'], time()+60*60*24*90);
+				setcookie('force_password', $userdata['password'], time()+60*60*24*90);
+				$_SESSION['force_username'] = $userdata['username'];
+				$_SESSION['force_password'] = $userdata['password'];
+				
 				//update data and redirect
 				$new_token=md5($key_email.rand(1000,9999));
 				//update token with the new token
@@ -306,18 +368,29 @@ class Registration extends Controller
 			}
 			else
 			{
+				$role=$userdata['role'];
+				$user_role=$this->Model->Get_column('role_name','roleid',$role,PREFIX.'roles');
 				$error="Sorry!! Your key has expired!!";
-				$this->load_view($error,$user_role);
+				$this->load_view($error,$user_role['role_name']);
 			}
 		}
 		else
 		{
+			$url = $this->LinkedIn->getLoginUrl(
+				array(
+					LinkedIn::SCOPE_BASIC_PROFILE, 
+					LinkedIn::SCOPE_EMAIL_ADDRESS, 
+					LinkedIn::SCOPE_COMPANY_ADMIN, 
+					LinkedIn::SCOPE_WRITE_SHARE
+				)
+			);
 			if($type=="employer")
 			{
 				$this->loadview('main/header')->render();
 				$this->loadview('Employer/signup/navigation')->render();			
 				$template = $this->loadview('Employer/signup/index');
 				$template->set("url" , $url);
+				$template->set("instance",$this);
 				$template->render();	
 				$this->loadview('main/footer')->render(); 
 			}
@@ -327,6 +400,10 @@ class Registration extends Controller
 				$this->loadview('contractor/signup/navigation')->render();			
 				$template = $this->loadview('contractor/signup/index');	
 				$template->set("url",$url);
+				$template->set("instance",$this);
+				/*get the categories*/
+				$categories=$this->Model->Get_all_data(PREFIX.'categories');
+				$template->set("categories",$categories);
 				$template->render();
 				$this->loadview('main/footer')->render();
 			}
@@ -343,9 +420,16 @@ class Registration extends Controller
 			$this->loadview('contractor/signup/navigation')->render();
 			$template = $this->loadview('contractor/signup/index');	
 			if($success != "")
+			{
 				$template->set('success',$message);
+			}
 			else
+			{
+				$categories=$this->Model->Get_all_data(PREFIX.'categories');
+				$template->set("categories",$categories);
 				$template->set('errors',$message);
+			}
+			$template->set('instance',$this);
 			$template->render();
 		}
 		if($viewof =="employer")
@@ -356,6 +440,7 @@ class Registration extends Controller
 				$template->set('success',$message);
 			else
 				$template->set('errors',$message);
+			$template->set('instance',$this);
 			$template->render();
 		}
 		$this->loadview('main/footer')->render();

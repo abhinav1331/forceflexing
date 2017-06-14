@@ -20,18 +20,7 @@ function force()
 	$segments = explode('/', $url);
 	
 	// Do our default checks
-	if(isset($segments[0]) && $segments[0] != '')
-	{
-		if($segments[0] == 'admin' || $segments[0] == 'portal')
-		{
-			$controller = 'admin/admin';
-		}
-		else
-		{
-			$controller = $segments[0];
-		}
-		
-	}
+	if(isset($segments[0]) && $segments[0] != '') $controller = $segments[0];
 		
 	if(isset($segments[1]) && $segments[1] != '') $action = $segments[1];
 
@@ -40,6 +29,7 @@ function force()
 	if(file_exists($path)){
         require_once($path);
 	} else {
+		echo $path;
         $controller = $config['error_controller'];
         require_once(APP_DIR . 'controllers/' . $controller . '.php');
 	}

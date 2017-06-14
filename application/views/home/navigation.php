@@ -10,7 +10,7 @@
           <li><a href="#work">how it works</a></li>
           <li><a href="#">employers</a></li>
           <li><a href="#">contractor</a></li>
-          <li class="login"><a href="#"><i class="fa fa-sign-in" aria-hidden="true"></i> log-in</a></li>
+          <li class="login"><a href="<?php BASE_URL?>login"><i class="fa fa-sign-in" aria-hidden="true"></i> log-in</a></li>
         </ul>
       </div>
     </nav>

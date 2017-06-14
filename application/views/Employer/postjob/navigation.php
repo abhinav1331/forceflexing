@@ -42,7 +42,7 @@
           <li><a href="#"><i class="fa fa-user" aria-hidden="true"></i> Profile</a></li>
           <li><a href="#"><i class="fa fa-info-circle" aria-hidden="true"></i> Help</a></li>
           <li><a href="#"><i class="fa fa-cog" aria-hidden="true"></i> Settings</a></li>
-          <li><a href="#"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a></li>
+          <li><a href="<?php echo BASE_URL; ?>logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a></li>
         </ul>
       </div>
     </div>

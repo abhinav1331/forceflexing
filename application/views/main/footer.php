@@ -47,9 +47,36 @@
 <script src="<?php  echo BASE_URL;?>static/js/bootstrap.min.js"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/placeholders/4.0.1/placeholders.min.js"></script> 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.6/owl.carousel.min.js"></script> 
-<script src="<?php  echo BASE_URL;?>static/js/nicescroll.min.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.6/owl.carousel.min.js"></script>
 <script src="<?php  echo BASE_URL;?>static/js/jquery.validate.min.js"></script>
+<script src="<?php  echo BASE_URL;?>static/js/form.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+
+<script src="<?php  echo BASE_URL;?>static/js/jquery.timepicker.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="<?php  echo BASE_URL;?>static/js/toastr.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.2.0/nouislider.min.js"></script>
+<script src="<?php  echo BASE_URL;?>static/js/nicescroll.min.js"></script>
+<script src="<?php  echo BASE_URL;?>static/js/bootstrap-toggle.js"></script>
+<?php  if(isset($additional)){	echo $additional;	} ?>
+<!--<script src="<?php  //echo BASE_URL;?>static/js/location.js"></script>-->
+<?php 
+if(isset($job_activities)){
+  $i = 1;
+  foreach($job_activities as $job_activi) {
+  ?>
+  <script>
+  // getReadySession('activityReunion<?php echo $i; ?>','<?php echo $job_activi["state"]; ?>','<?php echo $job_activi["city"]; ?>');
+  </script>
+  <?php
+  $i++;
+  }
+}
+ ?>
+
 <script src="<?php  echo BASE_URL;?>static/js/custom.js"></script>
+<script src="<?php  echo BASE_URL;?>static/js/custom-abhinav.js"></script>
+<script src="<?php  echo BASE_URL;?>static/js/custom-chhavi.js"></script>
+
 </body>
 </html>

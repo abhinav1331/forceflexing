@@ -19,12 +19,14 @@ require(APP_DIR .'config/config.php');
 require(ROOT_DIR .'system/model.php');
 require(ROOT_DIR .'system/view.php');
 require(ROOT_DIR .'system/controller.php');
+require(ROOT_DIR .'system/backend.php');
 require(ROOT_DIR .'system/force.php');
 
 // Define base URL
 global $config;
 define('BASE_URL', $config['base_url']);
-
+define('ABSPATH', dirname(__FILE__));
 force();
+
  
 ?>
