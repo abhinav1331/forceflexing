@@ -67,7 +67,7 @@ else
 					}
 					?>
 				<input type="hidden" name="fixedRange" id="fixedRange" class="filter" value="">
-                <p>$<span id="ff-slider-value-min-fixed"><?=$range[0];?></span> to $<span id="ff-slider-value-max-fixed"><?=$range[1];?></span></p>
+                <p>$<span id="ff-slider-value-min-fixed"><?php echo $range[0];?></span> to $<span id="ff-slider-value-max-fixed"><?php echo $range[1];?></span></p>
                 <div id="ff-range-slider-fixed"></div>
               </div>
 			  
@@ -85,7 +85,7 @@ else
 					}
 					?>
 				<input type="hidden" name="hourlyRange" id="hourlyRange" class="filter" value="">
-                <p>$<span id="ff-slider-value-min"><?=$rangee[0];?></span> to $<span id="ff-slider-value-max"><?=$rangee[1];?></span> Per Hour</p>
+                <p>$<span id="ff-slider-value-min"><?php echo $rangee[0];?></span> to $<span id="ff-slider-value-max"><?php echo $rangee[1];?></span> Per Hour</p>
                 <div id="ff-range-slider"></div>
               </div>
 			  

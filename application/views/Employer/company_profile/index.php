@@ -1,571 +1,184 @@
- <main role="main">
-        <section class="page-wrap companyProfile">
-            <div class="container">
-                <div class="page-main">
-                    <aside class="main-page-body">
-                        <h2>Company profile / setting Information:</h2>
-                        <form id="company_profile" name="company_profile" method="POST" action="">
-                            <div class="companyInfo">
-                                <h3>Company Info </h3>
-                                <div class="row">
-                                    <div class="form-group col-sm-7">
-                                        <div class="formElements">
-                                            <div class="formLabel">
-                                                <p>Company Name</p>
-                                            </div>
-                                            <div class="formFields">
-                                                <input name="company_name" id="company_name" type="text" class="input" value="<?php echo (!empty($userdata) && isset($userdata['company_name']))? $userdata['company_name'] :"";?>"> </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formLabel">
-                                                <p>Company Address</p>
-                                            </div>
-                                            <div class="formFields">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                       <select name="company_country" id="company_country" class="input">
-															<?php echo $instance->options->show_countries($userdata['country']);?>
-														</select>
-													</div>
-													<div class="col-md-6">
-                                                       <!-- <input name="company_state"  id="company_state" type="text" class="input" placeholder="State">-->
-														 <select name="company_state" id="company_state" class="input">
-															<?php echo $instance->get_states($userdata['country']);?>
-														</select>
-													</div>
-													<div class="col-md-6">
-														<select name="company_city" id="company_city" class="input">
-															<option value="">Select City</option>
-														</select>
-													</div>
-													<div class="col-md-6">
-                                                        <input name="company_zip" id="company_zip" type="text" class="input" placeholder="Zip"> 
-													</div>
-												</div>
-                                            </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formLabel">
-                                                <p>Contact Information</p>
-                                            </div>
-                                            <div class="formFields">
-												<?php 
-													$company_email='';
-													if(isset($userdata['email']) and !empty($userdata['email'])){		
-													$company_email=$userdata['email'];	
-													}
-													?> 
-													
-                                                <input name="company_email" id="company_email" type="email" class="input" value="<?php echo $company_email;?>" placeholder="Email"> </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formLabel">
-                                                <p>Company Information</p>
-                                            </div>
-                                            <div class="formFields">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <input name="business_desc" id="business_desc" type="text" class="input" placeholder="Business Description"> </div>
-                                                    <div class="col-md-6">
-                                                        <input name="company_website" id="company_website" type="text" class="input" placeholder="Website"> </div>
-                                                    <div class="col-md-12">
-                                                        <input name="company_link"  id="company_link" type="text" class="input" placeholder="About us Link"> </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formLabel">
-                                                <p>Contact VAT</p>
-												
-                                            </div>
-                                            <div class="formFields">
-                                                <input name="vat" id="vat" type="text" class="input" placeholder=""> </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-sm-5">
-                                        <h4>Company Contact</h4>
-                                        <div class="formElements">
-                                            <div class="formFields">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-													<?php 
-													$firstname='';
-													if(isset($userdata['first_name']) and !empty($userdata['first_name'])){		
-													$firstname=$userdata['first_name'];	
-													}
-													?> 
-													
-                                                        <input name="company_first_name" id="company_first_name" type="text" class="input" placeholder="First Name" value="<?php echo $firstname; ?>"> </div>
-                                                    <div class="col-md-6">
-													<?php 
-													$last_name='';
-													if(isset($userdata['last_name']) and !empty($userdata['last_name']))
-													{		
-														$last_name=$userdata['last_name'];	
-													}
-													?> 
-                                                        <input name="company_last_name" id="company_last_name" value="<?php echo $last_name; ?>" type="text" class="input" placeholder="Last Name"> </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formFields">
-										
-                                                <input name="company_address_1" id="company_address_1" type="text" class="input" placeholder="Address 1"> 
-											 </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formFields">
-                                                <input name="company_address_2" id="company_address_2" type="text" class="input" placeholder="Address 2"> 
-											</div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formFields">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <input name="company_mobile_phone" type="text" class="input" placeholder="Mobile Phone"> </div>
-                                                    <div class="col-md-6">
-                                                        <input name="company_landline" id="company_landline" type="text" class="input" placeholder="Landline"> </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formFields">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <input name="company_linkedin_link" id="company_linkedin_link" type="text" class="input" placeholder="LinkedIn Link"> </div>
-                                                    <div class="col-md-6">
-                                                        <input name="company_facebook_link" id="company_facebook_link" type="text" class="input" placeholder="Facebook Link"> </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formFields">
-                                                <select name="company_industries" id="company_industries" class="input">
-                                                  <option value="">Select Industuries</option>
-												  <?php 
-													if(!empty($industries)) 
-													{
-														foreach($industries as $industry)
-														{
-															?>
-															<option value="<?=$industry['id'];?>"><?=$industry['industries_name'];?></option>
-															<?php
-														}
-													}
-												  ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="billingMethod">
-                                <h3>Billing Method </h3>
-                                <div class="methodRow">
-                                    <div class="bmType"><img src="<?php echo BASE_URL; ?>static/images/bank-icon.png" alt="Bank"></div>
-                                    <div class="bmDetails">
-                                        <input name="company_bank_account" id="company_bank_account" type="text" class="input" placeholder="Bank Account"> </div>
-                                    <div class="bmAction"> <a href="#" class="btn btn-blue btn-small">Edit</a></div>
-                                </div>
-								
-								<!--Add Details for bank account-->
-								<div class="methodRow" id="bank_account_details">
-									<div class="bmDetails edit-row" style="">
-										 <div class="row">
-											  <div class="col-md-4">
-												<input name="account_holder_name" id="account_holder_name" type="text" class="input" placeholder="Account Holder Name"> 
-											  </div>
-																			 
-											 <div class="col-md-4">
-												<input name="account_number" id="account_number" type="text" class="input" placeholder="Bank Account">
-											 </div>
-												
-											 <div class="col-md-4">
-												<input name="ifsc_code" id="ifsc_code" type="text" class="input" placeholder="<?=($userdata['country']=="US") ?'ABA Number': 'SWIFT/BIC code';?>"> 
-											 </div>
-																			 
-											 <div class="col-md-4">
-												<input name="bank_name" id="bank_name" type="text" class="input" placeholder="Bank Name"> 
-											 </div>
-																			 
-											 <div class="col-md-4">
-												<input name="bank_address" id="bank_address" type="text" class="input" placeholder="Bank Address">
-											 </div>
-																			 
-											 <div class="col-md-4">
-												<input name="optional_code" id="optional_code" type="text" class="input" placeholder="<?=($userdata['country']=="US") ?'SWIFT/BIC code': 'Routing Code';?>">			  
-											 </div>
-										</div>    
-									</div>
-								</div>
-								
-                                <div class="methodRow">
-                                    <div class="bmType"><img src="<?php echo BASE_URL; ?>static/images/credit-card-icon.png" alt="Credit Card"></div>
-                                    <div class="bmDetails">
-                                        <input name="company_credit_account" id="company_credit_account" type="text" class="input" placeholder="Credit Card"> </div>
-                                    <div class="bmAction"> <a href="#" class="btn btn-blue btn-small">Edit</a></div>
-                                </div>
-								
-								<!--Add Details for Credit Card-->
-								<div class="methodRow" id="credit_details">
-									<div class="bmDetails edit-row" style="">
-										 <div class="row">
-											  <div class="col-md-4">
-												<input name="card_number" id="card_number" type="text" class="input" placeholder="Card Number"> 
-											  </div>
-																			 
-											 <div class="col-md-4">
-												<input name="card_fname" id="card_fname" type="text" class="input" placeholder="First Name">
-											 </div>
-												
-											 <div class="col-md-4">
-												<input name="card_lname" id="card_lname" type="text" class="input" placeholder="Last Name"> 
-											 </div>
-																			 
-											 <div class="col-md-4">
-												<input name="expiry_date" id="expiry_date" type="text" class="input" placeholder="Expiry Date"> 
-											 </div>
-																			 
-											 <div class="col-md-4">
-												<input name="cvv" id="cvv" type="text" class="input" placeholder="CVV">
-											 </div>
-										</div>    
-									</div>
-								</div>
-								
-								
-                                <div class="methodRow">
-                                    <div class="bmType"><img src="<?php echo BASE_URL; ?>static/images/paypal-icon.png" alt="Paypal"></div>
-                                    <div class="bmDetails">
-                                        <input name="company_paypal" id="company_paypal" type="text" class="input" placeholder="Paypal"> </div>
-                                    <div class="bmAction"> <a href="#" class="btn btn-blue btn-small">Edit</a></div>
-                                </div>
-                                <div class="autoPayStatus">
-                                    <div class="autoPlayHeading">
-                                        <p>Auto Pay Status </p>
-                                    </div>
-                                    <div class="autoPlayInput">
-                                        <label>
-                                            <input type="checkbox" name="autopay_status" id="autopay_status" checked data-toggle="toggle"> Primary</label>
-                                    </div>
-                                    <div class="autoPlayBtn"> <a href="#" id="add_new_payment_gateway" class="btn btn-blue btn-small">Add New</a> </div>
-                                </div>
-                            </div>
-                            <div class="passwordChange">
-                                <h3>Password</h3>
-                                <div class="row">
-                                    <div class="form-group col-sm-5">
-                                        <div class="formElements">
-                                            <div class="formLabel">
-                                                <p>Old Password</p>
-                                            </div>
-                                            <div class="formFields">
-                                                <input name="employer_old_password" id="employer_old_password" type="password" class="input" placeholder="********"> </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formLabel">
-                                                <p>New Password</p>
-                                            </div>
-                                            <div class="formFields">
-                                                <input name="employer_new_password" id="employer_new_password" type="password" class="input" placeholder="********">
-                                                <p class="helperText">A strong password is over 12 characters and combination of letters (upper and lower case) and numbers</p>
-                                            </div>
-                                        </div>
-                                        <div class="formElements">
-                                            <div class="formLabel">
-                                                <p>Re-enter Password</p>
-                                            </div>
-                                            <div class="formFields">
-                                                <input name="employer_confirm_password" id="employer_confirm_password" type="password" class="input" placeholder="********"> </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="securityQuestions">
-                                <h3>Security Question </h3>
-                                <div class="row">
-                                    <div class="form-group col-sm-6">
-                                        <div class="exisiting_ques" style="display:none">
-											<div class="formElements">
-												<div class="formLabel">
-													<p>Existing Question</p>
-												</div>
-												<div class="formFields">
-													<input name="employer_existing_question" id="employer_existing_question" type="text" class="input" placeholder=""> </div>
-											</div>
-											<div class="formElements">
-												<div class="formLabel">
-													<p>Answer to Question</p>
-												</div>
-												<div class="formFields">
-													<textarea name="employer_existing_answer" id="employer_existing_answer" cols="" rows="" class="input" placeholder="********"></textarea>
-												</div>
-											</div>
-										</div>
-										<div class="new_ques">
-											<div class="formElements">
-												<div class="formLabel">
-													<p>New Question</p>
-												</div>
-												<div class="formFields">
-													<input name="employer_new_question" id="employer_new_question" type="text" class="input" placeholder=""> </div>
-											</div>
-											<div class="formElements">
-												<div class="formLabel">
-													<p>Answer</p>
-												</div>
-												<div class="formFields">
-													<textarea name="employer_new_answer" id="employer_new_answer" cols="" rows="" class="input" placeholder="********"></textarea>
-													<p class="rememberThisOption">
-														<label for="rememberThis" class="custom-checkbox">
-															<input id="rememberThis" name="employer_remember" id="employer_remember"  type="checkbox"> <span class="custom-check"></span> Remember this computer</label>
-													</p>
-												</div>
-											</div>
-										</div>
-                                        <div class="securitySMS">
-                                            <div class="formElements">
-                                                <div class="formLabel">
-                                                    <h3>Security (SMS) detail</h3> </div>
-                                                <div class="formFields">
-                                                    <input name="employer_sms" id="employer_sms" type="text" class="input bgTick" placeholder=""> </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="teamPermissions">
-                                <h3>Team and Permissions </h3>
-                                <p>Team member Information </p>
-                                <div class="row">
-                                    <div class="form-group col-sm-6">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <input name="team_first_name" id="team_first_name" type="text" class="input team" placeholder="First Name"> </div>
-                                            <div class="col-md-4">
-                                                <input name="team_last_name" id="team_last_name" type="text" class="input team" placeholder="Last name"> </div>
-                                            <div class="col-md-4">
-                                                <input name="team_title" id="team_title" type="text" class="input team" placeholder="Title"> </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <input name="team_email" id="team_email" type="text" class="input team" placeholder="Email"> </div>
-                                            <div class="col-md-4">
-                                                <input name="team_mobile" id="team_mobile" type="text" class="input team" placeholder="Mobile Phone"> </div>
-                                            <div class="col-md-4">
-                                                <input name="team_landline" id="team_landline" type="text" class="input team" placeholder="Landline"> </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p>Permissions </p>
-                                <div class="row">
-                                    <div class="form-group col-sm-6 permissions-group">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label> Admin </label>
-                                                    </div>
-                                                    <div class="col-md-8">
-                                                        <select name="tmem_admin_permission" id="tmem_admin_permission" class="input team">
-                                                            <option value="">Select</option>
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label> Hiring </label>
-                                                    </div>
-                                                    <div class="col-md-8">
-                                                        <select name="tmem_hiring_permission" id="tmem_hiring_permission" class="input team">
-                                                            <option value="">Select</option>
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label> Training </label>
-                                                    </div>
-                                                    <div class="col-md-8">
-                                                        <select name="tmem_trainig_permission" id="tmem_trainig_permission" class="input team">
-                                                            <option value="">Select</option>
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label> Activities </label>
-                                                    </div>
-                                                    <div class="col-md-8">
-                                                        <select name="tmem_activities_permission" id="tmem_activities_permission" class="input team">
-                                                            <option value="">Select</option>
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label> Feedback </label>
-                                                    </div>
-                                                    <div class="col-md-8">
-                                                        <select name="tmem_feedback_permission" id="tmem_feedback_permission" class="input team">
-                                                            <option value="">Select</option>
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label> Can message </label>
-                                                    </div>
-                                                    <div class="col-md-8">
-                                                        <select name="tmem_message_permission" id="tmem_message_permission" class="input team">
-                                                            <option value="">Select</option>
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="notiSettings">
-                                <h3>Notification Settings</h3>
-                                <div class="row">
-                                    <div class="form-group col-sm-4 notification-group">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label> Desktop notifications </label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <select name="company_desktop_notifi" id="company_desktop_notifi" class="input">
-                                                    <option value="">Select</option>
-													<option value="1">Yes</option>
-													<option value="0">No</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label>Mobile notifications </label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <select name="company_mobile_notifi" id="company_mobile_notifi" class="input">
-                                                    <option value="">Select</option>
-													<option value="1">Yes</option>
-													<option value="0">No</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label>Email notifications </label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <select name="company_email_notifi" id="company_email_notifi" class="input">
-                                                    <option value="">Select</option>
-													<option value="1">Yes</option>
-													<option value="0">No</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p>Other Email Update </p>
-                                <ul class="other-email-update-list">
-                                    <li>
-                                        <label for="jobIsPosted" class="custom-checkbox">
-                                            <input id="jobIsPosted" name="jobIsPosted" checked type="checkbox"> <span class="custom-check"></span> A job is posted or modified</label>
-                                    </li>
-                                    <li>
-                                        <label for="offerIsAccepted" class="custom-checkbox">
-                                            <input id="offerIsAccepted" name="offerIsAccepted" type="checkbox"> <span class="custom-check"></span> An offer is accepted</label>
-                                    </li>
-                                     <li>
-                                        <label for="offerIsModified" class="custom-checkbox">
-                                            <input id="offerIsModified" name="offerIsModified" type="checkbox"> <span class="custom-check"></span> An offer is modified, declined or withdrawn</label>
-                                    </li>
-                                     <li>
-                                        <label for="jobExpire" class="custom-checkbox">
-                                            <input id="jobExpire" name="jobExpire" type="checkbox"> <span class="custom-check"></span> A job posting will expire</label>
-                                    </li>
-                                    <li>
-                                        <label for="contractBegins" class="custom-checkbox">
-                                            <input id="contractBegins" name="contractBegins" type="checkbox"> <span class="custom-check"></span> A hire is made or a contract begins</label>
-                                    </li>
-                                    <li>
-                                        <label for="contractModified" class="custom-checkbox">
-                                            <input id="contractModified" name="contractModified" type="checkbox"> <span class="custom-check"></span> Contract terms are modified</label>
-                                    </li>
-                                    
-                                     <li>
-                                        <label for="activityStarting" class="custom-checkbox">
-                                            <input id="activityStarting" name="activityStarting" type="checkbox"> <span class="custom-check"></span> An activity is starting</label>
-                                    </li>
-                                    
-                                    <li>
-                                        <label for="activityCompleted" class="custom-checkbox">
-                                            <input id="activityCompleted" name="activityCompleted" type="checkbox"> <span class="custom-check"></span> An activity is completed</label>
-                                    </li>
-                                     <li>
-                                        <label for="expenseReport" class="custom-checkbox">
-                                            <input id="expenseReport" name="expenseReport" type="checkbox"> <span class="custom-check"></span> A job and expense report has been submitted</label>
-                                    </li>
-                                    
-                                     <li>
-                                        <label for="trainingCompleted" class="custom-checkbox">
-                                            <input id="trainingCompleted" name="trainingCompleted" type="checkbox"> <span class="custom-check"></span> Training has been completed</label>
-                                    </li>
-                                    
-                                     <li>
-                                        <label for="trainingNotCompleted" class="custom-checkbox">
-                                            <input id="trainingNotCompleted" name="trainingNotCompleted" type="checkbox"> <span class="custom-check"></span> Training not completed (24 hours before scheduled activity)</label>
-                                    </li>
-                                    
-                                      <li>
-                                        <label for="contractEnd" class="custom-checkbox">
-                                            <input id="contractEnd" name="contractEnd" type="checkbox"> <span class="custom-check"></span> A contract has ended</label>
-                                    </li>
-                                    
-                                    
-                                    
-                                    
-                                </ul>
-                            </div>
-                            
-                            <div class="text-right">
-                                <input type="submit" class="company-profile-btn" value="Save">
-                            
-                            </div>
-                        </form>
-                    </aside>
-                </div>
+
+<main role="main">
+  <section class="page-wrap">
+    <div class="container">
+      <div class="page-main">
+        <aside class="main-page-body">
+          <div class="profile-details saved">
+            <div class="add-avatar">
+				<?php if(isset($company_info['company_image']) && !empty($company_info['company_image'])) 
+				{	
+					$imgsrc=BASE_URL."/static/images/employer/".$company_info['company_image'];
+				}
+				else
+				{
+					$imgsrc=BASE_URL."/static/images/company-profile-pic.jpg";
+				}
+				?>
+              <div class="avatar-set" style="background-image:url('<?php echo $imgsrc;?>');"></div>
             </div>
-        </section>
-    </main>
-    
+            <div class="add-personal-details">
+              <h2 class="pro-title"><?php if(isset($company_data['company_name']) && !empty($company_data['company_name'])) echo $company_data['company_name']; ?></h2>
+              <p class="pro-location"><?php if(isset($city) && !empty($city)) echo $city; ?><?php if(isset($country) && !empty($country)) echo ', '. $country; ?></p>
+              <p class="pro-industries">
+				<?php if(isset($company_info['company_indus']) && !empty($company_info['company_indus'])) 
+				{
+					$all_indus=explode(',',$company_info['company_indus']);
+				}
+				if(!empty($all_indus))
+				{
+					foreach($all_indus as $ind)
+					{
+					?>
+					  <span class="industry-tag"><?php echo $ind; ?></span>
+					<?php
+					}
+				}
+				  ?>
+			  </p>
+            </div>
+          </div>
+          <div class="more-details">
+            <article class="ff-description">
+              <h3>Business Description</h3>
+			  
+			   <?php 
+					$description=$company_info['company_busi_desc'];
+					$desc=explode(PHP_EOL,$description);
+					 $length=strlen($description);
+				  ?>
+				  <p><?php  echo $desc[0];?></p>
+				  <?php if($length >= 500){ ?>
+				  <div align="right">
+					<div class="more-content" style="display:none;">
+					 <?php for($i=1;$i<count($desc); $i++){ ?>
+						 <p><?=$desc[$i];?></p>
+					 <?php } ?>
+					</div>
+					<a id="moreToggle" href="javascript:void(0);" class="view-more-toggle"><span class="sr-only">View More</span> <i class="fa fa-angle-down" aria-hidden="true"></i></a>
+				 </div>
+				  <?php } ?>
+			
+            </article>
+            <div class="company-social-links">
+              <h2>Company Social Links:
+				 <?php if(isset($company_info['company_website']) && !empty($company_info['company_website'])) { ?>
+					<a href="<?php echo $company_info['company_website'];?>" target="_blank" class="web-link"><span class="sr-only">Website</span></a>
+				 <?php }?>
+				
+				<?php if(isset($company_info['company_fb']) && !empty($company_info['company_fb'])) { ?>
+					 <a href="<?php echo $company_info['company_fb'];?>" class="fb-link" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+				 <?php }?>
+				 
+				 <?php if(isset($company_info['company_linkedin']) && !empty($company_info['company_linkedin'])) { ?>
+					<a href="<?php echo $company_info['company_linkedin'];?>" class="linkedin-link"target="_blank"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+				 <?php }?>
+				 
+				 <?php if(isset($company_data['email']) && !empty($company_data['email'])) { ?>
+					<a href="mailto:<?php echo $company_data['email'];?>" class="email-link"><span class="sr-only">Email Address</span></a>
+				 <?php }?>
+				</h2>
+            </div>
+			 <?php  
+				if(isset($company_info['company_about_us']) && !empty($description=$company_info['company_about_us']))
+				{?>
+					<article class="ff-description">
+					  <h3>About the Company</h3>
+					  <?php
+					  $descr=explode(PHP_EOL,$company_info['company_about_us']); 
+					  foreach($descr as $d)
+					  {
+					  ?>  
+						<p><?php echo $company_info['company_about_us'];?></p>
+				<?php } ?>
+					</article>
+		 <?php  } ?>
+            <div class="pro-status-info">
+              <ul>
+                <li>
+                  <h4>Review</h4>
+                  <p><img src="<?php echo BASE_URL ;?>/static/images/5-star-rating.png" alt="rate"> <span class="reviews-number">2</span> reviews</p>
+                </li>
+                <li>
+					<?php 
+						if(isset($posted_jobs) && !empty($posted_jobs) && $posted_jobs > 0)
+						{
+							if($posted_jobs > 1)
+							{
+								$content=$posted_jobs." Jobs Posted";
+							}
+							else 
+							{
+								$content=$posted_jobs." Job Posted";
+							}
+						} 
+						else
+						{
+							$content="No Job Posted";
+						}
+					?>
+						<h4><?php echo $content; ?></h4>
+						<?php 
+						if(isset($open_jobs) && !empty($open_jobs) && $open_jobs > 0)
+						{
+							if($open_jobs > 1)
+							{
+								$openjobs=', '.$open_jobs." Open Jobs";
+							}
+							else 
+							{
+								$openjobs=', '.$open_jobs." Open Job";
+							}
+						}
+						else
+						{
+							$openjobs="";
+						}
+						?>
+						<p>80% Hire Rate<?php echo $openjobs;?></p>
+                </li>
+                <li>
+                  <h4>$1.74/hr Avg Hourly Rate Paid</h4>
+                  <p>595 Hours</p>
+                </li>
+                <li>
+                  <h4>Over $30,000 Total Spent</h4>
+				  <?php 
+				  if(isset($employer_hires) && !empty($employer_hires) && $employer_hires > 0) 
+				  {
+					 $hires=($employer_hires > 1)?$employer_hires.' Hires':$employer_hires.' Hire';
+				  }
+				  else
+				  {
+					  $hires="No Hires";
+				  }
+				  ?>
+				  
+                  <p><?php echo $hires; ?><?php if(isset($employer_active_hires) && !empty($employer_active_hires)) { echo ','. $employer_active_hires .' Active'; } ?></p>
+                  <p>Member Since <?php if(isset($joining_date) && !empty($joining_date)) echo $joining_date;?> </p>
+                </li>
+              </ul>
+            </div>
+            <div class="training-area">
+              <h3>Training (Public)</h3>
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <th scope="col">Course Names</th>
+                  <th scope="col">Description</th>
+                </tr>
+                <tr>
+                  <td>Selling BBQs</td>
+                  <td>Course 1708 on basic selling</td>
+                </tr>
+                <tr>
+                  <td>Selling BBQs</td>
+                  <td>Course 1708 on basic selling</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>

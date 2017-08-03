@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link href="<?php  echo BASE_URL;?>static/css/style.css" rel="stylesheet">
 <link href="<?php  echo BASE_URL;?>static/css/main.css" rel="stylesheet">
+<?php  if(isset($additional)){	echo $additional;	} ?>
 <script>
 var base_url='<?php echo BASE_URL;?>';
 </script>

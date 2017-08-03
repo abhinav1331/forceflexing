@@ -10,6 +10,8 @@
 						 if(isset($Countries))
 						 {
 							 foreach($Countries as $keys):
+							 if(isset($check_CT))
+							 {
 								 if(in_array($keys['id'],$check_CT))
 									 {
 										 echo'<div class="col-sm-3"><label>
@@ -23,6 +25,15 @@
 												<input type="checkbox" name="countries[]" value="'.$keys['id'].'">'.$keys['name'].'</label>
 												</div>'; 
 									 }
+							 }
+							 else
+							 {
+								 echo'<div class="col-sm-3"><label>
+												<input type="checkbox" name="countries[]" value="'.$keys['id'].'">'.$keys['name'].'</label>
+												</div>'; 
+									 
+							 }
+								 
 							
 							 endforeach;
 							 

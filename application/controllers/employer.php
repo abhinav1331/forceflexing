@@ -14,6 +14,7 @@ class Employer extends Controller
 		$this->session = $this->loadHelper('session_helper');
 		$this->industries = $this->loadHelper('industries');
 		$this->options = $this->loadHelper('options');
+		$this->sendmail = $this->loadHelper('sendmail');
 		$this->Model = $this->loadModel('Postjob_model','employer');
 		$this->EModel = $this->loadModel('employers','employer');
 		$this->JModel = $this->loadModel('jobs','employer');
@@ -31,6 +32,43 @@ class Employer extends Controller
 		}
 	}
 
+	public function contractorMaster() {
+		require_once(APP_DIR.'controllers/employer/contractorMaster/index.php');
+		// require_once(APP_DIR.'controllers/employer/openjob/index.php');
+	}
+	public function viewContract() {
+		require_once(APP_DIR.'controllers/employer/contractorMaster/viewContract.php');
+		// require_once(APP_DIR.'controllers/employer/openjob/index.php');
+	}
+
+	public function recommend() { 
+		require_once(APP_DIR.'controllers/employer/contractorMaster/viewRecommend.php');
+	}
+	public function applied() { 
+		require_once(APP_DIR.'controllers/employer/contractorMaster/applied.php');
+	}
+
+	public function message() { 
+		require_once(APP_DIR.'controllers/employer/contractorMaster/messaged.php');
+	}
+
+	public function offered() { 
+		require_once(APP_DIR.'controllers/employer/contractorMaster/offered.php');
+	}
+
+	public function SaveContractorJob() {
+		$currentDate = date("y-m-d H:i:s");
+		$contractorId = $_POST['event'];
+		$job_id = $_POST['job_id'];
+		$data4 =  array(
+			'contractor_id'=>$contractorId, 
+			'job_id'=>$job_id,
+			'saved_for'=>"employer",
+			'created_date'=>$currentDate,
+			'modified_date'=>$currentDate
+		);
+		$Results3 = $this->Model->Insert_users($data4,PREFIX.'saved_jobs');
+	}
 	public function recomended_contractor() {
 		$instance = $this;
 
@@ -720,12 +758,15 @@ class Employer extends Controller
 	
 	public function openJob()
 	{
-		$this->loadview('main/header')->render();
+		$header = $this->loadview('main/header');
+		$additional = '<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';
+		$header->set('additional',$additional);
+		$header->render();
 		$this->loadview('Employer/job_report/navigation')->render();
 		/* Job Model Count */	
-		$count = $this->JModel->get_jobcount('job_author','flex_jobs');		// getting count of total rows		
+		$count = $this->JModel->get_jobcount();		// getting count of total rows		
 		
-		$item_per_page = 2;		
+		$item_per_page = 10;		
 		$pages = ceil($count/$item_per_page);
 		
 		/* Get User Related Jobs */
@@ -734,9 +775,15 @@ class Employer extends Controller
 		$view = $this->loadview('Employer/jobs/openjob');		
 		$view->set('joblist',$jobList);
 		$view->render();			
-		/* Footer Additional Scripts */		
+		/* Footer Additional Scripts */	
+			
+			/* Security for Ajax Call */
+			$code = $this->SecurityAjax($_SESSION['force_username']);
+			/* Security End */
+		
 		$additional ='';
 		$additional .= '<script src="'.BASE_URL.'static/js/jquery.bootpag.min.js"></script>';
+		$additional .= '<script src="'.BASE_URL.'static/js/toastr.js"></script>';
 		$additional .='<script type="text/javascript">
 			$(document).ready(function() {		
 				$(".openjobsList").load("'.SITEURL.'employer/get_jobs");  //initial page number to load
@@ -770,11 +817,36 @@ class Employer extends Controller
 				});
 				
 				
-				/* Deleting the Post */
+				/* Deleting the Post Form PopUp */
 				$(document).on("click",".delete_id",function()
 				{
+					var code = "'.$code.'";
+					var reference = $(this).attr("rel");
+					$.ajax({
+						type:"POST",
+						url:"'.SITEURL.'employer/JobDelete",
+						data:{Call:reference,check:code},
+						success:function(res)
+						{
+							if(res == "success")
+							{
+								toastr.success(\'Job Deleted.\', \'Successfully\');
+								location.reload();
+							}
+							else
+							{
+								console.log(res);
+							}
+							
+						}
+					});
 					
 				})
+				
+				$(document).on("click",".cancel",function()
+				{
+					$("#myModal").modal("hide");
+				});
 				
 				
 				/* View and Edit Post */
@@ -809,13 +881,20 @@ class Employer extends Controller
 	
 	public function JobDelete()
 	{
-		$this->is_login();
-		$check = md5('confirm');
-		if(base64_decode($_POST['check']) == $check )
-			{
-				$this->JModel->job_delete($_POST['id']);
-			}
+		$this->is_login();		
+		$check = $this->SecurityAjax($_SESSION['force_username']);
 		
+		if(base64_decode($_POST['check']) == base64_decode($check) )
+			{
+				echo $this->JModel->job_delete(base64_decode($_POST['Call']));
+			}		
+	}
+	
+	private function SecurityAjax($userID)
+	{
+		$verify = $userID.'confirm';
+		$check	= base64_encode(md5($verify));
+		return $check;
 	}
 	
 	public function get_jobs()
@@ -829,9 +908,14 @@ class Employer extends Controller
 		{
 			$page_number = 1;
 		}
-		$item_per_page = 2;
+		$item_per_page = 10;
 		$position = (($page_number-1) * $item_per_page);
 		$data = $this->JModel->openjob($position,$item_per_page);		
+	}
+	
+	public function company_profile_settings()
+	{
+		require_once(APP_DIR.'controllers/employer/company_profile_settings.php');
 	}
 	
 	public function company_profile()
@@ -851,6 +935,31 @@ class Employer extends Controller
 	public function editJob()
 	{
 		require_once(APP_DIR.'controllers/employer/editJob.php');
+	}
+	public function removeJob()
+	{
+
+		$data = array(
+			"jobjob_status" => 4
+		);
+		$dataToBeUpdatec = $this->Model->update_record($data,"id",$_POST['job_id'],PREFIX.'jobs');
+	}
+
+	public function removeContractor()
+	{
+		$appliedId = $_POST['appliedId'];
+		$data = array(
+			"status" => 1
+		);
+		$dataToBeUpdatec = $this->Model->update_record($data,"id",$appliedId,PREFIX.'applied_jobs');
+	}
+	
+	public function recindOffer()
+	{
+		$data = array(
+			"status" => 2
+		);
+		$dataToBeUpdatec = $this->Model->update_record($data,"id",$_POST['inviteID'],PREFIX.'job_invite');
 	}
 	
 	/*ajax function to get the states based on country*/
@@ -908,4 +1017,94 @@ class Employer extends Controller
 		}
 	}
 	
+	public function randomPassword() 
+	{
+		$alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
+		$pass = array(); //remember to declare $pass as an array
+		$alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+		for ($i = 0; $i < 8; $i++) {
+			$n = rand(0, $alphaLength);
+			$pass[] = $alphabet[$n];
+		}
+		return implode($pass); //turn the array into a string
+	}
+	
+	public function match_pass()
+	{
+		 $pass=$_POST['oldpass'];
+		 $empid=$_POST['empid'];
+		 if(!empty($pass) && !empty($empid))
+		 {
+			 $data=$this->Model->Get_row('id',$empid,PREFIX.'users');
+			 if($data['password'] == md5($pass))
+				 echo "1";
+			 else
+				 echo "0";
+		 }
+		 exit();
+	}
+	public function emailexists()
+	{
+		$email=$_POST['email'];
+		$result = $this->Model->Get_row('email', $email,PREFIX.'users');
+		if(empty($result))
+		{	return 1;	}			
+		else
+		{	return 0;	}		// Email Exist
+	}
+	
+	//chck security answer
+	public function check_answer()
+	{
+		$answer=$_POST['existing_answer'];
+		$company_id=$_POST['company_id'];
+		$result=$this->Model->Get_column('security_ans','company_id',$company_id,PREFIX.'company_info');
+		if(!empty($result))
+		{
+			$ans=$result['security_ans'];
+			if($answer == $ans)
+				echo 1;
+			else
+				echo 0;
+		}
+		else
+		{
+			echo 0;
+		}
+		exit();
+	}
+	
+	public function send_otp()
+	{
+		$country=$_POST['country'];
+		$phone_number=$_POST['phone_num'];
+		$country_code=$this->Model->Get_column('phonecode','sortname',$country,PREFIX.'countries');
+		//$phonenum=$country_code['phonecode'].$phone_number;
+		$phonenum='91'.$phone_number;
+		$random=rand();
+		$url = 'https://rest.nexmo.com/sms/json?' . http_build_query(
+			[
+			  'api_key' =>  'b7807115',
+			  'api_secret' => '506dc9fa8153c598',
+			  'to' => $phonenum,
+			  'from' => 'ForceFlexing',
+			  'text' => 'Hi, your security code is '.$random.'. Kindly do not share your code with anyone, this is usable only once.'
+			]
+		);
+
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = curl_exec($ch);
+		$res=json_decode($response,true);
+		if($res['messages'][0]['status'] == 0)
+		{
+			$data=array('msgstatus'=>1,"random_number"=>$random);
+		}
+		else
+		{
+			$data=array('msgstatus'=>0,"random_number"=>"");
+		}
+		echo json_encode( $data );
+		exit();
+	}
 }

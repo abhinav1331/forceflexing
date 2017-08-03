@@ -172,7 +172,7 @@
 				<h2>Delete Post ?	</h2>
 				<h4>Are you sure you want to delete this post?	</h4>
 				<button rel="" class="btn btn-blue delete_id">DELETE</button>
-				<button class="btn btn-blue">CANCEL</button>
+				<button class="btn btn-blue cancel">CANCEL</button>
 			</div>
 			<div style="display:none;" class="duplicatePost">
 				<h2><?php 

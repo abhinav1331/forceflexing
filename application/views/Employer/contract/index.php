@@ -1,13 +1,13 @@
 <?php 
 /*  echo "<pre>";
     print_r($jobApplication);
-  echo "</pre>";*/
+  echo "</pre>";
+  die();*/
  ?>
 <?php 
   if(isset($_POST['submit'])) {
 
-
-    if(isset($_FILES['fileUpload']['name'])) {
+    if($_FILES['fileUpload']['name'] != "") {
       $extTmp = explode("." , $_FILES['fileUpload']['name']);
       $fileName = time();
       $target_dir = ABSPATH."/static/uploads/";
@@ -25,21 +25,25 @@
       if(isset($_POST['already-attached'])) {
         $Results = $_POST['already-attached'];
       } else {
-        echo $Results = $Results;
+         $Results = $Results;
       }
     } else {
       $Results = "";
     }
-    echo json_encode($_POST['activityId']);
-    echo json_encode($_POST['extra']);
-
+    // echo json_encode($_POST['activityId']);
+    // echo json_encode($_POST['extra']);
+    if(isset($_POST['before_overages'])) { $before_overages = $_POST['before_overages']; } else { $before_overages = ""; }
+    if(isset($_POST['after_overages'])) { $after_overages = $_POST['after_overages']; } else { $after_overages = ""; }
+    if(isset($_POST['after_price'])) { $after_price = $_POST['after_price']; } else { $after_price = ""; }
+    $overages = json_encode(array($before_overages , $after_overages , $after_price));
     $data=array(
       'job_id'=>$_POST['job_id'],
       'activity_id'=>json_encode($_POST['activityId']),
       'contractor_id'=>$_POST['user_id'],
-      'external_expanditure'=>json_encode($_POST['extra']),
       'flex_amount'=>$_POST['priceFlex'],
+      'external_expanditure'=>$_POST['extraExpanditureContract'],
       'additionalInfo'=>$_POST['additionalInformation'],
+      'overage'=>$overages,
       'attachmentId'=>$Results,
       'status'=>0
       );
@@ -63,6 +67,7 @@
 ?>
 
 <?php
+
  ?>
 <main role="main">
   <form action="" method="post" enctype="multipart/form-data">
@@ -93,7 +98,9 @@
                     $i = 0;
                       foreach ($jobApplication as $key => $value) {
                        $contractor_id = $value['activity_id'];
-                        $emplyerdetails = $Model->Get_column1('*','id',$contractor_id,PREFIX.'job_activities');
+                       $contractor_idA = explode("," , $contractor_id);
+                       foreach ($contractor_idA as $key => $value) {
+                        $emplyerdetails = $Model->Get_column1('*','id',$value,PREFIX.'job_activities');
                       
                      ?>
                     <tr>
@@ -108,6 +115,8 @@
                       <td class="noBorder"><div class="actionButtons"> <a href="javascript:void(0)" onclick="viewActivity(this);" class="btn btn-blue">View</a> <a href="javascript:void(0)" onclick="deleteActivity(this);" class="btn btn-gray">Delete </a> <a href="javascript:void(0)" onclick="editActivity(this);" class="btn btn-blue">Edit</a> </div></td>
                     </tr>
                     <?php 
+
+                       }
                      $i++; }
 
                       ?>
@@ -157,37 +166,35 @@
                 <?php 
                   $includedExpenditure = array();
                   $includedExpenditureIndex = array();
-                  $otherExpenditure = $Model->Get_column1('*','job_id',$value['job_id'],PREFIX.'job_expenditure');
+                  $otherExpenditure = $Model->Get_column1('*','job_id',$job_id,PREFIX.'job_expenditure');
                   foreach ($otherExpenditure as $key => $value) {
                    $includedExpenditure[] = $value['name'];
                    $includedExpenditureIndex = array('name' => $value['name'] , 'id' => $value['id']);
                    //echo '<input type="hidden" name="externalExpnditureArray[]" value="'. htmlspecialchars(serialize($includedExpenditureIndex)). '">';
                   }
-                  
-                  
-                  
                  ?>
                 <label for="cFood" class="custom-checkbox">
-                  <input disabled id="cFood"  name="extra[]" type="checkbox" <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"food" ,"job_id", $value['id']); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?> <?php if (in_array("food", $includedExpenditure)) { echo "checked"; } ?>>
+                  <input disabled id="cFood"  name="extra[]" type="checkbox" <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"food" ,"job_id", $job_id); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?> <?php if (in_array("food", $includedExpenditure)) { echo "checked"; } ?> class="food">
                   <span class="custom-check"></span> Cover Food</label>
                 <label for="cParking" class="custom-checkbox">
-                  <input disabled id="cParking"  name="extra[]" type="checkbox" <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"parking" ,"job_id", $value['id']); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?> <?php if (in_array("parking", $includedExpenditure)) { echo "checked"; } ?>>
+                  <input disabled id="cParking"  name="extra[]" type="checkbox" <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"parking" ,"job_id", $job_id); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?> <?php if (in_array("parking", $includedExpenditure)) { echo "checked"; } ?> class="parking">
                   <span class="custom-check"></span> Cover Parking</label>
                 <label for="cTolls" class="custom-checkbox">
-                  <input disabled id="cTolls"  name="extra[]" type="checkbox"  <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"tolls" ,"job_id", $value['id']); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?>  <?php if (in_array("tolls", $includedExpenditure)) { echo "checked"; } ?>>
+                  <input disabled id="cTolls"  name="extra[]" type="checkbox"  <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"tolls" ,"job_id", $job_id); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?>  <?php if (in_array("tolls", $includedExpenditure)) { echo "checked"; } ?> class="tolls">
                   <span class="custom-check"></span> Cover Tolls</label>
                 <label for="cTips" class="custom-checkbox">
-                  <input disabled id="cTips"  name="extra[]" type="checkbox"   <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"tips" ,"job_id", $value['id']); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?>  <?php if (in_array("tips", $includedExpenditure)) { echo "checked"; } ?>>
+                  <input disabled id="cTips"  name="extra[]" type="checkbox"   <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"tips" ,"job_id", $job_id); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?>  <?php if (in_array("tips", $includedExpenditure)) { echo "checked"; } ?> class="tips">
                   <span class="custom-check"></span> Cover Tips</label>
                 <label for="cOther" class="custom-checkbox">
-                  <input disabled id="cOther"  name="extra[]" type="checkbox"   <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"other" ,"job_id", $value['id']); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?>  <?php if (in_array("other", $includedExpenditure)) { echo "checked"; } ?>>
+                  <input disabled id="cOther"  name="extra[]" type="checkbox"   <?php if (in_array("food", $includedExpenditure)) { $getDetails = getPerice($Model ,"name" ,"other" ,"job_id", $job_id); ?> value="<?php echo $getDetails[0]['price']; ?>" <?php } ?>  <?php if (in_array("other", $includedExpenditure)) { echo "checked"; } ?> class="other">
                   <span class="custom-check"></span> Cover Other Expenses</label>
+                  <input type="hidden" name="extraExpanditureContract" value="">
               
               </div>
             </div>
             
             <div class="paymentTypes">
-            <h3>Hourly/Fixed price</h3>
+            <h3><?php echo ucwords($job_idd['job_type']); ?> price</h3>
             
             <div class="flexRateInfo">
             <h3>Current Flex amount</h3>
@@ -203,11 +210,14 @@
                 <?php
               }
              ?>
-            <p class="allowedHoursOverage">Hour overage allowed per activity </p>
-            <select name="" class="input small">
-                                <option>Lorem ipsum</option>
-                                <option>Lorem ipsum</option>
-                              </select>
+             <?php if($job_idd['additional_hours_status'] == "yes") {
+              ?>
+              <p class="allowedHoursOverage">Hour overage allowed per activity </p>
+              <input type="text" class="form-control" Placeholder="Before Time" name="before_overages" value="<?php echo $job_additional_hours['before_time']?>">
+              <input type="text" class="form-control" Placeholder="After Time" name="after_overages" value="<?php echo $job_additional_hours['after_time']?>">
+              <input type="text" class="form-control" Placeholder="Overtime Price" name="after_price" value="<?php echo $job_additional_hours['price']?>">
+              <?php
+             } ?>
             </div>
             </div>
             

@@ -29,8 +29,9 @@ function force()
 	if(file_exists($path)){
         require_once($path);
 	} else {
-		echo $path;
-        $controller = $config['error_controller'];
+		
+        $controller = 'page';
+        //$controller = $config['error_controller'];
         require_once(APP_DIR . 'controllers/' . $controller . '.php');
 	}
     

@@ -167,7 +167,7 @@
                   </div>
                   <div class="col-sm-7">
                     <ul>
-                      <li> <strong>Proposals</strong> <?=$applied_jobs?> </li>
+                      <li> <strong>Proposals</strong> <?php echo $applied_jobs?> </li>
                       <li> <strong>Interviewing</strong> 0 </li>
                       <li> <strong>Hired</strong> 0 </li>
                     </ul>
@@ -227,18 +227,22 @@
           </div>
         </aside>
         <aside class="emp-client-overview">
-          <div class="emp-client-name">Lorem ipsume</div>
+          <div class="emp-client-name"><?php echo $company_name;?></div>
           <div class="emp-client-job-history">
             <p><strong>About the Client </strong><br>
               <strong>Payment Certified</strong><br>
               <strong>Rating:(5.00) 2 reviews </strong></p>
-            <p><strong>United States</strong><br>
-              Centerville/ 10-19Am</p>
-            <p><strong>7 Jobs Posted </strong><br>
-              58% Hire Rate, 1 Open Job</p>
+            <p><strong><?php  if(isset($emp_country)) echo $emp_country;?></strong><br>
+              <?php if(isset($emp_city)) echo $emp_city;?>/ 10-19Am</p>
+            <p><strong><?php if(isset($posted_jobs)) 
+								{ 
+									$multi=($posted_jobs>1) ?'s':'';
+									echo $posted_jobs .'Job'.$multi.' Posted';
+								} ?></strong><br>
+              58% Hire Rate <?php if(isset($open_jobs_count)) { echo ','. $open_jobs_count?>  Open Job<?php if($open_jobs_count>1) echo 's'; } ?></p>
             <p><strong>$6.55/hr Avg Hourly Rate Paid </strong><br>
               255 Hours</p>
-            <p>Member Since Jul 24, 2015</p>
+            <p>Member Since <?php if(isset($member_since)) echo date('M d, Y',strtotime($member_since)); ?></p>
           </div>
           <div class="contract-apply-actions">
           <form>
@@ -253,7 +257,7 @@
 						else
 							$button_text="Edit Job";
 						?>
-						<input type="submit" data-applied-job-id="<?=$applied_job_id;?>" id="apply_for_job" data-already_applied="yes" value="<?=$button_text;?>" class="btn btn-blue">
+						<input type="submit" data-applied-job-id="<?php echo $applied_job_id;?>" id="apply_for_job" data-already_applied="yes" value="<?php echo $button_text;?>" class="btn btn-blue">
 						<?php
 					}
 					else

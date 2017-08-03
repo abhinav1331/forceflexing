@@ -47,8 +47,8 @@
 								  <p><?php echo ucfirst($activity['activity_type']); ?> Time</p>
 								  <p><?php echo ucfirst($activity['city']); ?></p>
 								  <p>
-									<label for="activity_<?=$i;?>" class="custom-checkbox">
-										<input id="activity_<?=$i;?>" name="selected_activity[]" value="<?php echo $activity['id'];?>" <?=$disabled;?> <?=$checked;?> type="checkbox">
+									<label for="activity_<?php echo $i;?>" class="custom-checkbox">
+										<input id="activity_<?php echo $i;?>" name="selected_activity[]" value="<?php echo $activity['id'];?>" <?php echo $disabled;?> <?php echo $checked;?> type="checkbox">
 										<?php if($disabled == 'disabled') {?>
 										<input type="hidden" name="selected_activity[]" value="<?php echo $activity['id'];?>">
 										<?php } ?>
@@ -69,8 +69,8 @@
 						{
 							$num_cont=$job_data['job_minimum_contractor'];
 						?>
-						<input type="hidden" id="minimum_activities" name="minimum_activities" value="<?=$num_cont;?>">
-					<p>Contractor must select a minimum of <?=$num_cont;?> of activities to apply to this job”.  The <?=$num_cont;?> is the number set by the employer.  The page should not be able to be submitted if the correct number of activities is not chosen.</p>
+						<input type="hidden" id="minimum_activities" name="minimum_activities" value="<?php echo $num_cont;?>">
+					<p>Contractor must select a minimum of <?php echo $num_cont;?> of activities to apply to this job”.  The <?php echo $num_cont;?> is the number set by the employer.  The page should not be able to be submitted if the correct number of activities is not chosen.</p>
 			   <?php     }
 					} ?>
 				  </div>
@@ -87,7 +87,7 @@
 						<p><strong>Fixed or hourly:</strong><?php echo ucfirst($job_data['job_type']); ?></p>
 						<p><strong>Rate of Pay:</strong>
 						   $<?php echo number_format($job_data['job_price'],2); echo ' '.($job_data['job_type'] == 'hourly' ?'hour':'per Activity')?>  </p>
-					   <input type="hidden" name="company_rate" value="<?=$job_data['job_price']?>">
+					   <input type="hidden" name="company_rate" value="<?php echo $job_data['job_price']?>">
 					   <!--allowable overages-->
 					   <p><strong>Allowable Work Hour Overages</strong>
 						<?php 
@@ -233,7 +233,7 @@
 					{
 						?>
 						<h3><?php echo $questions['job_questions']; ?></h3>
-						<textarea  name="questions[<?=$questions['id']?>][answer]" class="input questions"></textarea>
+						<textarea  name="questions[<?php echo $questions['id']?>][answer]" class="input questions"></textarea>
 						<?php 
 					}
 				}
@@ -258,7 +258,7 @@
 				}
 			?>
 			  <button type="submit"  name="apply_job" class="btn btn-blue">Submit Application</button>
-			  <button type="submit" name="flex_alert" <?=$disable_al?> class="btn <?=$class_al;?> flex_alert">Alert when Pay Flexed</button>
+			  <button type="submit" name="flex_alert" <?php echo $disable_al?> class="btn <?php echo $class_al;?> flex_alert">Alert when Pay Flexed</button>
 			</div>
        </form>
 	  </aside>

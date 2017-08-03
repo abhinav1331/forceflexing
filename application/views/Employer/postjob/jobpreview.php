@@ -204,6 +204,10 @@ echo "</pre>";*/
                       </div> -->
         </aside>
         <aside class="emp-client-overview">
+          <?php
+             $Results112 = $models->Get_record_jobe_count(PREFIX.'jobs' , "job_author" , $userDate['id'] );
+             $created_date = $userDate['created_date'];
+           ?>
           <div class="emp-client-name"><?php echo $userDate['first_name']." ".$userDate['last_name']; ?></div>
           <div class="emp-client-job-history">
             <p><strong>About the Client </strong><br>
@@ -211,11 +215,11 @@ echo "</pre>";*/
               <strong>Rating:(5.00) 2 reviews </strong></p>
             <p><strong>United States</strong><br>
               Centerville/ 10-19Am</p>
-            <p><strong>7 Jobs Posted </strong><br>
+            <p><strong><?php echo $Results112; ?> Jobs Posted </strong><br>
               58% Hire Rate, 1 Open Job</p>
             <p><strong>$6.55/hr Avg Hourly Rate Paid </strong><br>
               255 Hours</p>
-            <p>Member Since Jul 24, 2015</p>
+            <p>Member Since <?php echo date("M d, Y",strtotime($created_date)); ?></p>
           </div>
         </aside>
       </div>

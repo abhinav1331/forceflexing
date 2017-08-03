@@ -436,7 +436,7 @@ input[type="submit"]:active {
     -webkit-transform: translate3d(0, 0, 0);
     -moz-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
-    z-index: 9999;
+    z-index: 999;
 }
 
 
@@ -14040,58 +14040,6 @@ ul.view-jobs-btn-group li:last-child {
 
 
 
-/** Dhiman Media **/
-
-@media screen and (max-width:1499px){
-    
-    
-    .open-jobs article{
-        width: 100%;
-            padding: 20px;
-    }
-    
-    ul.view-jobs-btn-group li{
-        margin-right: 5px;
-    }
-    
-    ul.view-jobs-btn-group li a{
-        padding: 0 10px;
-    }
-    
-    .contracts-main .contracts-tabs ul.tabs-nav, .job-contracted-tabs ul.tabs-nav{
-            padding: 15px 20px;
-    }
-    
-    .contracts-main .contracts-tabs ul.tabs-nav li, .job-contracted-tabs ul.tabs-nav li{
-            margin: 0 20px 0 0;
-    padding: 0 21px 0 0;
-    }
-    
-    .job-contracted-tabs, .open-contracts-cover article {
-    width: 100%;
-}
-    
-    .tab-content article{
-            width: 100%;
-        padding: 15px;
-    }
-    
-    
-    .tab-content article .client-info figure{
-        margin-right: 15px;
-    }
-    
-    .tab-content article .client-extra-info ul li{
-        padding: 0 10px;
-        font-size: 13px;
-            max-width: 265px;
-    }
-    
-    .tab-content article .client-extra-info ul li big{
-        font-size: 14px;
-    }
-    
-}
 
 /*Css of the company profile*/
 .checkbox label .toggle,
@@ -14214,7 +14162,573 @@ ul.view-jobs-btn-group li:last-child {
 }
 
 
+.ui-widget.ui-widget-content{
+        z-index: 9999;
+}
+
+/** My Stats Page **/
+
+.contracts-main.my-stats h3{
+    font-family: "gotham_lightregular";
+    font-size: 25px;
+    color:#505050;
+    font-weight: normal;
+    margin-bottom: 20px;
+}
+
+
+.my-stats-table{
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    max-width: 70%;
+
+}
+
+.my-stats-table .my-stats-row{
+    display: table-row;
+}
+
+.my-stats-table .my-stats-row .my-stats-data{
+    display: table-cell;
+    width: 50%;
+    vertical-align: top;
+      font-family: "gotham_lightregular";
+    font-size: 17px;
+    color: #686868;
+    padding: 6px 0;
+}
+
+.my-stats-table .my-stats-row .my-stats-data strong{
+      font-family: "gotham_mediumregular";
+    font-size: 17px;
+    color: #686868;
+}
+
+.my-stats-table .my-stats-row .my-stats-data .fa-star{
+    color:#f9bc39;
+    margin-left: -3px;
+}
+
+.my-stats-table-divider{
+    display: block;
+    width: 60%;
+    height: 1px;
+    background: #efefef;
+    margin: 30px 0;
+}
 
 
 
+/** My Jobs Pages **/
 
+.my-jobs .tab-content article {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    padding: 20px 25px;
+    background: #fcfcfc;
+}
+
+.my-jobs .tab-content article .user-info,
+.my-jobs .tab-content article .user-extra-info,
+.my-jobs .tab-content article .user-action-btn {
+    display: table-cell;
+    vertical-align: middle;
+    width: 33.33%;
+}
+
+.my-jobs .tab-content article .user-info {
+    width: 41%;
+}
+
+.my-jobs .tab-content article .user-info figure,
+.my-jobs .tab-content article .user-info .user-name {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: -4px;
+}
+
+.my-jobs .tab-content article .user-info .user-name h4 {
+    font-size: 18px;
+    color: #686868;
+    font-family: "gotham_lightregular";
+    text-transform: capitalize;
+    margin-bottom: 2px;
+}
+
+.my-jobs .tab-content article .user-info .user-name p {
+    color: #676767;
+    font-size: 15px;
+    font-family: "gotham_lightregular";
+}
+
+.my-jobs .tab-content article .user-info .user-name ul {
+    margin: 0;
+    padding: 0;
+}
+
+.my-jobs .tab-content article .user-info .user-name ul li {
+    display: inline-block;
+    margin-right: 8px;
+    padding-right: 12px;
+    color: #676767;
+    font-size: 15px;
+    font-family: "gotham_lightregular";
+    position: relative;
+}
+
+.my-jobs .tab-content article .user-info .user-name ul li:after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    bottom: 4px;
+    right: 0px;
+    width: 1px;
+    background: #676767;
+}
+
+.my-jobs .tab-content article .user-info .user-name ul li:last-child {
+    margin-right: 0;
+    padding-right: 0;
+}
+
+.my-jobs .tab-content article .user-info .user-name ul li:last-child:after {
+    display: none;
+}
+
+.my-jobs .tab-content article .user-info figure {
+    height: 90px;
+    width: 90px;
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    -ms-border-radius: 100%;
+    border-radius: 100%;
+    margin-right: 15px;
+}
+
+.my-jobs .tab-content article .user-info figure img {
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    border-radius: 50%;
+}
+
+.my-jobs .tab-content article .user-extra-info {
+    width: 50%;
+    text-align: left;
+}
+
+.my-jobs .tab-content article .user-extra-info ul {
+    margin: 0;
+    padding: 0;
+}
+
+.my-jobs .tab-content article .user-extra-info ul li {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0 10px;
+    position: relative;
+    font-family: "gotham_lightregular";
+    color: #686868;
+    font-size: 15px;
+    text-align: center;
+    max-width: 345px;
+}
+
+.my-jobs .tab-content article .user-extra-info ul li:after {
+    content: "";
+    background: #d3d3d3;
+    width: 1px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.my-jobs .tab-content article .user-extra-info ul li:first-child:before {
+    content: "";
+    background: #d3d3d3;
+    width: 1px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.my-jobs .tab-content article .user-extra-info ul li:last-child:after {
+    display: none;
+}
+
+.my-jobs .tab-content article .user-extra-info ul li big {
+    display: block;
+    color: #0e7bcb;
+    font-family: "gotham_mediumregular";
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.my-jobs .tab-content article .user-action-btn {
+    width: 15%;
+    text-align: right;
+}
+
+.my-jobs .tab-content article .user-extra-info ul li .rating .fa-star {
+    color: #f9bc39;
+    margin-right: -3px;
+}
+
+
+/** My Jobs Pages End **/
+
+
+/** Custom PopUps **/
+
+.custom-modal h3{
+    color: #686868;
+    font-size: 20px;
+    font-family: "gotham_mediumregular";
+    margin-bottom: 30px;
+}
+
+.custom-modal h4{
+     font-family: "gotham_lightregular";
+    font-size: 20px;
+    color: #686868;
+    margin-bottom: 20px;
+}
+
+.custom-modal .modal-dialog{
+    width: 1504px;
+    max-width: 90%;
+    border-radius: 0px;
+}
+
+.custom-modal .modal-content{
+    border-radius: 0px;
+}
+
+.custom-modal .modal-body{
+    padding: 50px;
+}
+
+.custom-modal a[data-dismiss] {
+    position: absolute;
+    display: block;
+    right: -10px;
+    top: -10px;
+    font-size: 20px;
+    background: #fff;
+    border: 1px solid #444;
+    line-height: 26px;
+    width: 26px;
+    text-align: center;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    border-radius: 50%;
+}
+
+
+.custom-modal a[data-dismiss]:hover {
+    color: #333;
+}
+
+
+.action-detail-table{
+    display: block;
+    margin-bottom: 50px;
+}
+
+.action-detail-table:last-of-type{
+    margin-bottom: 30px;
+}
+
+.action-detail-table th, .action-detail-table td{
+    border-bottom: solid 1px #dfdfdf;
+    
+}
+
+.action-detail-table th:last-child, .action-detail-table td:last-child{
+    border-bottom: none;
+    padding-left: 30px;
+}
+
+.action-detail-table th{
+    padding-bottom: 15px;
+}
+
+
+.action-detail-table td{
+    padding: 10px 0;
+}
+
+.action-detail-table td .btn{
+    margin-right: 8px;
+}
+
+.action-detail-table td .btn:last-of-type{
+    margin-right: 0;
+}
+
+/** Custom PopUps End **/
+
+
+/***** Activity Detail for Contractor Activity Status Completed **/
+
+.activity-status-comp h2 small{
+    display: block;
+    font-size: 18px;
+}
+
+.user-top-cover ul{
+    margin: 0 0 40px;
+    padding: 0;
+}
+
+.user-top-cover ul li{
+    display: inline-block;
+    margin-right: 20px;
+    vertical-align: middle;
+}
+
+.user-top-cover ul li:first-child{
+    width: 90px;
+    height: 90px;
+    border-radius: 100%;
+    
+}
+
+.user-top-cover ul li .avatar-set{
+    display: block;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 100%;
+}
+
+.user-top-cover ul li h4{
+    font-family: "gotham_mediumregular";
+    font-size: 18px;
+    color: #686868;
+}
+
+.user-top-cover ul li h4 small{
+    display: block;
+    font-family: "gotham_lightregular";
+    font-size: 14px;
+}
+
+.activity-associated-cover{
+    background: #fcfcfc;
+    padding:50px 40px;
+}
+
+.activity-associated-cover h3{
+    font-family: "gotham_mediumregular";
+    font-size: 20px;
+    color: #686868;
+    margin-bottom: 20px;
+}
+
+.activity-associated-cover h4{
+    font-family: "gotham_lightregular";
+    font-size: 22px;
+    color: #505050;
+    margin-bottom: 10px;
+}
+
+.activity-associated-cover .job-activities-table {
+    background: #fcfcfc;
+    padding: 0;
+}
+
+.activity-associated-cover .job-activities-table table tr th{
+        padding: 10px 12px;
+    font-size: 15px;
+}
+
+.activity-associated-cover .job-activities-table table tr td{
+    padding: 8px 12px;
+    font-size: 14px;
+     font-family: "gotham_lightregular";
+        border-bottom: 1px solid #e2e2e2;
+}
+
+
+.activity-associated-cover .job-activities-table table tr:last-child td{
+    border-bottom: none;
+    }
+
+.activity-divider{
+    display: block;
+    width: 100%;
+    height: 1px;
+    background:#e6e6e6;
+    margin: 35px 0 30px;
+}
+
+.activity-associated-cover p{
+    font-size: 16px;
+    color:#505050;
+    margin-bottom: 20px;
+}
+
+.activity-associated-cover p b{
+    font-family: "gotham_mediumregular";
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.activity-associated-cover p a + a{
+    position: relative;
+    padding-left: 15px;
+    margin-left: 8px;
+}
+
+.activity-associated-cover p a + a:before{
+    content: "";
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 0;
+    width: 1px;
+    background:#505050;
+}
+
+.activity-associated-cover p label {
+    margin: 0 10px;
+}
+
+.activity-associated-cover label.radio-custom + .radio-custom{
+    margin-left: 30px;
+}
+
+
+.activity-list{
+    margin: 0;
+    padding: 0;
+}
+
+.activity-list li{
+    display: inline-block;
+    position: relative;
+    padding-right: 30px;
+    margin-right: 25px;
+    vertical-align: middle;
+    color: #505050;
+    font-family: "gotham_bookregular";
+    font-size: 16px;
+}
+
+.activity-list li:after{
+    content: "";
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    right: 0;
+    width: 1px;
+    background:#505050;
+}
+
+.activity-list li:last-child{
+    padding-right: 0;
+    margin-right: 0;
+}
+
+.activity-list li:last-child:after{
+    display: none;
+}
+
+.activity-list li div{
+    display: inline-block;
+    margin-right: 20px;
+}
+
+
+.activity-list li div:last-of-type{
+    margin-right: 0;
+}
+
+.activity-list li div svg{
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    fill:#a1a1a1;
+    margin-right: 5px;
+    position: relative;
+    top: -1px;
+}
+
+.activity-associated-post-btns{
+    margin-top: 30px;
+}
+
+.activity-associated-post-btns .btn{
+        padding: 15px 17px;
+    text-transform: uppercase;
+    min-width: 140px;
+}
+
+.activity-associated-post-btns .btn + .btn{
+    margin-left: 15px;
+}
+
+
+
+/** Dhiman Media **/
+
+@media screen and (max-width:1499px){
+    
+    
+    .open-jobs article{
+        width: 100%;
+            padding: 20px;
+    }
+    
+    ul.view-jobs-btn-group li{
+        margin-right: 5px;
+    }
+    
+    ul.view-jobs-btn-group li a{
+        padding: 0 10px;
+    }
+    
+    .contracts-main .contracts-tabs ul.tabs-nav, .job-contracted-tabs ul.tabs-nav{
+            padding: 15px 20px;
+    }
+    
+    .contracts-main .contracts-tabs ul.tabs-nav li, .job-contracted-tabs ul.tabs-nav li{
+            margin: 0 20px 0 0;
+    padding: 0 21px 0 0;
+    }
+    
+    .job-contracted-tabs, .open-contracts-cover article {
+    width: 100%;
+}
+    
+    .tab-content article{
+            width: 100%;
+        padding: 15px;
+    }
+    
+    
+    .tab-content article .client-info figure{
+        margin-right: 15px;
+    }
+    
+    .tab-content article .client-extra-info ul li{
+        padding: 0 10px;
+        font-size: 13px;
+            max-width: 265px;
+    }
+    
+    .tab-content article .client-extra-info ul li big{
+        font-size: 14px;
+    }
+    
+}

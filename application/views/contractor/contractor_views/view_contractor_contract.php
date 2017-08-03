@@ -36,7 +36,7 @@
 							  <td><a href="#"><?php echo $activity['activity_name'];?></a></td>
 							  <td><?php echo date('m/d/y h:m A',strtotime($activity['start_datetime'])); ?></td>
 							  <td><a href="#"><?php echo $activity['city']; ?></a></td>
-							  <td>Becky Cobalt</td>
+							  <td><?php echo $activity['first_name'].' '.$activity['last_name'];?></td>
 							</tr>
 					<?php }
 					}	 ?>
@@ -92,13 +92,16 @@
 				 <?php if(isset($expenses) && !empty($expenses)) 
 				 {
 					 foreach($expenses as $expense)
-					 {
+					 { 
+						if(!empty($expense->price))
+						{
 					 ?>
 					  <tr>
-						<td><?php echo ucfirst($expense['name']); ?>:</td>
-						<td>$<?php echo $expense['price']; ?></td>
+						<td><?php echo ucfirst($expense->name); ?>:</td>
+						<td>$<?php echo $expense->price; ?></td>
 					  </tr>
 				 <?php 
+						}
 					  }
 				  } ?>
                 </table>
@@ -125,7 +128,10 @@
 					<?php
 					//get the content length
 						$head = array_change_key_case(get_headers($attachment_url, TRUE));
-						$filesize = $head['content-length'];
+						if(!empty($head) && array_key_exists("content-length",$head))
+							$filesize = $head['content-length'];
+						else
+							$filesize=0;
 					?>
 				  <p class="attachedFileName"><a href="<?php echo $attachment_url; ?>"><?php echo basename($attachment_url);?> <span class="fileSize">(<?php echo number_format($filesize);?>K)</span></a></p>
 				</div>
@@ -135,7 +141,7 @@
                 <input id="terms" type="checkbox" checked>
                 <span class="custom-check"></span> Yes, I understand and agree to the <a href="#">ForceFlexing</a> <a href="#">Terms of Service</a>, including the <a href="#">User Agreement</a> and <a href="#">Privacy Policy</a>.</label>
             </div>
-			<input type="hidden" id="contract_id" name="contract_id" value="<?=(isset($contract_id) && !empty($contract_id))?$contract_id :''; ?>">
+			<input type="hidden" id="contract_id" name="contract_id" value="<?php echo (isset($contract_id) && !empty($contract_id))?$contract_id :''; ?>">
             <div class="job-post-btns">
 			  <button type="submit" id="accept_contract" class="btn btn-blue">Accept</button>
               <button type="submit" id="decline_contract" class="btn btn-gray">Decline</button>

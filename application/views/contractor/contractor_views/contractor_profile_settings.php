@@ -42,7 +42,7 @@
 						}
 					?>
                       <br>
-                      <a href="#" data-toggle="modal" data-target="#skill"data-toggle="modal" data-target="#skill"><?=(isset($skills) && $skills!="") ?'Edit':'Add'?> Skill</a>
+                      <a href="#" data-toggle="modal" data-target="#skill"data-toggle="modal" data-target="#skill"><?php echo (isset($skills) && $skills!="") ?'Edit':'Add'?> Skill</a>
 				  </p>
                   
 			  </div>
@@ -67,7 +67,7 @@
 						}
 						?>
                       <br>
-                 <a href="#" id="add_location_poup" data-toggle="modal" data-target="#location"><?=(isset($location) && $location != "") ?'Edit':'Add'?> Location</a>
+                 <a href="#" id="add_location_poup" data-toggle="modal" data-target="#location"><?php echo (isset($location) && $location != "") ?'Edit':'Add'?> Location</a>
 				  </p>
                 
               
@@ -83,7 +83,7 @@
 								<span class="industry-tag"><?php  echo $speciality;?></span>
 					<?php  }
 						?>
-                    <br><a href="#"  data-toggle="modal" data-target="#speciality"><?=(isset($speciality) && $speciality != "") ?'Edit':'Add'?> Speciality</a>
+                    <br><a href="#"  data-toggle="modal" data-target="#speciality"><?php echo (isset($speciality) && $speciality != "") ?'Edit':'Add'?> Speciality</a>
 				</p>
                  
 			  </div>
@@ -107,7 +107,7 @@
 						}
 						?>
                       <br>
-                      <a href="#"  data-toggle="modal" data-target="#industries"><?=(isset($industries) && $industries != "") ?'Edit':'Add'?> Industries</a>
+                      <a href="#"  data-toggle="modal" data-target="#industries"><?php echo (isset($industries) && $industries != "") ?'Edit':'Add'?> Industries</a>
 				  </p>
                 
 			  </div>
@@ -393,13 +393,13 @@
           <div class="add-professional-details">
 			<div class="hour-main">
 				
-				<p class="hourly_wage_val"><?php if(isset($hourly_wages) && $hourly_wages!="") echo $hourly_wages. " $/hr "; ?> <br> <a href="#" class="hourly_wage" data-toggle="modal" data-target="#hourly_wage"><?=(isset($hourly_wages) && $hourly_wages != "") ?'Edit':'Add'?> Hourly Wage</a></p>
+				<p class="hourly_wage_val"><?php if(isset($hourly_wages) && $hourly_wages!="") echo $hourly_wages. " $/hr "; ?> <br> <a href="#" class="hourly_wage" data-toggle="modal" data-target="#hourly_wage"><?php echo (isset($hourly_wages) && $hourly_wages != "") ?'Edit':'Add'?> Hourly Wage</a></p>
               
 			</div>
             
 			<div class="avail-main">
 				
-				<p class="pro-availability"><?php if(isset($availability) && $availability!="") echo ucfirst($availability); ?><br><a href="#" data-toggle="modal" data-target="#availability" ><?=(isset($availability) && $availability != "") ?'Edit':'Add'?> Availability</a></p>
+				<p class="pro-availability"><?php if(isset($availability) && $availability!="") echo ucfirst($availability); ?><br><a href="#" data-toggle="modal" data-target="#availability" ><?php echo (isset($availability) && $availability != "") ?'Edit':'Add'?> Availability</a></p>
                
 			</div>
 			
@@ -413,7 +413,7 @@
 				}
 				?>
                     <br>
-                <a href="#" id="language" data-toggle="modal" data-target="#lang"><?=(isset($languages) && $languages != "") ?'Edit':'Add'?> Languages</a>
+                <a href="#" id="language" data-toggle="modal" data-target="#lang"><?php echo (isset($languages) && $languages != "") ?'Edit':'Add'?> Languages</a>
 				</p>
                 
            
@@ -421,7 +421,7 @@
 			
 			<div class="type-main">
 				
-				<p class="freelance-type"><?php if(isset($contractor_type) && $contractor_type != "") echo ucfirst($contractor_type); ?> <br><a href="#" id="contractor-type" data-toggle="modal" data-target="#contrac-type"><?=(isset($contractor_type) && $contractor_type != "") ?'Edit':'Add'?> type</a></p>
+				<p class="freelance-type"><?php if(isset($contractor_type) && $contractor_type != "") echo ucfirst($contractor_type); ?> <br><a href="#" id="contractor-type" data-toggle="modal" data-target="#contrac-type"><?php echo (isset($contractor_type) && $contractor_type != "") ?'Edit':'Add'?> type</a></p>
            
 			</div>
 			
@@ -657,7 +657,7 @@
 							foreach($all_speciality as $speciality)
 							{
 								?>
-								<option value="<?=$speciality['category_name'];?>" <?php if($spec == $speciality['category_name']) echo 'selected';?>> <?=$speciality['category_name'];?></option>
+								<option value="<?php echo $speciality['category_name'];?>" <?php if($spec == $speciality['category_name']) echo 'selected';?>> <?php echo $speciality['category_name'];?></option>
 					  <?php }
 						}
 						?>

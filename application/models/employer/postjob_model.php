@@ -43,6 +43,10 @@ class Postjob_model extends Model
 	{
 		return $this->get_table_data($table,$field,$value);
 	}
+	public function get_job_details($table,$field,$value)
+	{
+		return $this->get_Job_Detail($table,$field,$value);
+	}
 		
 	public function Get_all_with_cond($wherekey,$wherevalue,$table)
 	{
@@ -66,6 +70,34 @@ class Postjob_model extends Model
 	public function update_record($data,$wherekey,$whereval,$table)
 	{
 		return $this->update($data,$wherekey,$whereval,$table);
+	}
+	
+	public function get_count_with_multiple_cond($where_cond,$table)
+	{
+		$where ='';	
+		$total = count($where_cond);
+		$x = 1;
+		foreach($where_cond as $key => $val)
+		{
+			if($x==$total)
+				{	
+					$where .=$key."='". $val."'"; 	
+				}
+			else
+				{	
+					$where .=$key."='". $val. "' and "; 
+				}
+			$x++;
+		}
+		$query='select * from '.$table.' where '.$where.'';
+		$results= $this->data_filter($query);
+		return count($results);
+	}
+	
+	/*custom query function*/
+	public function filter_data($qry)
+	{
+		return $this->data_filter($qry);
 	}
 }
 

@@ -65,7 +65,7 @@
 							else
 								$selected= "";
 							?>
-							 <option <?=$selected;?> value="<?=$category['category_name'];?>"><?=$category['category_name'];?></option>
+							 <option <?php echo $selected;?> value="<?php echo $category['category_name'];?>"><?php echo $category['category_name'];?></option>
 							 <?php
 						}
 					}

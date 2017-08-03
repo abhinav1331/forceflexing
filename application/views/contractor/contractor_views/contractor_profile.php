@@ -74,7 +74,7 @@
 					foreach($industries as $industry)
 					{
 						?>
-						<span class="industry-tag"><?=$industry;?></span> 
+						<span class="industry-tag"><?php echo $industry;?></span> 
 						<?php
 						if($i== 3)
 							break;
@@ -88,7 +88,7 @@
 						for($i=3;$i<count($industries);$i++)
 						{
 							?>
-							<span class="industry-tag"><?=$industries[$i];?></span>
+							<span class="industry-tag"><?php echo $industries[$i];?></span>
 							<?php
 						}
 					?>
@@ -222,7 +222,7 @@
 			</p>
 				
 			
-            <p><a href="<?php echo BASE_URL; ?>contractor/contractor_profile/<?=$username;?>">View my profile as others see It</a></p>
+            <p><a href="<?php echo BASE_URL; ?>contractor/contractor_profile/<?php echo $username;?>">View my profile as others see It</a></p>
             <div><a href="<?php echo BASE_URL; ?>/contractor/contractor_profile_settings" class="view-profile-btn">Profile Settings</a></div>
           </div>
         </aside>

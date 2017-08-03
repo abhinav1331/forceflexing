@@ -27,16 +27,16 @@
                   <tr>
 					<td><?php echo date('m-d-Y', strtotime($jobs['created_date'])); ?></td>
                     <td><?php echo $jobs['job_title']; ?></td>
-                    <td><a href="#">ForceFlexing</a></td>
+                    <td><a href="<?php echo (isset($jobs['company_url']))? $jobs['company_url']:'javascript:void(0);';?>"><?php echo $jobs['company_name'] ;?></a></td>
                     <td class="noBorder">
 					<div class="dropdown">
                         <button class="btn btn-blue dropdown-toggle" type="button" id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Actions <i class="fa fa-angle-down" aria-hidden="true"></i> </button>
                         <ul class="dropdown-menu blue animated fast fadeInUpSmall" aria-labelledby="actions">
-                          <li><a href="<?php echo BASE_URL?>contractor/job_description/<?=$jobs['job_slug']; ?>">View Job Post</a></li>
-                          <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?=$jobs['applied_job_id'];?>">Withdraw Application</a></li>
-                          <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?=$jobs['applied_job_id'];?>">View Submitted Application</a></li>
+                          <li><a href="<?php echo BASE_URL?>contractor/job_description/<?php echo $jobs['job_slug']; ?>">View Job Post</a></li>
+                          <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?php echo $jobs['applied_job_id'];?>">Withdraw Application</a></li>
+                          <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?php echo $jobs['applied_job_id'];?>">View Submitted Application</a></li>
                           <?php if(empty($jobs['message'])) { ?>
-							<li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?=$jobs['applied_job_id'];?>/#msgArea">Message</a></li>
+							<li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?php echo $jobs['applied_job_id'];?>/#msgArea">Message</a></li>
 						  <?php } ?>
                         </ul>
                       </div>
@@ -67,16 +67,16 @@
                   <tr>
                     <td><?php echo date('m-d-Y', strtotime($jobs['created_date'])); ?></td>
                     <td><?php echo $jobs['job_title']; ?></td>
-                    <td><a href="#">ForceFlexing</a></td>
+                    <td><a href="<?php echo (isset($jobs['company_url']))? $jobs['company_url']:'javascript:void(0);';?>"><?php echo $jobs['company_name'] ;?></a></td>
                     <td><a href="#"><?php echo $jobs['message']; ?></a></td>
                     <td class="noBorder">
 							<div class="dropdown">
 								<button class="btn btn-blue dropdown-toggle" type="button" id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Actions <i class="fa fa-angle-down" aria-hidden="true"></i> </button>
 								 <ul class="dropdown-menu blue animated fast fadeInUpSmall" aria-labelledby="actions">
-								  <li><a href="<?php echo BASE_URL?>contractor/job_description/<?=$jobs['job_slug']; ?>">View Job Post</a></li>
-								  <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?=$jobs['id'];?>">Withdraw Application</a></li>
-								  <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?=$jobs['id'];?>">View Submitted Application</a></li>
-								  <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?=$jobs['id'];?>">Message</a></li>
+								  <li><a href="<?php echo BASE_URL?>contractor/job_description/<?php echo $jobs['job_slug']; ?>">View Job Post</a></li>
+								  <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?php echo $jobs['id'];?>">Withdraw Application</a></li>
+								  <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?php echo $jobs['id'];?>">View Submitted Application</a></li>
+								  <li><a href="<?php echo BASE_URL?>contractor/view_posted_job/?applied_job=<?php echo $jobs['id'];?>">Message</a></li>
 								</ul>
 						  </div>
 					 </td>
@@ -106,17 +106,17 @@
                   <tr>
                     <td><?php echo date('m-d-Y',$ep['job_created']); ?></td>
                     <td><?php echo $ep['job_title']; ?></td>
-                    <td><a href="#">ForceFlexing</a></td>
-                    <td><?=$ep['job_type']; ?>: $<?=$ep['job_price'];?></td>
-                    <td><?=sprintf('%02d', $ep['job_activities']);?></td>
+                    <td><a href="<?php echo (isset($ep['company_url']))? $ep['company_url']:'javascript:void(0);';?>"><?php echo $ep['company_name'] ;?></a></td>
+                    <td><?php echo $ep['job_type']; ?>: $<?php echo $ep['job_price'];?></td>
+                    <td><?php echo sprintf('%02d', $ep['job_activities']);?></td>
                     <td><?php echo date('m-d-Y',$ep['created_date']); ?></td>
                     <td class="noBorder"><div class="dropdown">
                         <button class="btn btn-blue dropdown-toggle" type="button" id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Actions <i class="fa fa-angle-down" aria-hidden="true"></i> </button>
                         <ul class="dropdown-menu blue animated fast fadeInUpSmall" aria-labelledby="actions">
-							 <li><a href="<?php echo BASE_URL?>contractor/job_description/<?=$ep['job_slug']; ?>">View Job post</a></li>
+							 <li><a href="<?php echo BASE_URL?>contractor/job_description/<?php echo $ep['job_slug']; ?>">View Job post</a></li>
 							 <!--<li> <a href="<?php echo BASE_URL?>">View Company Invite</a>
 							 <li><a href="#">Decline Company Invite</a></li>-->
-							 <li><a href="<?php echo BASE_URL?>contractor/job_description/<?=$ep['job_slug']; ?>">Message</a></li>
+							 <li><a href="<?php echo BASE_URL?>contractor/job_description/<?php echo $ep['job_slug']; ?>">Message</a></li>
 						</ul>
                       </div></td>
                   </tr>

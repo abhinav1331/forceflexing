@@ -79,7 +79,7 @@
 </header>
 <?php 
  $actual_link = "$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; 
- if( strpos($actual_link, 'find_job') != false || strpos($actual_link, 'job_proposals') != false)
+ if( strpos($actual_link, 'find_job') != false || strpos($actual_link, 'job_proposals') != false || strpos($actual_link, 'mystats') != false)
 	$sub="display:block";
  else
 	$sub="display:none";
@@ -89,22 +89,22 @@
  else
 	$submyjob="display:none";
 
-if( strpos($actual_link, 'find_job') != false || strpos($actual_link, 'my_jobs') != false || strpos($actual_link, 'job_proposals') != false)
+if( strpos($actual_link, 'find_job') != false || strpos($actual_link, 'my_jobs') != false || strpos($actual_link, 'job_proposals') != false || strpos($actual_link, 'mystats') != false)
 	$main="display:block";
 else
 	$main="display:none";
  
 ?>
-<nav class="sub-navigation" style="<?=$main;?>">
+<nav class="sub-navigation" style="<?php echo $main;?>">
   <div class="container">
-    <ul class="find-job-sub-nav" style="<?=$sub;?>">
+    <ul class="find-job-sub-nav" style="<?php echo $sub;?>">
       <li><a href="<?php echo BASE_URL; ?>contractor/find_job/">Find Jobs</a></li>
       <li><a href="#">Saved Jobs</a></li>
       <li><a href="<?php echo BASE_URL; ?>contractor/job_proposals/">Proposals</a></li>
-      <li><a href="#">My Stats</a></li>
+      <li><a href="<?php echo BASE_URL; ?>contractor/mystats/">My Stats</a></li>
     </ul>
-	<ul class="my-jobs-sub-nav" style="<?=$submyjob;?>">
-       <li><a href="#">My Jobs</a></li>
+	<ul class="my-jobs-sub-nav" style="<?php echo $submyjob;?>">
+       <li><a href="<?php echo BASE_URL; ?>contractor/my_jobs/">My Jobs</a></li>
       <li><a href="#">My Job Reports</a></li>
     </ul>
   </div>

@@ -36,7 +36,7 @@
 			  
 			  <?php if(!empty($userdata) && !empty($userdata['speciality'])){ ?>
 			  <p class="pro-speciality">
-				<span class="industry-tag"><?=$userdata['speciality'];?></span>
+				<span class="industry-tag"><?php echo $userdata['speciality'];?></span>
 			  </p>
 			  <?php } ?>
               <p class="pro-industries">
@@ -48,7 +48,7 @@
 					foreach($industries as $industry)
 					{
 						?>
-						<span class="industry-tag"><?=$industry;?></span> 
+						<span class="industry-tag"><?php echo $industry;?></span> 
 						<?php
 						if($i== 3)
 							break;
@@ -63,7 +63,7 @@
 						for($i=3;$i<count($industries);$i++)
 						{
 							?>
-							<span class="industry-tag"><?=$industries[$i];?></span>
+							<span class="industry-tag"><?php echo $industries[$i];?></span>
 							<?php
 						}
 					?>
@@ -92,7 +92,7 @@
 				  <div align="right">
 					<div class="more-content" style="display:none;">
 					 <?php for($i=1;$i<count($desc); $i++){ ?>
-						 <p><?=$desc[$i];?></p>
+						 <p><?php echo $desc[$i];?></p>
 					 <?php } ?>
 					</div>
 					<a id="moreToggle" href="javascript:void(0);" class="view-more-toggle"><span class="sr-only">View More</span> <i class="fa fa-angle-down" aria-hidden="true"></i></a>
@@ -273,7 +273,7 @@
           <div class="profile-link">
             <h4>Profile link</h4>
             <div>
-              <input type="text" value="<?php echo BASE_URL ;?>contractor/contractor_profile/<?=$user['username'];?>" class="input" readonly>
+              <input type="text" value="<?php echo BASE_URL ;?>contractor/contractor_profile/<?php echo $user['username'];?>" class="input" readonly>
             </div>
           </div>
           <div class="last-online">

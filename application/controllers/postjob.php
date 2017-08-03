@@ -34,6 +34,7 @@ class Postjob extends Controller
 			$job_activities=$this->Model->get_Data_table(PREFIX.'job_activities','job_id',$_SESSION['onchangeValue']);
 			$job_additional_hours=$this->Model->get_Data_table(PREFIX.'job_additional_hours','job_id',$_SESSION['onchangeValue']);
 			$job_questions=$this->Model->get_Data_table(PREFIX.'job_questions','job_id',$_SESSION['onchangeValue']);
+			$expenditure = $this->Model->get_Data_table(PREFIX.'job_expenditure','job_id',$_SESSION['onchangeValue']);
 			if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) {
 				if (isset($_COOKIE['force_username'])) {
 					$username = $_COOKIE['force_username'];
@@ -53,6 +54,7 @@ class Postjob extends Controller
 			$template->set("job_activities" , $job_activities);
 			$template->set("job_additional_hours" , $job_additional_hours);
 			$template->set("job_questions" , $job_questions);
+			$template->set("expenditure" , $expenditure);
 			$template->render();
 			// $this->loadview('Employer/postjob/index')->render();	
 			$templateFooter = $this->loadview('main/footer');
@@ -147,7 +149,11 @@ class Postjob extends Controller
 							$countRecommended = 0;
 						}
 						
-						
+						if(isset($_POST['jp_flexRate'])) {
+							$vall = "on";
+						} else {
+							$vall = "off";
+						}
 						$data1 =  array(
 						 'job_author'=>$current_user_data['id'], 
 						 'job_title'=>$_POST['jp_title'], 
@@ -179,6 +185,7 @@ class Postjob extends Controller
 						 'job_hours'=>$_POST['hours_per_week'],
 						 'hours_billed'=>$_POST['hours_billed'],
 						 'jobs_speciality'=>$_POST['job_speciality'],
+						 'additional_hours_status'=>$_POST['jp_pay_additonal_hours'],
 						 'job_overnight'=>$_POST['over_night_travel']
 						);
 						$Results1 = $this->Model->Insert_users($data1,PREFIX.'jobs');
@@ -366,6 +373,7 @@ class Postjob extends Controller
 				$temp = $this->loadview('Employer/postjob/jobpreview');
 				$temp->set('params',$params);
 				$temp->set('userDate',$current_user_data);
+				$temp->set('models',$this->Model);
 				$temp->render();
 				$this->loadview('main/footer')->render();
 				// unset($_SESSION['previewJob']);

@@ -2046,6 +2046,25 @@ jQuery('#decline_contract').click(function(){
 });
 
 /*Company profile*/
+/****** Add image **********/
+jQuery('#empavselect').change(function(){
+	readURL(this);
+});
+function readURL(input) 
+{
+  if (input.files && input.files[0]) 
+  {
+	var reader = new FileReader();
+	reader.onload = function(e) 
+	{
+		jQuery('#previewHolderEmp').attr('src', e.target.result);
+		jQuery('.avatar-select').addClass('filled');
+		jQuery('#employer_avatar').attr('value',e.target.result)
+	}
+	reader.readAsDataURL(input.files[0]);
+  }
+}
+
 //get the states based on the country
 jQuery('#company_country').change(function(){
 	var country=jQuery(this).val();
@@ -2075,6 +2094,12 @@ jQuery('#company_state').change(function(){
 });
 
 //validate
+jQuery.validator.addMethod("pwcheck", function(value) {
+   return /[a-z]/.test(value) // has a uppercase letter
+       && /[a-z]/.test(value) // has a lowercase letter
+       && /\d/.test(value) // has a digit
+});
+
 jQuery('#company_profile').validate({
 	ignore: "",
 	rules: {
@@ -2091,24 +2116,52 @@ jQuery('#company_profile').validate({
 			required: true,
 			email: true		 
 		},
-		company_mobile_phone:{required: true},
+		company_mobile_phone:{required: true,rangelength: [9, 15],number: true},
 		company_industries:{required: true},
-		employer_old_password:{required: true},
 		employer_new_password: 
 		{
-			required: true,
-			minlength: 6	
+			pwcheck: false,
+			minlength: 12	
 		},
 		employer_confirm_password:
 		{
-			required: true,
-			minlength: 6,
+			required: function(element){
+            if(jQuery("#employer_new_password").val().length > 0)  
+				return true;
+			else
+				return false;
+			},
+			minlength: 12,
 			equalTo : "#employer_new_password"
 			
 		},
+		employer_old_password:
+		{
+			required:	function(element){ 
+			if(jQuery("#employer_new_password").val().length > 0) 
+				return true;
+			else
+				return false;
+			}
+		},
 		employer_new_question:{required: true},
 		employer_new_answer	:{required: true},
-		rememberThis:{required: true},
+		employer_existing_answer :{
+			required: function(element)
+			{
+				if( jQuery('#employer_new_answer_edit').length )
+				{
+					if(jQuery("#employer_new_answer_edit").val().length > 0 || jQuery('#employer_new_question_edit').val().length > 0)
+						return true;
+					else
+					return false;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		},
 		employer_sms:{required: true},
 		
 		team_first_name: {
@@ -2217,4 +2270,198 @@ jQuery('#company_profile').validate({
 		company_mobile_notifi:{required: true},
 		company_email_notifi:{required: true}
 	}
+});
+
+/*Ajax for password match*/
+jQuery('#employer_old_password').blur(function(){
+	var oldpass=jQuery(this).val();
+	var emp_id=jQuery('#emp_id').val();
+	if(oldpass)
+	{
+		jQuery.ajax({
+		type: "POST",
+		data : {"oldpass":oldpass,'empid':emp_id},
+		url : base_url+"/employer/match_pass",
+		success: function(resp)
+			{
+				if(resp == 0)
+				{	
+					toastr.error("Old Password does not match !!");
+					jQuery('#employer_old_password').addClass('error');
+					jQuery('.company-profile-btn').attr('disabled','true');
+				}
+				else
+				{
+					jQuery('#employer_old_password').removeClass('error');
+					jQuery('.company-profile-btn').removeAttr('disabled');
+				}
+			}
+		});
+	}
+});
+
+jQuery('.team_email_add').blur(function(){
+	var email=jQuery('.team_email_add').val();
+	if(email != "" || email != null)
+	{
+		jQuery.ajax({
+			type:'POST',
+			data:{'email':email},
+			url: base_url+"/employer/emailexists",
+			success: function(resp)
+			{
+				if(resp == 0)
+				{	
+					toastr.error("Email Already Exists !!");
+					jQuery('.team_email_add').addClass('error');
+					jQuery('.company-profile-btn').attr('disabled','true');
+				}
+				else
+				{
+					jQuery('.team_email_add').removeClass('error');
+					jQuery('.company-profile-btn').removeAttr('disabled');
+				}
+			}
+		});
+	}
+});
+
+jQuery('#employer_existing_answer').blur(function()
+{
+	var answer= jQuery(this).val();
+	var emp_id=jQuery('#emp_id').val();
+	if(answer)
+	{
+		jQuery.ajax({
+			type:'POST',
+			data:{"existing_answer":answer,'company_id':emp_id},
+			url: base_url+"/employer/check_answer",
+			success: function(resp)
+			{
+				if(resp == 0)
+				{	
+					toastr.error("Answer does not match with the one you've provided!!");
+					jQuery('#employer_existing_answer').addClass('error');
+					jQuery('.company-profile-btn').attr('disabled','true');
+				}
+				else
+				{
+					jQuery('#employer_existing_answer').removeClass('error');
+					jQuery('.company-profile-btn').removeAttr('disabled');
+				}
+			}
+		});
+	}
+});
+
+//send verification code
+jQuery('#send_verification_code').click(function(){
+	var country=jQuery('#company_country').val();
+	var phone_number=jQuery('#company_mobile_phone').val();
+	jQuery.ajax({
+			type:'POST',
+			dataType: 'json',
+			data: { "country": country, "phone_num":phone_number }, 
+			url: base_url+"/employer/send_otp",
+			success: function(resp)
+			{
+				if(resp.msgstatus == 1)
+				{
+					jQuery('#verification_code_val').val(resp.random_number);
+					toastr.success("Message sent successfully!!");
+				}
+				else
+				{
+					toastr.error("There was an error while sending your message. Please Try Again!!");
+				}
+			}
+		});
+});
+
+//verify the code
+jQuery('#employer_sms').blur(function(){
+	var verfi_code=	jQuery(this).val();
+	var rand_number= jQuery('#verification_code_val').val();
+	if(rand_number != "" || rand_number != "null")
+	{
+		if(verfi_code !== rand_number)
+		{
+			toastr.error("Invalid Verification Code!!");
+			jQuery('#employer_sms').addClass('error');
+			jQuery('.company-profile-btn').attr('disabled','true');
+		}
+		else
+		{
+			toastr.success("Code successfully verified!!");
+			jQuery('#employer_sms').removeClass('error');
+			jQuery('.company-profile-btn').removeAttr('disabled');
+		}
+	}
+});
+
+/*ajax to view activity*/
+jQuery('.view_activity').click(function(){
+	var activity_id=jQuery(this).attr('data-id');
+	var contract_id=jQuery('#contract_id').val();
+	if(activity_id != "")
+	{
+		jQuery.ajax({
+			type:'POST',
+			data: { "activity_id": activity_id, "contract_id":contract_id }, 
+			url: base_url+"/contractor/view_activity",
+			success: function(resp)
+			{
+				jQuery('.activity-section').html(resp).show();
+			}
+		});
+	}
+});
+
+/*Ajax to update the activity status of the hired contractor*/
+jQuery(document).on('click','#activity_status_button',function(){
+	//console.log(jQuery(this).attr('data-status'));
+	var activ_status=jQuery(this).attr('data-status');
+	var id=jQuery('#activity_status_id').val();
+	if(activ_status == 0)
+	{
+		var btn_msg="Move to Completed";
+	}
+	else
+	{
+		var btn_msg="Move Back to Pending";
+	}
+	jQuery.ajax({
+		type:"POST",
+		data:{"activity_status": activ_status, "id":id},
+		url: base_url+'contractor/hired_activity_status',
+		success: function(resp)
+		{
+			if(resp == 1)
+			{
+				toastr.success("Activity status is changed successfully!!");
+				setInterval(function(){ location.reload(); }, 1000); 
+			}
+		}
+		
+	});
+});
+
+/*Withdraw from activity*/
+jQuery(document).on('click','#withdraw_activity_button',function(){
+	var id=jQuery('#activity_status_id').val();
+	jQuery.ajax({
+		type:"GET",
+		data:{"id": id},
+		url: base_url+'contractor/withdraw_activity/',
+		success: function(resp)
+		{
+			if(resp == 1)
+			{
+				jQuery('#withdraw_activity').modal('toggle');
+				toastr.success("You are successfully withdrawn from the activity.");
+				setInterval(function(){ location.reload(); }, 1000); 
+			}
+		}
+		
+	});
 });

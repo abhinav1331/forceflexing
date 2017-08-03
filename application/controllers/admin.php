@@ -6,13 +6,25 @@ class Admin extends Backend
 	public $Jobs;
 	public $Options;
 	public $Validate;
+	public $Notification;
+	public $Testimonials;
+	public $Menu;
+	public $Pages;
 	
 	public function __construct()
 	{
+		ob_start();
+		/* Loading Modals */
 		$this->Users = $this->loadModel('Users','admin');
 		$this->Jobs = $this->loadModel('jobs','admin');
+		$this->Notification = $this->loadModel('notification','admin');
+		$this->Pages = $this->loadModel('page','admin');
+		
+		/* Loading Helpers */
 		$this->Options = $this->loadHelper('options');
+		$this->Menu = $this->loadHelper('menu');
 		$this->Validate = $this->loadHelper('validator');
+		$this->Testimonials = $this->loadHelper('testimonials');
 	}
 	
 	public function index()
@@ -737,6 +749,19 @@ class Admin extends Backend
 			
 	}
 	
+	private function Validate_Notification($Data)
+	{
+		$Data = $this->Validate->sanitize($Data); // You don't have to sanitize, but it's safest to do so.
+
+			$this->Validate->validation_rules(array(
+				'title'   => 'required|alpha_space',
+				'message' => 'required',				
+			));
+ 
+		return $validated_data = $this->Validate->run($Data);
+	}
+	
+	
 	public function check_login()
 	{
 		if(!isset($_SESSION['admin']))
@@ -969,8 +994,77 @@ class Admin extends Backend
 	
 	public function options()
 	{
-		$this->check_login();	// Session check
-		$this->loadview('admin/main/include/header')->render();	
+		
+		$this->check_login();
+		 $this->loadview('admin/main/include/header')->render();
+		/*
+		$segment = explode('/',$_SERVER['REQUEST_URI']);		
+		if($segment[3] == 'menu')
+		{
+			$data  = $this->Menu->getMenuList();
+			
+			$form = '';
+			$form .= '<form method="GET" action="'.BASE_URL.'admin/options/menu/">
+			<input type="hidden" name="action" value="edit">
+			<select name="menuid"><option>Select Menu </option>';
+			foreach($data as $keys)
+			{
+				if(isset($_GET['menuid']) && $_GET['menuid'] == $keys["id"])
+				{
+					$form .= '<option selected value="'.$keys["id"].'">'.$keys["option_value"].'</option>';
+				}
+				else
+				{
+					$form .= '<option value="'.$keys["id"].'">'.$keys["option_value"].'</option>';
+				}
+				
+			}
+			$form .= '</select>';
+			$form .= '<input type="submit" value="Select"></form>';
+			
+			
+				if(isset($_GET['action']) && $_GET['action'] == 'edit')
+				{
+					$MenuData = $this->Menu->Get_Menu($_GET['menuid']);	
+					$PageData = $this->Pages->getPageList();	
+					
+					if($MenuData != NULL)
+					{
+						$view = $this->loadview('admin/options/menu/index');
+						$view->set('menuName',$MenuData['menuName']);
+						$view->set('page_list',$PageData);
+						$view->set('menuList',$MenuData['menuList']);
+						$view->set('menuid',$MenuData['menuID']);
+						$view->set('menus',$form);						
+						$view->set('action','');
+						$view->set('button','<input type="button" name="Createmenu" value="Save Menu" class="btn btn-primary Savemenu">');
+						$view->render();
+					}
+					else
+					{
+						$this->redirect("admin/options/menu");
+						exit;
+					}
+				}
+				else
+				{
+					$Action_Url = BASE_URL.'admin/CreateMenu';			
+					$view = $this->loadview('admin/options/menu/index');
+					$view->set('action',$Action_Url);
+					$view->set('menus',$form);
+					$view->set('button','<input type="submit" name="Createmenu" value="Create Menu">');
+					$view->render();
+				}
+			
+		}
+		// Footer Addition Scripts include 
+			 */
+		
+		
+		
+		//$segment[3];
+		// $this->check_login();	// Session check
+			
 		if(isset($_GET['addOption']) && $_GET['addOption'] == 'addCountry')
 		{	
 			$value = $this->Options->get_single_row('option_name', 'show_country','flex_options');
@@ -997,7 +1091,7 @@ class Admin extends Backend
 					}					
 			}
 				
-				/* Getting Countries Listing */
+				// Getting Countries Listing 
 			$Countries = $this->Options->get_countries();			
 			$view = $this->loadview('admin/options/country');
 			$view->set('Countries',$Countries);
@@ -1011,8 +1105,862 @@ class Admin extends Backend
 			$view = $this->loadview('admin/options/notification');
 			//$view->set('',);
 			$view->render();
-		}
+		} 
 		//$this->loadview('admin/options/index')->render();
-		$this->loadview('admin/main/include/footer')->render();
+		
+		$additional_scripts = '
+					<script src="'.BASE_URL.'static/js/jquery.validate.min.js"></script>
+					<script src="'.BASE_URL.'static/js/jquery.nestable.js"></script>
+					<script>
+					$(document).ready(function(){
+
+						$(".dd").nestable();	
+						$(\'.AddItem\').click(function(){
+							$("#MenuForm").validate({
+								rules: {
+										 Title: {
+											required: true               
+										},
+										UrlAddress: {
+											required: true,
+											url: true									
+										}
+									}									
+							});
+							if ($("#MenuForm").valid()) // check if form is valid
+							{
+								var title = $("#title").val();
+								var url = $("#url").val();	
+								
+								$(\'#menus\').append(\'<li data-value="\'+url+\'" data-name="\'+title+\'" class="dd-item"><div class="dd-handle">\'+title+\' <i class="fa fa-window-close dd-nodrag" aria-hidden="true"></i></div></li>\');
+								
+								$("#MenuForm")[0].reset();													
+							}				
+						});
+						
+						$(".Savemenu").click(function()
+						{
+							var meName = $("input[name=\'menu_name\']").val();	
+							var meNameID = $("input[name=\'menu_name\']").attr("rel");	
+							
+							$.ajax({
+									type:"POST",
+									url:"'.SITEURL.'admin/UpdateMenu",
+									data:{menu:$(\'.dd\').nestable(\'serialize\'),menuname:meName,menuID:meNameID},
+									success:function(res)
+										{
+											//console.log(res);	
+										}
+									})						
+						})
+						
+						
+						$(".page_menu").click(function()
+						{
+							$(".page_li:checked").each(function(){
+							
+								//alert($(this).attr("value"));
+								var title = $(this).attr("value");
+								var url = $(this).attr("url");	
+													
+								$(\'#menus\').append(\'<li data-value="\'+url+\'" data-name="\'+title+\'" class="dd-item"><div class="dd-handle">\'+title+\' <i class="fa fa-window-close" aria-hidden="true"></i></div></li>\');
+
+								
+							})
+						});
+
+						$(document).on("click",".dd-nodrag",function(){
+						$(this).closest("li").remove();
+
+						});
+						
+					});
+					</script>';		
+		$footer = $this->loadview('admin/main/include/footer');
+		$footer->set('additional', $additional_scripts);
+		$footer->render();
+		
+		
 	}
+	
+	/* 
+	*	Page Section 
+	*	@Author Chhavinav Sehgal
+	*	Admin Section
+	*/
+	
+	public function pages()
+	{
+		$this->check_login();		// Checking Login Session
+		$segement = explode('/',$_SERVER['REQUEST_URI']);
+		
+		if( isset($segement[3]) && $segement[3] == "addNew" )
+		{
+			if(isset($_POST['save']))
+			{
+				$content = $_POST;
+				$ID = $this->Pages->SavePage($content);
+				$this->redirect("admin/pages/editPage/$ID");
+				exit;
+			}
+			else
+			{
+				$this->CreatePage();
+			}
+		}
+		elseif( isset($segement[3]) && $segement[3] == "editPage" )
+		{
+			if(!empty($segement[4]))
+			{				
+				if(isset($_POST['update']))
+				{
+					$content = $_POST;
+					$this->Pages->UpdatePage($content,$segement[4]);
+					$this->redirect("admin/pages/editPage/".$segement[4]);
+					exit; 
+				}
+				else
+				{
+					$this->EditPage($segement[4]);
+				}
+			}
+			else
+			{
+				$this->redirect("admin/pages");
+				exit;
+			}
+			
+		}
+		elseif( isset($segement[3]) && $segement[3] == "Trash" )
+		{
+			if(isset($_POST['deletPage']) && $_POST['ID'] != "")
+			{
+				$this->Pages->removePageData($_POST['ID']);
+				exit;
+			}
+			elseif( isset($_POST['restorePage']) && $_POST['ID'] != "" )
+			{
+				$this->Pages->RestorePage($_POST['ID']);
+				exit;
+			}
+			else
+			{
+				$this->getTrash();
+			}
+			
+		}		
+		else
+		{
+		
+		if(isset($_POST['trashPage']) && $_POST['ID'] != "")
+		{
+			$this->Pages->trashPage($_POST['ID']);
+			exit;
+		}		
+			
+			/* Header Section */
+		
+		$additional_css = '
+		<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';				
+		$header = $this->loadview('admin/main/include/header');
+		$header->set('additional_css',$additional_css);
+		$header->render();
+		
+		$heading = '<h1 class="page-header">Pages 
+					<a href="'.SITEURL .'admin/pages/addNew"><button type="button" class="btn btn-outline btn-primary">Add Page</button></a>
+					<a href="'.SITEURL .'admin/pages/Trash"><button type="button" class="btn btn-outline btn-primary">Trash Page</button></a>
+					</h1>';				
+		
+		/* Content Section */
+		$table = $this->Pages->getAll();
+		$view = $this->loadview('admin/pages/index');
+		$view->set('heading',$heading);
+		$view->set('Details',$table);
+		$view->render();
+		
+		/* Footer Section */
+		$additional_scripts = '';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/tinymce.js"></script>
+		<script src="'.BASE_URL.'static/js/toastr.js"></script>
+		<script>
+		$(document).ready(function() 
+			{
+				$(".Del_page").click(function(){
+					var Confirm = confirm(" Are Your Sure ! You Want to Delete This Page");
+						if (Confirm == true) 
+						{
+							var ID = $(this).attr("id");
+							$.ajax({
+								type:"POST",
+								URL:"http://force.imarkclients.com/admin/pages/",
+								data:{"ID":ID,"trashPage":"DEL"},
+								success:function(res)
+								{
+									toastr.success("Page Trashed !", "Successfully");
+									setTimeout(function(){ location.reload(); }, 3000);
+									
+								}
+							});
+						} 
+				})
+			});
+		</script>';		
+		$footer = $this->loadview('admin/main/include/footer');	
+		$footer->set('additional', $additional_scripts);		
+		$footer->render();
+		}
+		
+	}
+	
+	private function CreatePage()
+	{
+		
+		/* Header Section */
+		$additional_css = '<link href="'.BASE_URL.'static/admin/css/jquery-ui.css" rel="stylesheet">';		
+		$header = $this->loadview('admin/main/include/header');
+		//$header->set('additional_css',$additional_css);
+		$header->render();	
+		
+		/* Content Section */
+		$view = $this->loadview('admin/pages/add');
+		$view->render();
+		
+		
+		/* Footer Section */
+		$additional_scripts = '';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/tinymce.js"></script>
+		<script>
+		$(document).ready(function() 
+			{
+				tinymce.init({ selector:"textarea" });
+				/* ADDING EDITOR */
+				//$(".txtEditor").Editor();
+				 //CKEDITOR.replace( "editor1" );
+			   //CKEDITOR.replaceAll( "txtEditor" );
+			});
+		</script>';
+		$footer = $this->loadview('admin/main/include/footer');
+		$footer->set('additional', $additional_scripts);
+		$footer->render();
+		
+	}
+	
+	private function EditPage($ID)
+	{
+		
+		$Data =  $this->Pages->get_single_row('id', $ID,PREFIX .'pages');
+		if(empty($Data))
+		{
+			$this->redirect("admin/pages");
+			exit;
+		}			
+		
+				/* Header Section */
+		$additional_css = '<link href="'.BASE_URL.'static/admin/css/jquery-ui.css" rel="stylesheet">';		
+		$header = $this->loadview('admin/main/include/header');
+		//$header->set('additional_css',$additional_css);
+		$header->render();	
+		
+		/* Content Section */
+		$view = $this->loadview('admin/pages/add');
+		$view->set('data',$Data);
+		$view->render();
+		
+		
+		/* Footer Section */
+		$additional_scripts = '';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/tinymce.js"></script>
+		<script>
+		$(document).ready(function() 
+			{
+				tinymce.init({ selector:"textarea" });
+				/* ADDING EDITOR */
+				//$(".txtEditor").Editor();
+				 //CKEDITOR.replace( "editor1" );
+			   //CKEDITOR.replaceAll( "txtEditor" );
+			});
+		</script>';
+		$footer = $this->loadview('admin/main/include/footer');
+		$footer->set('additional', $additional_scripts);
+		$footer->render();
+	}
+	
+	private function getTrash()
+	{
+		
+		/* Header Section */
+		$additional_css = '
+		<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';				
+		$header = $this->loadview('admin/main/include/header');
+		$header->set('additional_css',$additional_css);
+		$header->render();
+		
+		$heading = '<h1 class="page-header">Trash Pages 
+						<a href="'.SITEURL .'admin/pages/addNew"><button type="button" class="btn btn-outline btn-primary">Add Page</button></a>
+						<a href="'.SITEURL .'admin/pages/"><button type="button" class="btn btn-outline btn-primary">Pages</button></a>
+					</h1>';		
+		
+		/* Content Section */
+		$table = $this->Pages->getTrashs();
+		$view = $this->loadview('admin/pages/index');
+		$view->set('heading',$heading);
+		$view->set('Details',$table);
+		$view->render();
+		
+		/* Footer Section */
+		$additional_scripts = '';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/tinymce.js"></script>
+		<script src="'.BASE_URL.'static/js/toastr.js"></script>
+		<script>
+		$(document).ready(function() 
+			{
+				$(".Del_page").click(function(){
+					var Confirm = confirm(" Are Your Sure ! You Want to Delete This Page");
+						if (Confirm == true) 
+						{
+							var ID = $(this).attr("id");
+							$.ajax({
+								type:"POST",
+								URL:"http://force.imarkclients.com/admin/pages/",
+								data:{"ID":ID,"deletPage":"DEL"},
+								success:function(res)
+								{
+									toastr.success("Have fun storming the castle!", "Miracle Max Says");
+									setTimeout(function(){ location.reload(); }, 3000);
+								}
+							});
+						} 
+						else 
+						{
+							console.log("You pressed Cancel!");
+						}
+				})
+				
+				$(".Res_page").click(function()
+				{					
+					var ID = $(this).attr("id");
+					$.ajax({
+						type:"POST",
+						URL:"http://force.imarkclients.com/admin/pages/",
+						data:{"ID":ID,"restorePage":"RES"},
+						success:function(res)
+						{
+							toastr.success("Page Restored !", "Successfully");
+							setTimeout(function(){ location.reload(); }, 3000);
+						}
+					});
+				})
+				
+				
+				
+			});
+		</script>';		
+		$footer = $this->loadview('admin/main/include/footer');	
+		$footer->set('additional', $additional_scripts);		
+		$footer->render();
+		
+	}
+	/* 
+	*	Menu Section 
+	*	@Author Chhavinav Sehgal
+	*	Admin Section
+	*/
+	
+	public function CreateMenu()
+	{
+		$this->check_login();
+		if(isset($_POST['Createmenu']))
+			{
+				$data = array(
+					'option_name'=> 'menu',
+					'option_value'=> $_POST['menu_name']
+					);
+				
+				$menu_id = $this->Menu->Insert_Menu($data);	
+				
+				$menulist = array(
+					'option_name'=> 'menuList_'.$menu_id,
+					'option_value'=> ''
+					);
+				
+				$this->Menu->Insert_Menu($menulist);
+				$this->redirect("admin/options/menu/?action=edit&menuid=$menu_id");
+				exit;
+			}
+			
+	}
+	
+	
+	public function UpdateMenu()
+	{
+		if(isset($_POST['menu']) || isset($_POST['menuname']) && isset($_POST['menuID']) )
+		{
+			if(isset($_POST['menu']))
+			{
+				$MenuList = json_encode($_POST['menu']);
+				$MenuName = $_POST['menuname'];
+				$menuid   = $_POST['menuID'];	
+				$result = $this->Menu->UpdateMenuList($MenuName,$menuid,$MenuList);
+				print_r($result);
+			}
+			elseif(isset($_POST['menuID']))
+			{
+				$MenuName = $_POST['menuname'];
+				$menuid   = $_POST['menuID'];	
+				$result = $this->Menu->UpdateMenuName($MenuName,$menuid);
+				print_r($result);
+			}
+			
+		}
+		else
+		{
+			$this->redirect("admin/options/menu/");
+			exit;
+		}
+		
+	}
+	
+	
+	
+	
+	/* 
+	*	Notification Setting Section Start
+	*	@Author Chhavinav Sehgal
+	*	Admin Section
+	*/
+	
+	public function AddNotification()
+	{
+		/* Header Section */
+		$additional_css = '<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';		
+		$header = $this->loadview('admin/main/include/header');
+		$header->set('additional_css',$additional_css);
+		$header->render();
+		
+		/* Post Request To Insert */
+			if(isset($_POST['add_notification']))
+			{
+				$Data = $_POST;
+				if($this->Validate_Notification($Data) === false)
+				{		
+					$errors = $this->Validate->get_errors_array();					
+					$addNotification = $this->loadview('admin/notification/add');
+					$addNotification->set('error',$errors);
+					$addNotification->set('Fileds',$Data);					
+					$addNotification->render();
+					
+				}
+				else
+				{
+					$date = new DateTime();					
+					$data =  array(
+					 'title'=>$_POST['title'], 
+					 'message'=>$_POST['message'],					 
+					 'CreatedOn'=>$date->getTimestamp(),
+					 'ModifiedOn'=>$date->getTimestamp(),					 
+					 'visible'=>'0',					 
+					);
+					
+					$result = $this->Notification->InsNotification($data);
+					if($result)
+					{
+						$msg_success = 'Notification Inserted Successfully';
+					}
+					else
+					{
+						$msg_error = 'Notification not inserted Please Try Again After Some Time';
+					}
+					
+					
+					$addNotification = $this->loadview('admin/notification/add');				
+					if(isset($msg_success))
+					{
+						$addNotification->set('Success',$msg_success);
+					}
+					elseif(isset($msg_error))
+					{
+						$addNotification->set('Error',$msg_error);
+					}				
+					$addNotification->render();
+					
+					
+				}
+		/* END POST */
+			}
+			else
+			{
+				/* Main Section */
+					$addNotification = $this->loadview('admin/notification/add');
+					//$addNotification->set('options',$options);
+					$addNotification->render();
+				
+				/* End Main */				
+			}
+			
+		/* Footer Section */
+		$additional_scripts = '
+		<script src="'.BASE_URL.'static/js/toastr.js"></script>	
+		<script src="'.BASE_URL.'static/js/jquery.validate.min.js"></script>
+		<script>
+		$(document).ready(function(){
+			/* Validation  */
+			$(".add_noti").click(function(){
+					
+			$("#myform").validate({
+				  rules: {
+					title: "required",
+					message: "required"					
+					},
+				  messages: 
+				  {
+					title: "Please specify Notification Title !",
+					message: "Please specify Notification Message !"
+					
+				  }
+				});
+			})		 
+			
+			
+		});
+		</script>
+		';		
+		$footer = $this->loadview('admin/main/include/footer');
+		$footer->set('additional', $additional_scripts);
+		$footer->render();
+	}
+	
+	public function EditNotification()
+	{
+		if(isset($_GET['ID_Notify']))
+		{
+				/* Header Section */
+			$additional_css = '<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';		
+			$header = $this->loadview('admin/main/include/header');
+			$header->set('additional_css',$additional_css);
+			$header->render();
+			
+			
+			if(isset($_POST["edit_notification"]))
+			{
+			
+			/* Post Request To Insert */
+				if(isset($_POST['edit_notification']))
+				{
+					$Data = $_POST;
+					if($this->Validate_Notification($Data) === false)
+					{		
+						$errors = $this->Validate->get_errors_array();					
+						$addNotification = $this->loadview('admin/notification/edit');
+						$addNotification->set('error',$errors);
+						$addNotification->set('Fileds',$Data);					
+						$addNotification->render();
+						
+					}
+					else
+					{
+						$date = new DateTime();					
+						$data =  array(
+						 'title'=>$_POST['title'], 
+						 'message'=>$_POST['message'],					 
+						 'CreatedOn'=>$date->getTimestamp(),
+						 'ModifiedOn'=>$date->getTimestamp(),					 
+						 'visible'=>'0',					 
+						);
+						
+						$result = $this->Notification->UpdateNotification($data,'id',$_GET['ID_Notify']);
+						if($result == "success")
+						{
+							$msg_success = 'Notification Updated Successfully';
+						}
+						else
+						{
+							$msg_error = 'Notification not updated Please Try Again After Some Time';
+						}
+						
+						
+						$addNotification = $this->loadview('admin/notification/viewNotification');				
+						if(isset($msg_success))
+						{
+							$addNotification->set('Success',$msg_success);
+						}
+						elseif(isset($msg_error))
+						{
+							$addNotification->set('Error',$msg_error);
+						}				
+						$addNotification->render();
+						
+						
+					}
+			/* END POST */
+				}
+			}
+				else
+				{
+					$Details = $this->Notification->get_single_row('id',$_GET['ID_Notify'],'flex_notification_message');
+					if(empty($Details))
+					{
+						$this->redirect('admin/viewNotification');
+						exit;
+					}
+					/* Main Section */
+						$addNotification = $this->loadview('admin/notification/edit');
+						$addNotification->set('Fileds',$Details);	
+						$addNotification->render();
+					
+					/* End Main */				
+				}
+				
+			/* Footer Section */
+			$additional_scripts = '
+			<script src="'.BASE_URL.'static/js/toastr.js"></script>	
+			<script src="'.BASE_URL.'static/js/jquery.validate.min.js"></script>
+			<script>
+			$(document).ready(function(){
+				/* Validation  */
+				$(".add_noti").click(function(){
+						
+				$("#myform").validate({
+					  rules: {
+						title: "required",
+						message: "required"					
+						},
+					  messages: 
+					  {
+						title: "Please specify Notification Title !",
+						message: "Please specify Notification Message !"
+						
+					  }
+					});
+				})		 
+				
+				
+			});
+			</script>
+			';		
+			$footer = $this->loadview('admin/main/include/footer');
+			$footer->set('additional', $additional_scripts);
+			$footer->render();
+		}
+		else
+		{
+			$this->redirect('admin/viewNotification');
+			exit;
+		}
+	}
+	
+	public function viewNotification()
+	{
+		/* Header Section */
+		$additional_css = '
+		<link href="'.BASE_URL.'static/admin/css/dataTables.bootstrap.css" rel="stylesheet">
+		<link href="'.BASE_URL.'static/admin/css/dataTables.responsive.css" rel="stylesheet">
+		';		
+		$header = $this->loadview('admin/main/include/header');
+		$header->set('additional_css',$additional_css);
+		$header->render();
+		
+		/* Main Section */
+		$Data = $this->Notification->ShowNotification();
+		$table = '';
+		$table .= ' <table width="100%" class="table table-striped table-bordered table-hover dataTables">';		
+		$table .= '<thead>
+					<tr>
+						<th>ID</th>
+						<th>Title</th>
+						<th>Message</th>						<th>Action</th>											
+					</tr>
+				</thead>';	
+		$table .='<tbody>';		
+			foreach($Data as $keys)
+			{
+				$table .='<tr>';
+					$table .='<td>'.$keys["id"].'</td>';
+					$table .='<td>'.$keys["title"].'</td>';
+					$table .='<td>'.$keys["message"].'</td>';					
+					$table .='<td>								
+					<div class="btn-group">
+					  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Action <span class="caret"></span>
+					  </button>
+					  <ul class="dropdown-menu">';					
+						$table .='<li><a href="'.SITEURL.'admin/editNotification/?ID_Notify='.$keys["id"].'">Edit Notification</a></li>						
+						<li><a rel="'.$keys["id"].'" href="javascript:void(0)" class="delete">Delete Notification</a></li>						
+					  </ul>
+					</div></td>';		
+				$table .='</tr>';				
+			}
+		$table .='</tbody></table>';
+		
+		$view = $this->loadview('admin/notification/index');
+		$view->set('Details', $table);		
+		$view->render();
+		
+		
+		
+		/* Footer */
+		/* Rendering Additional Scripts  */
+		$additional_scripts = '
+		<script src="'.BASE_URL.'static/admin/js/jquery.dataTables.min.js"></script>
+		<script src="'.BASE_URL.'static/admin/js/dataTables.bootstrap.min.js"></script>
+		<script src="'.BASE_URL.'static/admin/js/dataTables.responsive.js"></script>
+		<script>$(document).ready(function() {
+			$(".dataTables").DataTable({
+			"columns": [	null,null,null,null,null,{ "orderable": false }],	
+			responsive: true
+			});
+			});
+			$(document).on(\'click\',\'.delete\',function() 
+			{
+				var id = $(this).attr("rel");
+				
+			}
+		</script>';
+		
+		$footer = $this->loadview('admin/main/include/footer');
+		$footer->set('additional', $additional_scripts);
+		$footer->render();
+		
+	}
+	
+	public function deleteNotification()
+	{
+		$this->Notification->DelNotification($data,'id',$_GET['ID_Notify']);		
+	}
+
+	/* 
+	*	Testimonials Section 
+	*	@Author Chhavinav Sehgal
+	*	Admin Section
+	*/
+	
+	public function testimonials()
+	{
+		$this->check_login();		// Checking Login Session
+		$segement = explode('/',$_SERVER['REQUEST_URI']);
+		
+		
+		/* Header Section */
+		$additional_css = '<link href="'.BASE_URL.'static/admin/css/jquery-ui.css" rel="stylesheet">';	
+		$header = $this->loadview('admin/main/include/header');
+		$header->set('additional_css',$additional_css);
+		$header->render();	
+		
+		
+		
+		if(isset($segement[3]) && $segement[3] == "add")
+		{
+			if(isset($_POST['save']))
+			{
+				$Data = $_POST;
+				$validated_data = $this->validateTestimonials($Data);
+				
+				
+				if($validated_data === false)
+				{		
+					$errors = $this->Validate->get_errors_array();					
+					$view = $this->loadview('admin/testimonials/add');
+					$view->set('error',$errors);
+					$Data["segment"] = "add";
+					$view->set('data',$Data);					
+					$view->render();
+					
+				}
+				else
+				{
+					$return = $this->Testimonials->Insert_Testimonials($Data);
+					$this->redirect("admin/testimonials/edit/$return");					
+				}
+			}
+			else
+			{
+				/* Content Section */
+				$view = $this->loadview('admin/testimonials/add');
+				$view->render();	
+			
+			}
+				
+		}
+		elseif(isset($segement[3]) && $segement[3] == "edit")
+		{
+			if(isset($segement[4]))
+			{
+				/* Editing Testimonials */
+				if(isset($_POST['update']))
+					{
+						$Data = $_POST;
+						unset($Data['update']);
+						$validated_data = $this->validateTestimonials($Data);
+						
+						if($validated_data === false)
+							{		
+								$errors = $this->Validate->get_errors_array();					
+								$view = $this->loadview('admin/testimonials/edit/'.$segement[4]);
+								$view->set('error',$errors);
+								$view->set('Data',$Data);					
+								$view->render();
+								
+							}
+							else
+							{
+								$return = $this->Testimonials->Edit_Testimonials($Data,$segement[4]);
+								$this->redirect("admin/testimonials/edit/".$segement[4]."/?success=".$return);					
+							}
+					}
+				else
+					{
+						$Data = $this->Testimonials->getTestimonial($segement[4]);
+						$view = $this->loadview('admin/testimonials/add');
+						$Data["segment"] = "edit";
+						$view->set('data',$Data);
+						if(isset($_GET['success']))
+						{
+							$view->set('Msg',$_GET['success']);												
+						}
+						$view->render();					
+					}
+			}
+			else
+			{
+				$this->redirect("admin/testimonials/");	
+			}			
+		}
+		else
+		{
+			echo "ELSE";
+		}
+		
+		/* Footer Section */
+		$additional_scripts = '';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/tinymce.js"></script>
+		<script>
+		$(document).ready(function() 
+			{
+				tinymce.init({ selector:"textarea" });
+				
+			});
+		</script>';
+		
+		$footer = $this->loadview('admin/main/include/footer');
+		$footer->set('additional', $additional_scripts);
+		$footer->render();		
+		
+	}
+	
+	private function validateTestimonials($Content)
+	{
+		
+		$Data = $this->Validate->sanitize($Content); // You don't have to sanitize, but it's safest to do so.
+
+		$this->Validate->validation_rules(array(
+			'clientName'   => 'required|alpha_space',
+			'content' => 'required',				
+			'rating' => 'required|numeric',				
+		));
+ 
+		return $validated_data = $this->Validate->run($Data);
+		
+		
+	}
+	
+	
 }

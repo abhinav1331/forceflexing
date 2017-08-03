@@ -391,7 +391,25 @@ jQuery(function($) {
         }
       },
       submitHandler: function(form) { 
-        jQuery(form).ajaxSubmit({
+        var finalizeArray = [];
+        jQuery("input[name='extra[]']").each(function(){
+          jQuery(this).removeAttr("checked");
+        });
+        jQuery("input[name='jp_other_expenses[]']:checked").each(function(){
+          var expenditureName = jQuery(this).val();
+          jQuery("."+expenditureName).prop('checked', true);
+          var expenditurePrice = jQuery(this).parent().parent().siblings("td").find("input[name='ExpenceName[]']").val();
+          jQuery("."+expenditureName).attr("value" , expenditurePrice);
+          var arrayObj = {};
+          arrayObj['name'] = expenditureName;
+          arrayObj['price'] = expenditurePrice;
+          finalizeArray.push(arrayObj);
+        });
+        console.log(finalizeArray);
+        jQuery("input[name='extraExpanditureContract']").val(JSON.stringify(finalizeArray));
+        jQuery("#MyModelActionOtherExpanditure").modal("hide");
+        toastr.success("Data Updated");
+        /*jQuery(form).ajaxSubmit({
           type: "POST",
           data: jQuery(form).serialize(),
           url: 'http://force.imarkclients.com/employer/ExtraExpenditure', 
@@ -402,7 +420,7 @@ jQuery(function($) {
             toastr.success("Data Updated");
             jQuery('#EditJobModel').modal('hide');
           }
-        });
+        });*/
       }
 
     });
@@ -484,5 +502,148 @@ function editActivity(event) {
       setTimeout(function(){ 
         storeEvent.parent().siblings(".col-md-6").find("select[name='jp_act_city[]']").val(CityNameE);
       }, 1500);
+    });
+  });
+
+  jQuery(document).ready(function(){
+        var finalizeArray = [];
+        jQuery("input[name='extra[]']:checked").each(function(){
+          var expenditureName = jQuery(this).attr("class");
+          var expenditurePrice = jQuery(this).val();
+          var arrayObj = {};
+          arrayObj['name'] = expenditureName;
+          arrayObj['price'] = expenditurePrice;
+          finalizeArray.push(arrayObj);
+        });
+        console.log(finalizeArray);
+        jQuery("input[name='extraExpanditureContract']").val(JSON.stringify(finalizeArray));
+  });
+
+
+  function SaveContractorJob(hurdle,event,event2) {
+
+    jQuery.ajax({
+        type:"post",
+        url : '/employer/SaveContractorJob',
+        data :{"event" : event , "job_id" : event2},
+        success : function(response) {
+          toastr.success("Job Successfully Saved");
+          jQuery(hurdle).remove();
+        }
+    });
+  }
+
+
+  function contractorMasterJob(event) {
+    var selection = jQuery(event).val();
+    if(selection == "viewEdit") {
+      var transferUrl = jQuery("input[name='viewEdit']").val();
+      window.location.href = transferUrl;
+    } else if(selection == "removeJob") {
+      jQuery("#removeJob").modal("show");
+    }
+  }
+
+  function sayNojob() {
+    jQuery("#removeJob").modal("hide");
+    jQuery(".myActivityJob").val("");
+  }
+
+  function removeJobValue() {
+    var myjobId = jQuery("input[name='currentJobId']").val();
+    jQuery.ajax({
+      type:"post",
+      url : '/employer/removeJob',
+      data :{"job_id" : myjobId},
+      success : function(response) {
+        toastr.success("Job Successfully Removed");
+        window.location.href = base_url+"employer/openJob";
+      }
+    });
+  }
+
+  jQuery(document).ready(function(){
+    jQuery("input[name='one']").change(function(){
+      var actionUserReco = jQuery(this).val();
+      if(actionUserReco == "invitetojob") {
+        var contractorId = jQuery(this).parent().parent().parent().siblings("input[name='contractorNameId']").val();
+        var job_id = jQuery("input[name='currentJobId']").val();
+        jQuery("#inviteToJob").modal("show");
+        jQuery(".inviteSettings").text("Invite initialize");
+        jQuery.ajax({
+          type:"post",
+          url : '/employer/inviteContractorRecommended',
+          data :{"employer_id" : job_id , "invitedUsers" : contractorId},
+          success : function(response) {
+            toastr.success("Job Invite Send");
+            jQuery(".inviteSettings").text("Invite Sent");
+            setTimeout(function(){
+             jQuery("#inviteToJob").modal("hide");
+             jQuery(this).attr("disabled" , "disabled");
+             jQuery("this").removeAttr("checked");
+            }, 1500);
+          }
+        });
+      } else if(actionUserReco == "makeoffer") {
+        var jobSlug = jQuery("input[name='jobSLUG']").val();
+        var userName = jQuery(this).parent().parent().parent().siblings("input[name='userName']").val();
+        window.location.href = base_url+"employer/contract/"+jobSlug+"/"+userName;
+      }
+    });
+  });
+
+
+  jQuery(document).ready(function(){
+    jQuery("input[name='two']").change(function(){
+      var actionUserReco = jQuery(this).val();
+       if(actionUserReco == "makeOffer") {
+        var jobSlug = jQuery("input[name='jobSLUG']").val();
+        var userName = jQuery(this).parent().parent().parent().siblings("input[name='userName']").val();
+        window.location.href = base_url+"employer/contract/"+jobSlug+"/"+userName;
+      } else if(actionUserReco == "Decline") {
+        var appliedId = jQuery(this).parent().parent().parent().siblings("input[name='appliedId']").val();
+        jQuery.ajax({
+          type:"post",
+          url : '/employer/removeContractor',
+          data :{"appliedId" : appliedId },
+          success : function(response) {
+            toastr.success("Contractor Declined");
+            jQuery(this).parent().parent().parent().parent().parent().parent().remove();
+          }
+        });
+      }
+    });
+  });
+
+  jQuery(document).ready(function(){
+    jQuery("input[name='four']").change(function(){
+      var actionUserReco = jQuery(this).val();
+      var inviteID = jQuery(this).parent().parent().parent().siblings("input[name='inviteID']").val();
+        if(actionUserReco == "recind") {
+          jQuery.ajax({
+            type:"post",
+            url : '/employer/recindOffer',
+            data :{"inviteID" : inviteID },
+            success : function(response) {
+              toastr.success("Offer Recind");
+              jQuery(this).parent().parent().parent().parent().parent().parent().remove();
+            }
+          });
+        }
+    });
+  });
+
+
+  function viewCoverLetter(event) {
+    var htmll = jQuery(event).parent().parent().siblings(".coverletter").html();
+    jQuery(".coverLetter").empty().append(htmll);
+    jQuery("#viewCoverLetter").modal("show");
+  }
+
+
+  jQuery(document).ready(function(){
+    jQuery("input[name='five']").change(function(){
+      var actionHired = jQuery(this).val();
+      alert(actionHired);
     });
   });

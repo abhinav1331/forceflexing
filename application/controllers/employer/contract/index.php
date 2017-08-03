@@ -22,21 +22,35 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) {
 			$slug = $urlArray[3];
 			$username = $urlArray[4];
 			$job_id=$this->Model->Get_column('*','job_slug',$slug,PREFIX.'jobs');
+			$job_additional_hours = $this->Model->Get_column('*','job_id',$job_id['id'],PREFIX.'job_additional_hours');
 			$user_id=$this->Model->Get_column('*','username',$username,PREFIX.'users');
 
 			/*echo "<pre>";
 				print_r($user_id);
 			echo "</pre>";*/
 
-		/*	echo "<pre>";
-				print_r($job_id);
-			echo "</pre>";*/
+		
 
 			$job_idd = $job_id['id'];
 			$user_idd = $user_id['id'];
 
 			$jobApplication = $this->Model->Get_column_Double('*','contractor_id',$user_idd,'job_id',$job_idd,PREFIX.'applied_jobs');
-
+			/*echo "<pre>";
+				print_r($jobApplication);
+			echo "</pre>";*/
+			$hire_contractor = $this->Model->Get_column_Double('*','contractor_id',$user_idd,'job_id',$job_idd,PREFIX.'hire_contractor');
+			
+			if(count($hire_contractor) != 0) {
+				foreach($hire_contractor as $hire_contracto) {
+					if($hire_contracto['status'] == 0) {
+						$hired = 1;
+					} else {
+						$hired = 0;
+					}
+				}
+			} else {
+				$hired =0;
+			}
             $FlexPrice = $this->Model->Get_column1('*','job_id',$job_idd,PREFIX.'jobs_flex');
             $pastDateArray = array();
             foreach ($FlexPrice as $key => $value) {
@@ -58,8 +72,8 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) {
 			} else {
 				$jobType = "fixed";
 			}
-			
-			if ($job_id['job_author'] == $current_user_data['id']) {
+			$job_id['job_author'];
+			if ($job_id['job_author'] == $current_user_data['id'] && $hired == 0 && $job_id['jobjob_status'] != 4) {
 				
 				$emplyerdetails=$this->Model->Get_column('*','id',$job_id['job_author'],PREFIX.'users');
 				
@@ -93,6 +107,8 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) {
 				$template->set("total_price" , $total_price);
 				$template->set('current_user_data',$current_user_data);
 				$template->set('job_id',$job_idd);
+				$template->set('job_idd',$job_id);
+				$template->set('job_additional_hours',$job_additional_hours);
 				$template->set('user_id',$user_idd);
 				$template->render();
 				$modalTemplate = $this->loadview('Employer/contract/modal');

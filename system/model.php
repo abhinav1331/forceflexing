@@ -143,16 +143,17 @@ class Model
 		}	
 		$this->beginTransaction();	
 		$this->query("INSERT INTO $table ($keys) VALUES($values)");
+		
+		
 		foreach($data as $ke => $vals)
 		{
 			$this->bind(':'.$ke.'',$vals);
 		}
 		$this->execute();	
-		$last_id = $this->lastInsertId();	// Get last Inserted Record Id
-			$this->cancelTransaction();	
-			return $last_id;
 		
-	
+		$last_id = $this->lastInsertId();	// Get last Inserted Record Id
+		$this->endTransaction();	
+		return $last_id;
 	}
 	
 	//fetch row from desired table
@@ -177,6 +178,12 @@ class Model
 		else
 			$orderby="id";
 		$this->query("SELECT * FROM `".$table."` WHERE `".$field."` = '".$value."' order by ".$orderby." ".$order."");
+		return $result = $this->resultset();
+	}
+	public function get_Job_Detail($table,$field,$value)
+	{
+		// echo "SELECT * FROM `".$table."` WHERE `".$field."` = '".$value."' order by `id` DESC";
+		$this->query("SELECT * FROM `".$table."` WHERE `".$field."` = '".$value."' order by `id` DESC");
 		return $result = $this->resultset();
 	}
 	
@@ -279,7 +286,7 @@ class Model
 		return $result = $this->resultset();	
 	}
 	
-	public function get_all_mul_cond($where_cond,$table,$order)
+	public function get_all_mul_cond($where_cond,$table,$order = 'ASC' )
 	{
 		$where ='';	
 		$total = count($where_cond);
@@ -321,10 +328,53 @@ class Model
 
 	public function delete_all_record($table , $column , $value)
 	{
-		echo $query="DELETE From `".$table."` WHERE `".$column."` = '".$value."'";
+		$query="DELETE From `".$table."` WHERE `".$column."` = '".$value."'";
 		$this->query($query);
 		$this->execute();
 	}
+	
+	public function Check_email($email)
+	{
+		$result = $this->get_single_row('email', $email,'flex_users');
+		if(empty($result))
+		{	return true;	}			
+		else
+		{	return false;	}		// Email Exist
+	}
+	
+	public function slugify($text)
+	{
+	  // replace non letter or digits by -
+	  $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+
+	  // transliterate
+	  $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+
+	  // remove unwanted characters
+	  $text = preg_replace('~[^-\w]+~', '', $text);
+
+	  // trim
+	  $text = trim($text, '-');
+
+	  // remove duplicate -
+	  $text = preg_replace('~-+~', '-', $text);
+
+	  // lowercase
+	  $text = strtolower($text);
+
+	  if (empty($text)) 
+	  {
+		return 'n-a';
+	  }
+		return $text;
+	}
+	
+	public function Timestamp()
+	{
+		$date = new DateTime();
+		return $date->getTimestamp();
+	}
+	
 	
 }//end class db
 

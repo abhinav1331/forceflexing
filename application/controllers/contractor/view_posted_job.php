@@ -21,6 +21,67 @@
 				$jobs=$this->Model->Get_row('id',$jobid,PREFIX.'jobs');
 				$template->set('job',$jobs);
 				
+				$emp_id=$jobs['job_author'];
+				
+				/*COMPANY PROFILE INFORMATION*/
+				/*get the company name*/
+				$emp_details=$this->Model->Get_row('id',$emp_id,PREFIX.'users');
+				$template->set('company_name',$emp_details['company_name']);
+				
+				/*get the country of employer*/
+				$country_name=$this->Model->Get_column('name','sortname',$emp_details['country'],PREFIX.'countries');
+				if(!empty($country_name))
+					$template->set('emp_country',$country_name['name']);
+				
+				/*get the company information*/
+				$company_info=$this->Model->Get_row('company_id',$emp_id,PREFIX.'company_info');
+				if(!empty($company_info))
+				{
+					//get the city
+					$cityname=$this->Model->Get_column('name','id',$company_info['company_city'],PREFIX.'cities');
+					if(!empty($country_name))
+						$template->set('emp_city',$cityname['name']);
+					
+				}
+				
+				/*get member since info */
+				$template->set("member_since",$emp_details['created_date']);
+				
+				/*get the count of posted jobs*/
+				$posted_jobs=$this->Model->get_count_with_multiple_cond(array('job_author'=>$emp_id,'job_visibility'=>'none'),PREFIX.'jobs');
+				if(!empty($open_jobs))
+					$template->set('posted_jobs',$posted_jobs);
+				
+				/*get the count of open jobs*/
+				$open_jobs=$this->Model->get_count_with_multiple_cond(array('job_author'=>$emp_id,'job_visibility'=>'anyone'),PREFIX.'jobs');
+				if(!empty($open_jobs))
+					$template->set('open_jobs_count',$open_jobs);
+				
+				/*COMPANY PROFILE INFORMATION ENDS*/
+				
+				/*GET ACTIVITY ON THE JOB*/
+				$job_proposals=array();
+				$active_proposals=array();
+				//get the job proposals
+				$job_proposals=$this->Model->get_count_with_multiple_cond(array('job_id'=>$jobid,'status'=>0),PREFIX.'applied_jobs');
+				if($job_proposals > 0)
+					$template->set('proposals',$job_proposals);
+				
+				//get the active proposal list
+				$conversation=$this->Model->Get_row('job_id',$jobid,PREFIX.'conversation_set');
+				if(!empty($conversation))
+				{
+					//get the chat 
+					$id=$conversation['id'];
+					$sender=$conversation['conv_to'];
+					$rec=$conversation['conv_from'];
+					$active=$this->Model->get_count_with_multiple_cond(array('conv_id'=>$id,'from_id'=>$emp_id),PREFIX.'message_set');
+					if($active > 0)
+					{
+						$template->set('active_prop',$active);
+					}
+				}
+				
 				/*get saved activities*/
 				$saved_activities=explode(',',$results['activity_id']);
 				$template->set('saved_activities',$saved_activities);

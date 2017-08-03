@@ -8,7 +8,7 @@ class Jobs extends Model
 		/* Get User ID From Username from Session */
 		$userid = $this->get_single_row_columns('id','username', $_SESSION['force_username'],'flex_users');		
 		/* Get Jobs Posted By User */
-		$query ="SELECT * FROM flex_jobs WHERE job_author ='$userid[id]' ORDER BY id DESC LIMIT $position, $item_per_page";
+		$query ="SELECT * FROM flex_jobs WHERE job_author ='$userid[id]' AND jobjob_status = '1' ORDER BY id DESC LIMIT $position, $item_per_page";
 		$openjobs = $this->query($query);
 		$result = $this->resultset($openjobs);
 		
@@ -62,7 +62,7 @@ class Jobs extends Model
                                         </li>
                                         <li>
                                             <label class="radio-custom">
-                                                <input class="action" type="radio" name="one" value="removePost" id="'.$jobID.'"> <span class="radio"></span>Remove Post</label>
+                                                <input class="action" type="radio" name="one" value="removePost" id="'.base64_encode($jobID).'"> <span class="radio"></span>Remove Post</label>
                                         </li>
                                         <li>
                                             <label class="radio-custom">
@@ -84,11 +84,14 @@ class Jobs extends Model
 		}
 	}
 	
-	public function get_jobcount($field,$tableN)
+	public function get_jobcount()
 	{
-		$userdata = $this->get_single_row('username',$_SESSION['force_username'],'flex_users');		
-		$savejobs = $this->get_table_data($tableN,$field,$userdata['id']);
-		return count($savejobs);
+		$userdata = $this->get_single_row('username',$_SESSION['force_username'],'flex_users');
+		
+		$query ="SELECT * FROM flex_jobs WHERE job_author ='$userdata[id]' AND jobjob_status = '1'";
+		$openjobs = $this->query($query);
+		$result = $this->resultset($openjobs);			
+		return count($result);
 	}
 	
 
@@ -146,6 +149,17 @@ class Jobs extends Model
 
 	public function job_delete($jid)
 	{
+		try 
+		{
+			$data = array('jobjob_status'=> 4 );
+			$this->update($data,'id',$jid,'flex_jobs');
+			echo "success";
+		}
+		catch(Exception $e) {
+			echo 'Exception -> ';
+			var_dump($e->getMessage());
+		}
+		
 		
 	}
 }

@@ -1128,9 +1128,8 @@ class Contractor extends Controller
 		$status=$_POST['status'];
 		
 		//update the status
-		$data=array('status'=>$status);
+		$data=array('status'=>$status,'modified_date'=>date('Y-m-d H:i:s'));
 		$re=$this->Model->Update_row($data,'id',$id,PREFIX.'hire_contractor');
-		
 		
 		//get the employer/contractor  details
 		$contract_details=$this->Model->Get_row('id',$id,PREFIX.'hire_contractor');
@@ -1143,8 +1142,27 @@ class Contractor extends Controller
 		//get the contractor details
 		$contractor_details=$this->Model->Get_row('id',$contract_details['contractor_id'],PREFIX.'users');
 		
+		
+		
 		if($status == 1)
 		{
+			//add it to the contract history if contract is accepted
+			$amount=$contract_details['flex_amount'];
+			$desc="[[contractor]] accepted [[employer]] offer for a $".$amount." ".$job_data['job_type']."-price project";
+			$this->Model->Insert_data(array('contract_id'=>$id,'description'=>$desc),PREFIX.'contract_history');
+			
+			
+			//add the contract activities to the flex_hired_contractor_activity_status table to keep track of each activity
+			//get activities associated with contract
+			$contract=$this->Model->Get_column('activity_id','id',$id,PREFIX.'hire_contractor');
+			$activities=json_decode($contract['activity_id']);
+			
+			foreach($activities as $activity)
+			{
+				$data=array('contract_id'=>$id,'activity_id'=>$activity);
+				$hcas=$this->Model->Insert_data($data,PREFIX.'hired_contractor_activity_status');
+			}
+			
 			//load the email for the accept proposal
 			//load accept  proposal email template and send it to the employer
 			$file=APP_DIR.'email_templates/accept_proposal.html';
@@ -1174,7 +1192,7 @@ class Contractor extends Controller
 			{
 				//delete invitaion
 				$invi_id=$invitations[0]['id'];
-				$this->Model->delete_data('id',$invi_id,PREFIX.'job_invite');
+				$this->Model->Update_row(array('status'=>1),'id',$invi_id,PREFIX.'job_invite');
 			}
 		}
 		if($status == 2)
@@ -1205,5 +1223,229 @@ class Contractor extends Controller
 	public function mystats()
 	{
 		require_once(APP_DIR.'controllers/contractor/contractor_stats.php');
+	}
+	
+	/*contractor my jobs page*/
+	public function my_jobs()
+	{
+		require_once(APP_DIR.'controllers/contractor/contractor_my_jobs.php');
+	}
+	
+	/*activity detail page for contractor*/
+	public function activity_detail()
+	{
+		require_once(APP_DIR.'controllers/contractor/activity_detail.php');
+	}
+	
+	/*Ajax function to show the activity detail*/
+	public function view_activity()
+	{
+		$activity_id=$_POST['activity_id'];
+		$contract_id=$_POST['contract_id'];
+		if(!empty($activity_id))
+		{
+			$activity_detail=$this->Model->Get_row('id',$activity_id,PREFIX.'job_activities');
+			$activity_status_detail=$this->Model->Get_all_with_multiple_cond(array('activity_id'=>$activity_id,'contract_id'=>$contract_id),PREFIX.'hired_contractor_activity_status');
+			ob_start();
+			?>
+			<h3>View Activity</h3>
+			<p><b>Activity name:</b><?php echo $activity_detail['activity_name']; ?></p>
+			<input type="hidden" id="activity_status_id" value="<?php echo $activity_status_detail[0]['id']; ?>">
+			<p><b>Select: </b>
+				<label class="radio-custom">
+					<input type="radio" disabled name="one" <?php if($activity_detail['activity_type'] == "fixed") echo "checked"; ?> value="one1" id="viewPost"> 
+					<span class="radio"></span>fixed start and stop time
+				</label>
+				<label class="radio-custom">
+					<input type="radio" <?php if($activity_detail['activity_type'] == "flexible") echo "checked"; ?> disabled name="one" value="one2" id="viewPost"> 
+					<span class="radio"></span>flexible start/stop
+				</label>
+			</p>
+			<ul class="activity-list">
+				<li>
+					<div>
+						<svg viewBox="0 8 200 185">
+							<use xlink:href="#calendar-icon"></use>
+						</svg> Start Day: <?php echo date('m-d-Y',strtotime($activity_detail['start_datetime'])); ?>
+					</div>
+					<div>
+						<svg viewBox="0 10 200 180">
+							<use xlink:href="#clock-icon"></use>
+						</svg> Start Time: <?php echo date('h:i a',strtotime($activity_detail['start_datetime'])); ?>
+					</div>
+				</li>
+				<li>
+					<div>
+						<svg viewBox="0 8 200 185">
+							<use xlink:href="#calendar-icon"></use>
+						</svg> Finish Day: <?php echo date('m-d-Y',strtotime($activity_detail['end_datetime'])); ?>
+					</div>
+					<div>
+						<svg viewBox="0 10 200 180">
+							<use xlink:href="#clock-icon"></use>
+						</svg> Finish Time: <?php echo date('h:i a',strtotime($activity_detail['end_datetime'])); ?>
+					</div>
+				</li>
+			</ul>
+			
+			<div class="activity-divider"></div>
+			
+			<p><b>Address:</b> Street:  <?php echo $activity_detail['street']; ?></p>
+			<p><b>City:</b><?php echo $activity_detail['city']; ?> </p>
+			<?php 
+				//get the state
+				$state=$this->Model->Get_row('id',$activity_detail['state'],PREFIX.'states');
+			?>
+			
+			<p><b>State:</b> <?php if(!empty($state)) echo $state['name']; ?></p>
+			<p><b>Zip:</b> <?php echo $activity_detail['zip']; ?></p>
+			
+			<div class="activity-divider"></div>
+			
+			<p>Contact Name: </p>
+			
+			<ul class="activity-list">
+				<li>First: <?php echo $activity_detail['first_name']; ?></li>
+				<li>Last: <?php echo $activity_detail['last_name']; ?></li>
+			</ul>
+			
+			<div class="activity-divider"></div>
+			
+			<p><b>Contact Information:</b> </p>
+			<ul  class="activity-list">
+				<li>Phone number: <a href="tel:<?php echo str_replace(' ','',$activity_detail['phone']); ?>"><?php echo $activity_detail['phone']; ?></a></li>
+				<li>Email: <a href="mailto:<?php echo $activity_detail['email'] ;?>"><?php echo $activity_detail['email'] ?> </a></li>
+			</ul>
+			
+			<div class="activity-divider"></div>
+			
+			<p><b>Notes/tasks :</b></p>
+			
+			<div class="row">
+				<div class="col-xs-12">
+					<textarea name="" disabled cols="" rows="" class="input" placeholder="Type text"><?php echo $activity_detail['notes']; ?></textarea>
+				</div>
+			</div>
+			
+			
+			<p><b>Activity Status:</b> <?php echo ($activity_status_detail[0]['status'] == 0)?'Pending':'Completed'; ?></p>
+			
+			<p><b>Job Expense Report:</b> <a href="#"><?php echo ($activity_status_detail[0]['job_report_status'] == 0)?'Create':'View'; ?></a> </p>
+			
+			<?php 
+				$intial=0;
+				if($activity_status_detail[0]['status'] == 0 && $activity_status_detail[0]['job_report_status'] == 0)
+				{
+					$amount_due=number_format((float)$activity_detail['job_price'], 2, '.', '');
+					$amount_paid=number_format((float)$intial, 2, '.', '');
+					$button='<button type="button" id="view_activity_button" class="btn btn-blue">View Activity </button>
+					<button type="button" class="btn btn-blue" data-toggle="modal" data-target="#withdraw_activity">Withdraw From Activity</button>
+					<button type="button" data-status="1" id="activity_status_button" class="btn btn-blue">Move to Completed</button>';
+				}
+				elseif($activity_status_detail[0]['status'] == 1 && $activity_status_detail[0]['job_report_status'] == 0)
+				{
+					$amount_due=number_format((float)$activity_detail['job_price'], 2, '.', '');
+					$amount_paid=number_format((float)$intial, 2, '.', '');
+					$button='<button type="button" id="view_activity_button" class="btn btn-blue">View Activity </button>
+					<button type="button" id="complete_job_report" class="btn btn-blue"> Complete Job Report </button>
+					<button type="button" data-status="0" id="activity_status_button" class="btn btn-blue">Move Back to Pending</button>';
+					
+				}
+				elseif($activity_status_detail[0]['status'] == 1 && $activity_status_detail[0]['job_report_status'] == 1)
+				{
+					$amount_due=number_format((float)$activity_detail['job_price'], 2, '.', '');
+					$amount_paid=number_format((float)$intial, 2, '.', '');
+					$button='<button type="button" id="view_activity_button" class="btn btn-blue">View Activity </button>
+					<button type="button" id="view_job_report" class="btn btn-blue"> View Job Report </button>';
+				}
+				elseif($activity_status_detail[0]['status'] == 1 && $activity_status_detail[0]['job_report_status'] == 2)
+				{
+					$amount_due=number_format((float)$intial, 2, '.', '');
+					$amount_paid=number_format((float)$activity_detail['job_price'], 2, '.', '');
+					$button='<button type="button" id="view_activity_button" class="btn btn-blue">View Activity </button>
+					<button type="button" id="view_job_report" class="btn btn-blue"> View Job Report </button>';
+				}
+			?>
+			
+			
+			<p><b>Amount Due:</b><?php if(!empty($amount_due)) echo '$'.$amount_due; ?> </p>
+			<p><b>Amount Paid:</b> <?php if(!empty($amount_paid)) echo '$'.$amount_paid; ?>	</p>
+		
+			<div class="activity-associated-post-btns">
+				<?php echo $button; ?>
+			  <!--<button type="button" class="btn btn-blue">Close</button>
+			  <button type="submit" class="btn btn-blue">Create Job Report</button>
+			  <button type="button" class="btn btn-blue">Move to Pending</button>-->
+			</div>
+			<?php
+			 $returnstring = ob_get_contents();
+			 ob_end_clean();
+			 echo $returnstring;
+			 exit();
+		}
+	}
+	
+	/*Ajax function to change the status of the activity*/
+	public function hired_activity_status()
+	{
+		$id=$_POST['id'];
+		$activity_status=$_POST['activity_status'];
+		if(!empty($id) && ($activity_status== 1 || $activity_status==0))
+		{
+			$res=$this->Model->Update_row(array('status'=>$activity_status),'id',$id,PREFIX.'hired_contractor_activity_status');
+			echo 1;
+			exit();
+		}	
+	}
+	
+	
+	/*Ajax function to withdraw from activity*/
+	public function withdraw_activity()
+	{
+		$id=$_GET['id'];
+		if(!empty($id))
+		{
+			$res=$this->Model->Update_row(array('status'=>2),'id',$id,PREFIX.'hired_contractor_activity_status');
+			
+			//get the contractor and employer details
+			$hired_acti=$this->Model->Get_row('id',$id,PREFIX.'hired_contractor_activity_status');
+			
+			$contract=$this->Model->Get_row('id',$hired_acti['contract_id'],PREFIX.'hire_contractor');
+			$job_id=$contract['job_id'];
+			
+			$job=$this->Model->Get_column('job_author','id',$job_id,PREFIX.'jobs');
+			$cont_id=$contract['contractor_id'];
+			$emp_id=$job['job_author'];
+			
+			//get the final details
+			$acti=$this->Model->Get_column('activity_name','id',$hired_acti['activity_id'],PREFIX.'job_activities');
+			$contractor=$this->Model->Get_row('id',$cont_id,PREFIX.'users');
+			$employer=$this->Model->Get_row('id',$emp_id,PREFIX.'users');
+			
+			//send mail to employer
+			//load template
+			$file=APP_DIR.'email_templates/withdraw_activity_employer.html';
+			$emailBody = file_get_contents($file);
+			
+			
+			$search  = array('[[fname]]', '[[lname]]','[[activity_name]]','[[contractor]]');
+			$replace = array($employer['first_name'], $employer['last_name'],$acti['activity_name'],$contractor['first_name'].' '.$contractor['last_name']);
+			$emailBodyemp  = str_replace($search, $replace, $emailBody);
+			
+			$this->SendMail->setparameters($employer['email'],'Activity Withdrawn',$emailBodyemp);
+			
+			//send email to contractor
+			//load template
+			$filecon=APP_DIR.'email_templates/withdraw_activity_contractor.html';
+			$emailBodycon = file_get_contents($filecon);
+			
+			$searchc  = array('[[fname]]', '[[lname]]','[[activity_name]]');
+			$replacestrc = array($contractor['first_name'], $contractor['last_name'],$acti['activity_name']);
+			$emailBodycontr  = str_replace($searchc, $replacestrc, $emailBodycon);
+			
+			$this->SendMail->setparameters($contractor['email'],'Activity Withdrawn',$emailBodycontr);
+			echo 1;
+		}
+		exit();
 	}
 }

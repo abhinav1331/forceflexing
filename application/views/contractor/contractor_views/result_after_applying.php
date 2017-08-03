@@ -66,13 +66,13 @@ if(!empty($question_answer))
     <div class="container">
       <div class="page-main">
         <aside class="main-page-body">
-          <h2><?=$job['job_title']?></h2>
-          <p class="postedDate">Posted: <?=date('m/d/Y',$job['job_created']);?></p>
+          <h2><?php echo $job['job_title']?></h2>
+          <p class="postedDate">Posted: <?php echo date('m/d/Y',$job['job_created']);?></p>
           <!--<a href="#" class="viewPosting">View job posting</a>-->
           <div class="more-details">
             <article class="ff-description">
               <h3>Description</h3>
-              <p><?=$job['job_description'];?></p>
+              <p><?php echo $job['job_description'];?></p>
             </article>
             <div class="emp-job-information activities">
               <div class="job-info-hdr clearfix">
@@ -99,13 +99,13 @@ if(!empty($question_answer))
 								$checked="";
 							?>
 							 <li>
-							  <p><?=$activity['activity_name'];?></p>
-							  <p><?=date('m/d/y h:m A',strtotime($activity['start_datetime']));?></p>
-							  <p><?=$activity['activity_type'];?> Time</p>
-							  <p><?=$activity['city'];?></p>
+							  <p><?php echo $activity['activity_name'];?></p>
+							  <p><?php echo date('m/d/y h:m A',strtotime($activity['start_datetime']));?></p>
+							  <p><?php echo $activity['activity_type'];?> Time</p>
+							  <p><?php echo $activity['city'];?></p>
 							  <p>
-								<label for="<?=$activity['id']?>" class="custom-checkbox">
-								  <input id="<?=$activity['id']?>" class="activity" type="checkbox" disabled <?=$checked;?>>
+								<label for="<?php echo $activity['id']?>" class="custom-checkbox">
+								  <input id="<?php echo $activity['id']?>" class="activity" type="checkbox" disabled <?php echo $checked;?>>
 								  <span class="custom-check"></span></label>
 							  </p>
 							</li>
@@ -124,13 +124,13 @@ if(!empty($question_answer))
 						{
 							$num_cont=$job['job_minimum_contractor'];
 						?>
-						<input type="hidden" id="minimum_activities" name="minimum_activities" value="<?=$num_cont;?>">
-					<p>Contractor must select a minimum of <?=$num_cont;?> of activities to apply to this job. The <?=$num_cont;?> is the number set by the employer.  The page should not be able to be submitted if the correct number of activities is not chosen.</p>
+						<input type="hidden" id="minimum_activities" name="minimum_activities" value="<?php echo $num_cont;?>">
+					<p>Contractor must select a minimum of <?php echo $num_cont;?> of activities to apply to this job. The <?php echo $num_cont;?> is the number set by the employer.  The page should not be able to be submitted if the correct number of activities is not chosen.</p>
 			   <?php     }
 					} ?>
                 <a href="javascript:void(0);" id="edit_activities" class="btn btn-blue editChangeBtn">Edit/Change Applied Events</a> </div>
             </div>
-			<input type="hidden" id="applied_job_id" value="<?=$_GET['applied_job'];?>">
+			<input type="hidden" id="applied_job_id" value="<?php echo $_GET['applied_job'];?>">
             <div class="emp-job-information payment-info">
               <div class="job-info-hdr clearfix">
                 <h2>Payment Terms</h2>
@@ -219,7 +219,7 @@ if(!empty($question_answer))
 						</div>
 					</div>
 					
-					<div class="your-proposal" style="display: <?=($payment_terms == "new_terms")?'block':'none';?>">
+					<div class="your-proposal" style="display: <?php echo ($payment_terms == "new_terms")?'block':'none';?>">
 						  <h3>Your Proposal</h3>
 						  <div class="row">
 								<div class="col-xs-6">
@@ -243,7 +243,7 @@ if(!empty($question_answer))
 								  <p>Select amount:</p>
 								</div>
 								<div class="col-xs-6">
-								  <input id="proposed_amount" disabled value="<?=$proposal_rate?>" name="proposed_amount" class="input small new-terms" type="text">
+								  <input id="proposed_amount" disabled value="<?php echo $proposal_rate?>" name="proposed_amount" class="input small new-terms" type="text">
 								</div>
 							</div>
 						</div>
@@ -254,7 +254,7 @@ if(!empty($question_answer))
             <div class="coverLetter">
               <h2>Cover Letter</h2>
 				  <article class="ff-description filled">
-					<p><?=$app_job['cover_letter'];?></p>
+					<p><?php echo $app_job['cover_letter'];?></p>
 				  </article>
                 <a href="javascript:void(0)" id="edit_cover_letter" class="btn btn-blue editChangeBtn">Edit</a> 
             </div>
@@ -264,9 +264,9 @@ if(!empty($question_answer))
               <h2>Questions</h2>
 			  <?php foreach($question_answer as $qa) {?>
                <article class="ff-description filled">
-					<h3><?=$qa['question'];?></h3>
-					<p><?=$qa['answer']?></p>
-					<input type="hidden" class="applied-answer-id" value="<?=$qa['id'];?>">
+					<h3><?php echo $qa['question'];?></h3>
+					<p><?php echo $qa['answer']?></p>
+					<input type="hidden" class="applied-answer-id" value="<?php echo $qa['id'];?>">
 				</article>
 				<a href="javascript:void(0)" class="btn btn-blue editChangeBtn edit_answer">Edit</a> 
 			  <?php } ?>
@@ -278,7 +278,7 @@ if(!empty($question_answer))
             <h2>Messages</h2>
 			<article class="ff-description filled">
 				<?php if(!empty($app_job['message'] )){?>
-				<p><?=$app_job['message']?></p>
+				<p><?php echo $app_job['message']?></p>
 				<?php } 
 				else
 				{
@@ -294,30 +294,45 @@ if(!empty($question_answer))
 			</div>
         </aside>
         <aside class="emp-client-overview">
-          <div class="emp-client-name">Lorem ipsume</div>
+			<div class="emp-client-name"><?php echo $company_name;?></div>
           <div class="emp-client-job-history">
             <p><strong>About the Client </strong><br>
               <strong>Payment Certified</strong><br>
               <strong>Rating:(5.00) 2 reviews </strong></p>
-            <p><strong>United States</strong><br>
-              Centerville/ 10-19Am</p>
-            <p><strong>7 Jobs Posted </strong><br>
-              58% Hire Rate, 1 Open Job</p>
+            <p><strong><?php  if(isset($emp_country)) echo $emp_country;?></strong><br>
+              <?php if(isset($emp_city)) echo $emp_city;?>/ 10-19Am</p>
+            <p><strong><?php if(isset($posted_jobs)) 
+								{ 
+									$multi=($posted_jobs>1) ?'s':'';
+									echo $posted_jobs .'Job'.$multi.' Posted';
+								} ?></strong><br>
+              58% Hire Rate <?php if(isset($open_jobs_count)) { echo ','. $open_jobs_count?>  Open Job<?php if($open_jobs_count>1) echo 's'; } ?></p>
             <p><strong>$6.55/hr Avg Hourly Rate Paid </strong><br>
               255 Hours</p>
-            <p>Member Since Jul 24, 2015</p>
+            <p>Member Since <?php if(isset($member_since)) echo date('M d, Y',strtotime($member_since)); ?></p>
           </div>
+		
           <div class="activityOnJob">
             <h2>Activity for This Job</h2>
-            <p><strong>Proposals: #</strong></p>
-            <p><strong>Active: #</strong></p>
+            <p><strong>Proposals: <?php 
+									if(isset($proposals)) 
+										echo $proposals; 
+									else 
+										echo 0; 
+									?></strong></p>
+            <p><strong>Active: <?php 
+									if(isset($active_prop)) 
+										echo $active_prop; 
+									else 
+										echo 0; 
+									?></strong></p>
           </div>
 		  <?php if($app_job['status'] == 0) 
 		  {
 			  $buttontext="Withdraw Proposal";
 			  $statusonclick=1;
 			  ?>
-			  <a href="javascript:void(0);" data-toggle="modal" data-target="#withdraw-proposal" data-status="<?=$statusonclick;?>" id="withdraw_proposal" class="btn btn-blue withdrawProposalBtn"><?=$buttontext;?></a> </aside>
+			  <a href="javascript:void(0);" data-toggle="modal" data-target="#withdraw-proposal" data-status="<?php echo $statusonclick;?>" id="withdraw_proposal" class="btn btn-blue withdrawProposalBtn"><?php echo $buttontext;?></a> </aside>
 			  <?php
 		  }
 		  else
@@ -325,7 +340,7 @@ if(!empty($question_answer))
 			  $buttontext="Reapply";
 			  $statusonclick=0;
 			  ?>
-			   <a href="javascript:void(0);"  data-status="<?=$statusonclick;?>" id="reapply" class="btn btn-blue withdrawProposalBtn"><?=$buttontext;?></a> </aside>
+			   <a href="javascript:void(0);"  data-status="<?php echo $statusonclick;?>" id="reapply" class="btn btn-blue withdrawProposalBtn"><?php echo $buttontext;?></a> </aside>
 			   <?php
 		  }
 		  ?>

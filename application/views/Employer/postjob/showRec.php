@@ -1,4 +1,3 @@
-
 <main role="main">
   <section class="page-wrap">
     <div class="container">
@@ -651,7 +650,8 @@
                           <option <?php if($job_additional_hours[0]['after_time'] == "15 min") {echo "selected='selected'";} ?>   value="15 min">15 min</option>
                           <option <?php if($job_additional_hours[0]['after_time'] == "30 min") {echo "selected='selected'";} ?>  value="30 min">30 min</option>
                           <option <?php if($job_additional_hours[0]['after_time'] == "60 min") {echo "selected='selected'";} ?>  value="60 min">60 min</option>
-                        </select></td>
+                        </select>
+                        <input type="text" placeholder="Allowable Overages" class="input small" name="allowwable_overages" value="<?php echo $job_additional_hours[0]['price']; ?>"></td>
                     </tr>
                   </table>
                 </li>
@@ -667,43 +667,148 @@
                           <span class="radio"></span> No</label></td>
                     </tr>
                   </table>
+                </li
+                <li>
+                  <table>
+                    <tr>
+                      <td>Experience Level</td>
+                      <td><label for="jp_experianced_level_entry" class="radio-custom">
+                          <input id="jp_experianced_level_entry" name="experianceEntry" value="entry_level" type="radio" <?php if($jobs[0]['job_experiance'] == "entry_level") {echo "checked";} ?>>
+                          <span class="radio"></span> Entry Level</label>
+                          <label for="jp_experianced_intermediate" class="radio-custom">
+                          <input id="jp_experianced_intermediate" name="experianceEntry" value="intermediate" type="radio" <?php if($jobs[0]['job_experiance'] == "intermediate") {echo "checked";} ?>>
+                          <span class="radio"></span> Intermediate</label>
+                        <label for="jp_experianced_level_expert" class="radio-custom">
+                          <input id="jp_experianced_level_expert" name="experianceEntry" value="expert" type="radio" <?php if($jobs[0]['job_experiance'] == "expert") {echo "checked";} ?>>
+                          <span class="radio"></span> Expert</label></td>
+                    </tr>
+                  </table>
+                </li>
+                <li>
+                  <table>
+                    <tr>
+                      <td>Hours Per Week</td>
+                      <td><label for="hours_parttyme" class="radio-custom">
+                          <input id="hours_parttyme" name="hours_per_week" value="part_time" type="radio" <?php if($jobs[0]['job_hours'] == "part_time") {echo "checked";} ?>>
+                          <span class="radio"></span>Part Time</label>
+                          <label for="hours_fullTime" class="radio-custom">
+                          <input id="hours_fullTime" name="hours_per_week" value="full_time" type="radio" <?php if($jobs[0]['job_hours'] == "full_time") {echo "checked";} ?>>
+                          <span class="radio"></span>Full Time</label></td>
+                    </tr>
+                  </table>
+                </li>
+                <li>
+                  <table>
+                    <tr>
+                      <td>Overnight Travel</td>
+                      <td>
+                        <label for="over_night_yes" class="radio-custom">
+                        <input id="over_night_yes" name="over_night_travel" value="yes" type="radio" <?php if($jobs[0]['job_overnight'] == "yes") {echo "checked";} ?>>
+                        <span class="radio"></span>Yes</label>
+                        <label for="over_night_no" class="radio-custom">
+                        <input id="over_night_no" name="over_night_travel" value="no" type="radio" <?php if($jobs[0]['job_overnight'] == "no") {echo "checked";} ?>>
+                        <span class="radio"></span>No</label>
+                        <label for="over_night_no_specified" class="radio-custom">
+                        <input id="over_night_no_specified" name="over_night_travel" value="not_specified" type="radio" <?php if($jobs[0]['job_overnight'] == "not_specified") {echo "checked";} ?>>
+                        <span class="radio"></span>Not Specified</label>
+                      </td>
+                    </tr>
+                  </table>
+                </li>
+
+
+
+                <li>
+                  <table>
+                    <tr>
+                      <td>Job Speciality</td>
+                      <td>
+                        <select name="job_speciality" id="" class="input">
+                          <option <?php if($jobs[0]['jobs_speciality'] == "Brand ambassador") {echo "selected='selected'";} ?> value="Brand ambassador">Brand ambassador</option>
+                          <option <?php if($jobs[0]['jobs_speciality'] == "Events Staff") {echo "selected='selected'";} ?> value="Events Staff">Events Staff</option>
+                          <option <?php if($jobs[0]['jobs_speciality'] == "Retail sales merchandiser") {echo "selected='selected'";} ?> value="Retail sales merchandiser">Retail sales merchandiser</option>
+                          <option <?php if($jobs[0]['jobs_speciality'] == "Product demonstrator/Promoter") {echo "selected='selected'";} ?> value="Product demonstrator/Promoter">Product demonstrator/Promoter</option>
+                          <option <?php if($jobs[0]['jobs_speciality'] == "Sales Consultant") {echo "selected='selected'";} ?> value="Sales Consultant">Sales Consultant</option>
+                          <option <?php if($jobs[0]['jobs_speciality'] == "Field Technician") {echo "selected='selected'";} ?> value="Field Technician">Field Technician</option>
+                          <option <?php if($jobs[0]['jobs_speciality'] == "Field sales/marketing representative") {echo "selected='selected'";} ?> value="Field sales/marketing representative">Field sales/marketing representative</option>
+                          <option <?php if($jobs[0]['jobs_speciality'] == "Trainer") {echo "selected='selected'";} ?> value="Trainer">Trainer</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </table>
+                </li>
+
+
+
+                <li>
+                  <table>
+                    <tr>
+                      <td>Hours Billed</td>
+                      <td>
+                        <input class="input small" id="hours_billed" name="hours_billed" placeholder="Hours Billed" type="text" value="<?php echo $jobs[0]['hours_billed']; ?>">                        
+                      </td>
+                    </tr>
+                  </table>
                 </li>
                 <li>
                   <table>
                     <tr>
                       <td> What other expenses are covered </td>
                     </tr>
-                    <tr>
-                      <td> 
-                        <?php
-                        $jp_other_expenses = json_decode($jobs[0]['jp_other_expenses']);
-                          ?>
-						 <label for="jp_other_expenses_food" class="custom-checkbox">
-                          <input id="jp_other_expenses_food" value="food" name="jp_other_expenses" type="checkbox" <?php if (in_array("food", $jp_other_expenses)) {echo "checked";} ?>>
+                   <tr>
+                        <td>
+                        <label for="jp_other_expenses_food" class="custom-checkbox">
+                          <input id="jp_other_expenses_food" value="food" name="jp_other_expenses[]" type="checkbox">
                           <span class="custom-check"></span> Food
-						 </label>
-						  
+                        </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Food Expences" disabled>
+                      </td>
+                    </tr>
+                    <tr>
+                        <td>
                         <label for="jp_other_expenses_parking" class="custom-checkbox">
-                          <input id="jp_other_expenses_parking" value="parking" name="jp_other_expenses" type="checkbox" <?php if (in_array("parking", $jp_other_expenses)) {echo "checked";} ?>>
-                          <span class="custom-check"></span> Parking
-						</label>
-						
+                        <input id="jp_other_expenses_parking" value="parking" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Parking
+                      </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Parking Expences" disabled>
+                      </td>
+                    </tr>
+                    <tr>
+                        <td>
                         <label for="jp_other_expenses_tolls" class="custom-checkbox">
-                          <input id="jp_other_expenses_tolls" value="tolls" name="jp_other_expenses" type="checkbox" <?php if (in_array("tolls", $jp_other_expenses)) {echo "checked";} ?>>
+                          <input id="jp_other_expenses_tolls" value="tolls" name="jp_other_expenses[]" type="checkbox">
                           <span class="custom-check"></span> Tolls
-						</label>
-						
-                        <label for="jp_other_expenses_tips" class="custom-checkbox">
-                          <input id="jp_other_expenses_tips" value="tips" name="jp_other_expenses" type="checkbox" <?php if (in_array("tips", $jp_other_expenses)) {echo "checked";} ?>>
-                          <span class="custom-check"></span> Tips
-						</label>
-						
-                        <label for="jp_other_expenses_other" class="custom-checkbox">
-                          <input id="jp_other_expenses_other"  value="other" name="jp_other_expenses" type="checkbox" <?php if (in_array("other", $jp_other_expenses)) {echo "checked";} ?>>
-                          <span class="custom-check"></span> Other
-						</label>
-						
-                       </td>
+                        </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Tolls Expences" disabled>
+                      </td>
+                    </tr>
+                    <tr>
+                        <td>
+                         <label for="jp_other_expenses_tips" class="custom-checkbox">
+                        <input id="jp_other_expenses_tips" value="tips" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Tips
+                      </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Tips Expences" disabled>
+                      </td>
+                    </tr>
+                    <tr>
+                        <td>
+                       <label for="jp_other_expenses_other" class="custom-checkbox">
+                        <input id="jp_other_expenses_other"  value="other" name="jp_other_expenses[]" type="checkbox">
+                        <span class="custom-check"></span> Other
+                      </label>
+                      </td>
+                      <td>
+                        <input type="text" name="ExpenceName[]" class="expences_input_value input small" Placeholder="Other Expences" disabled>
+                      </td>
                     </tr>
                   </table>
                 </li>
@@ -884,3 +989,18 @@
     </div>
   </section>
 </main>
+
+<?php 
+  foreach ($expenditure as $key => $value) {
+    ?>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+      <script>
+      jQuery(document).ready(function(){
+        jQuery("input[value='<?php echo $value['name']; ?>']").attr("checked", "checked");
+        jQuery("input[value='<?php echo $value['name']; ?>']").parent().parent().siblings("td").find("input").val("<?php echo $value['price']; ?>");
+        jQuery("input[value='<?php echo $value['name']; ?>']").parent().parent().siblings("td").find("input").removeAttr("disabled");
+      });
+      </script>
+    <?php
+  }
+ ?>

@@ -43,7 +43,7 @@ class Backend {
 	public function redirect($loc)
 	{
 		global $config;
-		header('Location: '. $config['base_url'] . $loc.'/');
+		header('Location: '. $config['base_url'] . $loc.'/');		
 	}
     
 }
