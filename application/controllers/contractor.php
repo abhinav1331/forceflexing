@@ -1182,7 +1182,7 @@ class Contractor extends Controller
 			$this->SendMail->setparameters($contractor_details['email'],'Contract Accepted',$emailBodycontr);
 			
 			//remove the job from public view as contractor is hired for the job
-			$toupdate=array('job_visibility' => 'none');
+			$toupdate=array('jobjob_status' => '2');
 			$this->Model->Update_row($toupdate,'id',$job_id,PREFIX.'jobs');
 			
 			//if job in active proposals then delete it
@@ -1447,5 +1447,9 @@ class Contractor extends Controller
 			echo 1;
 		}
 		exit();
+	}
+	public function inbox()
+	{
+		require_once(APP_DIR.'controllers/inbox.php');
 	}
 }

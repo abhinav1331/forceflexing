@@ -34,6 +34,12 @@
                   <th scope="col">Job Report</th>
                   <th scope="col">Status</th>
                 </tr>
+                <?php foreach ($jobs as $key => $value): ?>
+             <?php 
+                    echo "<pre>";
+                      print_r($value);
+                    echo "</pre>";
+                 ?>
                 <tr>
                   <td>David Dee</td>
                   <td><a href="#">Product launch</a></td>
@@ -44,36 +50,7 @@
                   <td><a href="#">N/A</a></td>
                   <td>Pending</td>
                 </tr>
-                <tr>
-                  <td>ForceFlexing</td>
-                  <td><a href="#">Product launch</a></td>
-                  <td>Minneapolis Show</td>
-                  <td><span class="ac-date">11/30/16</span> <span class="ac-time">6:00 PM</span></td>
-                  <td>Minneapolis</td>
-                  <td>Drew Connor</td>
-                  <td><a href="#">N/A</a></td>
-                  <td>Pending</td>
-                </tr>
-                <tr>
-                  <td>ForceFlexing</td>
-                  <td><a href="#">Product launch</a></td>
-                  <td>Minneapolis Show</td>
-                  <td><span class="ac-date">11/30/16</span> <span class="ac-time">6:00 PM</span></td>
-                  <td>Minneapolis</td>
-                  <td>Drew Connor</td>
-                  <td><a href="#">View</a></td>
-                  <td>Pending</td>
-                </tr>
-                <tr>
-                  <td>ForceFlexing</td>
-                  <td><a href="#">Product launch</a></td>
-                  <td>Minneapolis Show</td>
-                  <td><span class="ac-date">11/30/16</span> <span class="ac-time">6:00 PM</span></td>
-                  <td>Minneapolis</td>
-                  <td>Drew Connor</td>
-                  <td><a href="#">View</a></td>
-                  <td>Pending</td>
-                </tr>
+                <?php endforeach ?>
               </table></div>
             </div>
             <div role="tabpanel" class="tab-pane fade" id="closed">

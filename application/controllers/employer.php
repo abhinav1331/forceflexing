@@ -21,7 +21,7 @@ class Employer extends Controller
 		
 		
 	}
-	public function job_report() {
+/*	public function job_report() {
 		if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || isset($_SESSION['force_username']) && isset($_SESSION['force_password'])) {
 			$this->loadview('main/header')->render();
 			$this->loadview('Employer/job_report/navigation')->render();			
@@ -30,7 +30,7 @@ class Employer extends Controller
 		} else {
 			$this->redirect('');
 		}
-	}
+	}*/
 
 	public function contractorMaster() {
 		require_once(APP_DIR.'controllers/employer/contractorMaster/index.php');
@@ -54,6 +54,10 @@ class Employer extends Controller
 
 	public function offered() { 
 		require_once(APP_DIR.'controllers/employer/contractorMaster/offered.php');
+	}
+
+	public function job_report() { 
+		require_once(APP_DIR.'controllers/employer/job_report/index.php');
 	}
 
 	public function SaveContractorJob() {

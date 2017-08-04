@@ -70,7 +70,7 @@
           <li><a id="my-jobs" href="javascript:void(0);">My Jobs</a></li>
           <li><a href="javascript:void(0);">Training</a></li>
           <li><a href="javascript:void(0);">Reports</a></li>
-          <li><a href="javascript:void(0);">Messages</a></li>
+          <li><a href="<?php echo BASE_URL;?>contractor/inbox">Messages</a></li>
           <li><a href="<?php echo BASE_URL;?>contractor/contractor_profile">Profile</a></li>
         </ul>
       </div>
