@@ -26,7 +26,7 @@
                                 <strong>Profile Views:</strong>
                             </div>
                             <div class="my-stats-data">
-                                <?php echo $employer_proposals;?>
+                                <?php echo $pv; ?>
                             </div>
                         </div>  
                         <div class="my-stats-row">
@@ -34,7 +34,7 @@
                                 <strong>Employer Proposals Received:</strong>
                             </div>
                             <div class="my-stats-data">
-                                09
+                                <?php echo $employer_proposals;?>
                             </div>
                         </div>  
                         <div class="my-stats-row">

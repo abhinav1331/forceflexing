@@ -64,7 +64,23 @@ echo "</pre>";*/
 					<input type="radio" name="jp_reqemp" id="jp_reqemp_mul" value="multiple" id="empRequired_2">
 					<span class="radio"></span>Multiple
 				</label>
-				<input type="number" id="jp_mul_emp" name="jp_mul_emp" class="input inline small"> 
+        <div class="col-sm-6 selectNumber">
+           <select name="jp_mul_emp" id="jp_mul_emp" class="input" min="0">
+            <option value="">Select Number</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+       
+				<!-- <input type="number" id="jp_mul_emp" name="jp_mul_emp" class="input inline small">  -->
 			</div>
 			
             <div class="emp-job-activity">
@@ -84,7 +100,7 @@ echo "</pre>";*/
                 <div class="activityReunion" id="activityReunion1">
                   <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
-                      <th scope="row">Activites Name:</th>
+                      <th scope="row">1.) Activites Name:</th>
                       <td>
   						<div class="row">
   							<div class="col-md-7">
@@ -97,18 +113,19 @@ echo "</pre>";*/
                       <th scope="row">Select:</th>
                       <td>
   						<label class="radio-custom">
-                          <input type="radio" name="jp_start_stop_time1[]" value="fixed" id="jp_start_stop_time_fix" checked>
+                          <input type="radio" name="jp_start_stop_time1[]" value="fixed" id="jp_start_stop_time_fix" checked onchange="bestWork(this);">
                           <span class="radio"></span>fixed start and stop time <a href="javascript:void(0);" class="calendar-icon">date</a></label>
   						
   						<span class="sep">or</span>
   						
   						<label class="radio-custom">
-                          <input type="radio" name="jp_start_stop_time1[]" value="flexible" id="jp_start_stop_time_flex">
+                          <input type="radio" name="jp_start_stop_time1[]" value="flexible" id="jp_start_stop_time_flex" onchange="bestWork(this);">
                           <span class="radio"></span>flexible start/stop <a href="javascript:void(0);" class="calendar-icon">date</a></label>
   					</td>
                     </tr>
                     <tr>
-                      <th scope="row">Fixed:</th>
+                      <th scope="row" class="fix1">Fixed:</th>
+                      <th scope="row" class="flex1" style="display:none;">Flexibility Between:</th>
                       <td><div class="row">
                           <div class="col-md-6">
                             <div class="row">
@@ -210,7 +227,7 @@ echo "</pre>";*/
                   <label for="actCondition2" class="radio-custom">
                     <input id="actCondition2" name="jp_actvty_comp" type="radio" value="no">
                     <span class="radio"></span> No, the contractor can select a minimum of
-                    <input type="number" name="jp_num_of_actvty" id="jp_num_of_actvty" class="input inline x-small" disabled>
+                    <input type="number" name="jp_num_of_actvty" id="jp_num_of_actvty" class="input inline x-small" min="0" disabled>
                   <!--   <select name="jp_num_of_actvty" id="jp_num_of_actvty" class="input inline x-small">
                     <option>1</option>
                     <option>2</option>

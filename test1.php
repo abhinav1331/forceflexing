@@ -1,20 +1,71 @@
+<?php 
+//phpinfo();
+
+ /*
+     * Enable error reporting
+     */
+    ini_set( 'display_errors', 1 );
+    error_reporting( E_ALL );
+ 
+    /*
+     * Setup email addresses and change it to your own
+     */
+    $from = "your_email@yourdomain.com";
+    $to = "chhavinav@imarkinfotech.com";
+    $subject = "Simple test for mail function";
+    $message = "This is a test to check if php mail function sends out the email";
+    $headers = "From:" . $from;
+ 
+    /*
+     * Test php mail function to see if it returns "true" or "false"
+     * Remember that if mail returns true does not guarantee
+     * that you will also receive the email
+     */
+    if(mail($to,$subject,$message, $headers))
+    {
+        echo "Test email send.";
+    } 
+    else 
+    {
+        echo "Failed to send.";
+    }
+
+if ( function_exists( 'mail' ) )
+{
+    echo 'mail() is available';
+}
+else
+{
+    echo 'mail() has been disabled';
+}
+// the message
+$msg = "First line of text\nSecond line of text";
+
+// use wordwrap() if lines are longer than 70 characters
+$msg = wordwrap($msg,70);
+
+// send email
+mail("chhavinav@imarkinfotech","My subject",$msg);
+ ?>
+
 <?php
 
-echo json_encode('62,63');
-exit();
-require("/home/imarkclients/public_html/force/PHPMailer_5.2.0/class.phpmailer.php");
+/*require (getcwd().'/phpmailer/PHPMailerAutoload.php');
+//require (getcwd().'/phpmailer/class.phpmailer.php');
 
-$mail = new PHPMailer();
 
-$mail->IsSMTP();                                      // set mailer to use SMTP
+
+$mail = new PHPMailer;
+$mail->IsSMTP(0);                                      // set mailer to use SMTP
 $mail->Host = "mail.imarkclients.com";  // specify main and backup server
 $mail->SMTPAuth = true;     // turn on SMTP authentication
 $mail->Username = "test@imarkclients.com";  // SMTP username
-$mail->Password = "aB}enOT-!vd&"; // SMTP password
+$mail->Password = "aB}enOT-!vd&"; // SMTP password  
 
 $mail->From = "test@imarkclients.com";
 $mail->FromName = "Mailer";
-$mail->AddAddress("navneet1992kaur@gmail.com", "test");
+$mail->AddAddress("chhavinav@imarkinfotech.com");
+$mail->AddAddress("abhinav@imarkinfotech.com");
 
 $mail->IsHTML(true);                                  // set email format to HTML
 
@@ -29,5 +80,5 @@ if(!$mail->Send())
    exit;
 }
 
-echo "Message has been sent";
+echo "Message has been sent";*/
 ?>

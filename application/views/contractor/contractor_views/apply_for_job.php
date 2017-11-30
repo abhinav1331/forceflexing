@@ -86,8 +86,10 @@
 						
 						<p><strong>Fixed or hourly:</strong><?php echo ucfirst($job_data['job_type']); ?></p>
 						<p><strong>Rate of Pay:</strong>
+							<?php if(!empty($job_data['job_price'])){ ?>
 						   $<?php echo number_format($job_data['job_price'],2); echo ' '.($job_data['job_type'] == 'hourly' ?'hour':'per Activity')?>  </p>
 					   <input type="hidden" name="company_rate" value="<?php echo $job_data['job_price']?>">
+							<?php } ?>
 					   <!--allowable overages-->
 					   <p><strong>Allowable Work Hour Overages</strong>
 						<?php 

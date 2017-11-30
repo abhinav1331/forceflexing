@@ -40,7 +40,12 @@
                     </li>
                     <li>
                       <p><strong>Hours billed:</strong></p>
-                      <p>200 hours</p>
+                      <p><?php
+					  if(isset($job_data['hours_billed']) && $job_data['hours_billed']!="") 
+					  {
+						echo $job_data['hours_billed'];
+					  }
+					  ?> hours</p>
                     </li>
                   </ul>
                 </div>
@@ -168,8 +173,9 @@
                   <div class="col-sm-7">
                     <ul>
                       <li> <strong>Proposals</strong> <?php echo $applied_jobs?> </li>
-                      <li> <strong>Interviewing</strong> 0 </li>
-                      <li> <strong>Hired</strong> 0 </li>
+                      <!--<li> <strong>Interviewing</strong> 0 </li>-->
+					  
+                      <li> <strong>Hired</strong> <?php echo $hired; ?> </li>
                     </ul>
                   </div>
                 </div>
@@ -233,7 +239,7 @@
               <strong>Payment Certified</strong><br>
               <strong>Rating:(5.00) 2 reviews </strong></p>
             <p><strong><?php  if(isset($emp_country)) echo $emp_country;?></strong><br>
-              <?php if(isset($emp_city)) echo $emp_city;?>/ 10-19Am</p>
+              <?php if(isset($emp_city)) echo $emp_city;?><?php if(isset($emp_curr_time)) echo '/ '.$emp_curr_time.''; ?></p>
             <p><strong><?php if(isset($posted_jobs)) 
 								{ 
 									$multi=($posted_jobs>1) ?'s':'';
@@ -247,6 +253,10 @@
           <div class="contract-apply-actions">
           <form>
           <!--<textarea name="" cols="" rows="" class="input" placeholder="Type message"></textarea>-->
+		  <?php if(isset($applied_job_status) && $applied_job_status == 3){}
+		  else
+		  {
+		  ?>
           <div class="action-btns clearfix">
 			   <p class="col-xs-8">
 					<?php 
@@ -257,13 +267,13 @@
 						else
 							$button_text="Edit Job";
 						?>
-						<input type="submit" data-applied-job-id="<?php echo $applied_job_id;?>" id="apply_for_job" data-already_applied="yes" value="<?php echo $button_text;?>" class="btn btn-blue">
+						<input type="submit" data-applied-job-id="<?php echo $applied_job_id;?>" id="apply_for_job" data-already_applied="yes" data-cpe="<?php echo $cpe; ?>" value="<?php echo $button_text;?>" class="btn btn-blue">
 						<?php
 					}
 					else
 					{
 					?>
-					<input type="submit" id="apply_for_job" data-already_applied="no" value="Apply for Job" class="btn btn-blue">
+					<input type="submit" id="apply_for_job" data-already_applied="no" value="Apply for Job" class="btn btn-blue" data-cpe="<?php echo $cpe; ?>">
 				<?php } ?>
 			   </p>
 			   <input type="hidden" name="job_slug" id="job_slug" value="<?php echo $job_data['job_slug'];?>">
@@ -297,7 +307,7 @@
 			  <!--<p class="col-xs-4"><input type="submit" name="save_job" value="Save" class="btn btn-gray btn-sm"></p>
 			  <p class="col-xs-12"><button class="btn btn-gray btn-block">Alert when Pay Flexed</button></p>-->
 		  </div>
-		  
+		  <?php } ?>
           </form>
           </div>
         </aside>
@@ -305,3 +315,20 @@
     </div>
   </section>
 </main>
+<!--modal for showing message for complete your profile  -->
+<div class="modal fade" id="complete_profile" role="dialog">
+    <div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			
+			<div class="modal-body custom-popup">
+                <a href="javascript:void(0);" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i></a>
+                <h2>Complete Profile</h2>
+				<p>You must Complete your profile before Applying for a Job.</p>
+                <a href="<?php echo BASE_URL;?>contractor/contractor_profile_settings" class="btn-blue">Complete Profile</a>
+			</div>
+			
+		</div>
+    </div>
+</div>
+

@@ -1,8 +1,9 @@
 <?php
 class Options extends Model
 {
-	public $table = 'flex_options';
-	
+	private $table = 'flex_options';
+
+
 	public function Insert_options($data)
 	{
 		return $this->Insert($data,$this->table);
@@ -11,6 +12,11 @@ class Options extends Model
 	public function edit_options($data,$wherekey,$whereval)
 	{
 		return $this->update($data,$wherekey,$whereval,$this->table);
+	}
+	
+	public function get_keys()
+	{
+		return $this->get_single_row('option_name', 'flex_keys',$this->table);		
 	}
 	
 	public function delete_industries()
@@ -78,5 +84,8 @@ class Options extends Model
 	  }
 		return $text;
 	}
-
+	
+	
+	
+	
 }

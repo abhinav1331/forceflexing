@@ -2,7 +2,7 @@
 class Employers extends Model
 {
 	
-	public function searchContractor($data)
+	public function searchContractor($data,$page_number = 1)
 	{
 			$filtered_array = $this->cleararray($data);			
 			$last = end($filtered_array);			
@@ -15,7 +15,7 @@ class Employers extends Model
 						{
 							if($keys['name'] == 'job_success' && $keys['value'] > 0)
 							{
-								$where .='job_success > '.$keys['value'].'';
+								$where .='job_success <= '.$keys['value'].'';
 							}
 							elseif($keys['name'] == 'last_login_time')
 							{
@@ -53,15 +53,15 @@ class Employers extends Model
 									{
 										if($industries_last == $ind_val)
 										{
-											$like .= '"%'.$ind_val.'%"';
+											$like .= 'industries LIKE "%'.$ind_val.'%"';
 										}
 										else
 										{
-											$like .= '"%'.$ind_val.'%" OR ';
+											$like .= 'industries LIKE "%'.$ind_val.'%" OR ';
 										}
 										
 									}
-								$where .= "(".$keys['name']." LIKE $like)";	
+								$where .= "( $like )";	
 								
 									
 								}								
@@ -70,23 +70,23 @@ class Employers extends Model
 							{
 								if(strpos($keys['value'], ',') !== false)
 								{
-									$industries = explode(',',$keys['value']);									
-									$emptyRemoved = $this->Arrayfilter($industries);									
+									$languages = explode(',',$keys['value']);									
+									$emptylanguages = $this->Arrayfilter($languages);									
 									$like ='';
-									$industries_last = end($emptyRemoved);									
-									foreach($emptyRemoved as $ind_val)
+									$industries_last = end($emptylanguages);									
+									foreach($emptylanguages as $ind_val)
 									{
 										if($industries_last == $ind_val)
 										{
-											$like .= '"%'.$ind_val.'%"';
+											$like .= 'languages LIKE "%'.$ind_val.'%"';
 										}
 										else
 										{
-											$like .= '"%'.$ind_val.'%" OR ';
+											$like .= 'languages LIKE "%'.$ind_val.'%" OR ';
 										}
 										
 									}
-								$where .= "(".$keys['name']." LIKE $like)";	
+								$where .= "( $like )";	
 								
 									
 								}								
@@ -110,7 +110,7 @@ class Employers extends Model
 						{
 							if($keys['name'] == 'job_success' && $keys['value'] > 0)
 							{
-								$where .='job_success > '.$keys['value'].' AND ';
+								$where .='job_success <= '.$keys['value'].' AND ';
 							}
 							elseif($keys['name'] == 'last_login_time')
 							{
@@ -149,15 +149,15 @@ class Employers extends Model
 									{
 										if($industries_last == $ind_val)
 										{
-											$like .= '"%'.$ind_val.'%"';
+											$like .= 'industries LIKE "%'.$ind_val.'%"';
 										}
 										else
 										{
-											$like .= '"%'.$ind_val.'%" OR ';
+											$like .= 'industries LIKE "%'.$ind_val.'%" OR ';
 										}
 										
 									}
-								$where .= "(".$keys['name']." LIKE $like) AND ";		
+								$where .= "( $like ) AND ";		
 								
 									
 								}								
@@ -175,15 +175,15 @@ class Employers extends Model
 									{
 										if($industries_last == $ind_val)
 										{
-											$like .= '"%'.$ind_val.'%"';
+											$like .= 'languages LIKE "%'.$ind_val.'%"';
 										}
 										else
 										{
-											$like .= '"%'.$ind_val.'%" OR ';
+											$like .= 'languages LIKE "%'.$ind_val.'%" OR ';
 										}
 										
 									}
-								$where .= "(".$keys['name']." LIKE $like) AND ";		
+								$where .= "( $like ) AND ";		
 								
 									
 								}								
@@ -206,14 +206,18 @@ class Employers extends Model
 						
 					}		
 			}
-			//echo $where;
-			
-			$search = $this->custom_where($where,'flex_contractor_profile');
-			echo"<pre>";
+			/* echo $where; */
+				
+			//return $search = $this->custom_where($where,PREFIX.'contractor_profile');
+			/* echo"<pre>";
 			 print_r($search);
-			echo"</pre>";
+			echo"</pre>"; */
+			$item_per_page = 2;			
+			$position = (($page_number-1) * $item_per_page);
 			
-			
+			$res = $this->getContractors($position, $item_per_page, $where);
+			$array = json_decode($res);		
+			return json_encode(array( 'content'=>$array->content, 'count'=>$array->count, 'page_number'=>$page_number ));
 			
 	}
 	
@@ -256,11 +260,25 @@ class Employers extends Model
 		return $result = $this->resultset();
 	}
 	
-	public function getContractors($position, $item_per_page)
+	public function getContractors($position, $item_per_page, $where = NULL)
 	{
 		$html ='';
-		$this->query("SELECT * FROM flex_contractor_profile ORDER BY id ASC LIMIT $position, $item_per_page");
+		if(empty($where)):
+			$this->query("SELECT * FROM ".PREFIX."contractor_profile ORDER BY id ASC LIMIT $position, $item_per_page");
+		else:
+			$this->query("SELECT * FROM ".PREFIX."contractor_profile WHERE $where ORDER BY id ASC LIMIT $position, $item_per_page");		
+		endif;
 		$results = $this->resultset();
+		
+		if(!empty($where)):
+			$Count = $this->getTotalContractor( $where );
+		else:
+			$Count = 0;
+		endif;
+		
+		/* $this->query("SELECT count(*) as Count FROM ".PREFIX."contractor_profile");		
+		$ContractorCount = $this->resultset();
+		$pages = ceil($ContractorCount[0]["Count"]/$item_per_page);			 */	
 			
 		 foreach($results as $keys)
 			{
@@ -309,9 +327,23 @@ class Employers extends Model
 					</div>
 				  </article>';
 			} 
-			echo $html;
+		
+		return json_encode(array( 'content'=>$html,'count'=>$Count));		
 	}
 
 
+	public function getTotalContractor($where = NULL)
+	{
+		if(!empty($where))
+		{
+			$this->query("SELECT * FROM ".PREFIX."contractor_profile WHERE $where");			
+		}
+		else
+		{
+			$this->query("SELECT * FROM ".PREFIX."contractor_profile");
+		}
+		$this->resultset();
+		return $this->rowCount();
+	}
 }
 

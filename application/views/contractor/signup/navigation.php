@@ -9,7 +9,7 @@
         <ul>
           <li class="login">
             <p>Already have an ForceFlexing account?</p>
-            <a href="#"><i class="fa fa-sign-in" aria-hidden="true"></i> log-in</a></li>
+            <a href="<?php  echo BASE_URL;?>login"><i class="fa fa-sign-in" aria-hidden="true"></i> log-in</a></li>
         </ul>
       </div>
     </nav>

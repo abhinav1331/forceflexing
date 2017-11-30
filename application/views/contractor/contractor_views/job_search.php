@@ -228,7 +228,9 @@ else
 						  <?php } ?>
 						
 						</h3>
-						<p class="job-details"><?php echo ucfirst($job['job_type']); ?> - Budget: $<?php echo number_format($job['job_price']); ?> - Posted <?php echo $instance->time_elapsed_string('@'.$job['job_created'].'');?></p>
+						<p class="job-details"><?php echo ucfirst($job['job_type']); ?> - Budget: $<?php
+						if(!empty($job['job_price'])){
+						echo number_format($job['job_price']);} ?> - Posted <?php echo $instance->time_elapsed_string('@'.$job['job_created'].'');?></p>
 						<p>
 							<?php 
 							$job_desc= $job['job_description']; 

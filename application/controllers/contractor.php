@@ -8,11 +8,17 @@ class Contractor extends Controller
 	public $item_per_page;
 	public $rec_count;
 	public $SendMail;
+	public $TimeZone;
+	public $Notification;
 	public function __construct() 
 	{
+		
 
 		$this->Validator = $this->loadHelper('validator');
 		$this->SendMail=$this->loadHelper('sendmail');
+		$this->TimeZone=$this->loadHelper('timezone');
+		$this->Notification=$this->loadHelper('notification');
+		
 		$this->Model = $this->loadModel('Contractor_model','contractor');
 		if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || isset($_SESSION['force_username']) && isset($_SESSION['force_password']))
 		{
@@ -31,6 +37,15 @@ class Contractor extends Controller
 		}
 	}
 	
+	public function pre($array,$exit=false)
+	{
+		echo '<pre>';
+		print_r($array);
+		echo '</pre>';
+		if($exit == true)
+			exit();
+	}
+		
 	/*function to append navigation*/
 	public function navigation($data)
 	{
@@ -42,14 +57,32 @@ class Contractor extends Controller
 		{
 			$nav->set('profile_img',$data['profile_img']);
 		}
+		$nav->set('user_visibility',$this->udata['visibility_status']);
+		
+		/*check new messsages count*/
+		$c=array('to_id'=>$this->userid,'is_read'=>0);
+		$unread_msg_count=$this->Model->get_count_with_multiple_cond($c,PREFIX.'message_set');
+		$nav->set('unread_msg_count',$unread_msg_count);
+		
+		/*check for new notifications if any*/
+		$notifications=$this->Notification->get_notification($this->userid);
+		$nav->set('notifications',$notifications);
+		$nav->set('instance',$this);
 		$nav->render();
+		
+		
+		
 	}
 	
 	/*no access view*/
 	public function no_access()
 	{
 		$this->loadview('main/header')->render();
-		$this->loadview('Employer/postjob/navigation')->render();
+		$data=$this->Model->Get_row('company_id',$this->userid,PREFIX.'company_info');
+		$getUserNavigation = $this->loadview('Employer/main/navigation');
+		$getUserNavigation->set("nameEmp" , $data['company_slug']);
+		$getUserNavigation->set("profile_img" , $data['company_image']);
+		$getUserNavigation->render();
 		$this->loadview('main/noaccess')->render();
 		$this->loadview('main/footer')->render();
 	}
@@ -72,28 +105,34 @@ class Contractor extends Controller
 				/**Function Random String**/
 
 				$this->loadview('main/header')->render();
-				$searchField = $_SERVER['QUERY_STRING'];
+				//$searchField = $_SERVER['QUERY_STRING'];
+				$searchField = $_SERVER['REQUEST_URI'];
 				$searchField=urldecode($searchField);
+				
 				/*convert to array*/
-				if($searchField != "")
+				if(!empty($searchField))
 				{
 					$array=explode ('&',$searchField);
-					foreach($array as $a)
-					{
-						$gf[] = list ($k,$v) = explode ('=',$a);
-					}
 					$searcharray = array();
-					foreach($gf as $hg)
+					if(count($array) > 1) 
 					{
-						if(!in_array($hg[0],$searcharray))
+						foreach($array as $a)
 						{
-							$searcharray[$hg[0]][] = $hg[1];						
+							$gf[] = list ($k,$v) = explode ('=',$a);
 						}
-						else
+						foreach($gf as $hg)
 						{
-							$searcharray[$hg[0]][] = $hg[1];		
-						}					
+							if(!in_array($hg[0],$searcharray))
+							{
+								$searcharray[$hg[0]][] = $hg[1];						
+							}
+							else
+							{
+								$searcharray[$hg[0]][] = $hg[1];		
+							}					
+						}
 					}
+					
 				}
 				
 				/*pagination function*/
@@ -230,6 +269,7 @@ class Contractor extends Controller
 		/*search item*/
 		if(isset($searchItem) && $searchItem != "")
 		{
+			$searchItem=str_replace('+',' ',$searchItem);
 			$wherestr.= " && ";
 			$wherestr .= '(job_title LIKE "%'.$searchItem.'%" OR job_description LIKE "%'.$searchItem.'%")';
 		}
@@ -253,6 +293,7 @@ class Contractor extends Controller
 				}					
 			}
 			
+			$this->pre($finalarray);
 			/*category filter*/
 			if (array_key_exists('category', $finalarray)) 
 			{
@@ -263,10 +304,9 @@ class Contractor extends Controller
 					$wherestr.= " && ";
 					$wherestr .= '(jobs_speciality = "'.$selected_category.'")';
 				}
-				
-					
-				
 			}
+			
+			
 			$jobType="";
 			/* job type*/
 			if (array_key_exists('job_type', $finalarray)) 
@@ -327,75 +367,126 @@ class Contractor extends Controller
 				
 				$latcont=$location_cont['latitude'];
 				$longcont=$location_cont['longitude'];
-				/*distance less then 15*/
-				if(in_array('0-15',$travel_distance))
-				{
-					$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` <= 15";
-					$resul=$this->Model->filter_data($distance_qry);
-					if(!empty($resul))
-					{
-						foreach($resul as $res)
-						{
-							$jobidarray[]=$res['job_id'];
-						}
-					}
-				}
 				
-				/*distance between 16 and 30*/
-				if(in_array('16-30',$travel_distance))
+				/*if location is there for contractor*/
+				if(!empty($latcont) && !empty($longcont))
 				{
-					$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` BETWEEN 16 and 30";
-					$resul=$this->Model->filter_data($distance_qry);
-					if(!empty($resul))
+					/*distance less then 15*/
+					if(in_array('0-15',$travel_distance))
 					{
-						foreach($resul as $res)
+						$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` <= 15";
+						$resul=$this->Model->filter_data($distance_qry);
+						if(!empty($resul))
 						{
-							$jobidarray[]=$res['job_id'];
+							foreach($resul as $res)
+							{
+								$jobidarray[]=$res['job_id'];
+							}
 						}
 					}
-				}
-				
-				/*distance between 31 and 60*/
-				if(in_array('31-60',$travel_distance))
-				{
-					$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` BETWEEN 31 and 60";
-					$resul=$this->Model->filter_data($distance_qry);
-					if(!empty($resul))
+					
+					/*distance between 16 and 30*/
+					if(in_array('16-30',$travel_distance))
 					{
-						foreach($resul as $res)
+						$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` BETWEEN 16 and 30";
+						$resul=$this->Model->filter_data($distance_qry);
+						if(!empty($resul))
 						{
-							$jobidarray[]=$res['job_id'];
+							foreach($resul as $res)
+							{
+								$jobidarray[]=$res['job_id'];
+							}
 						}
 					}
-				}
-				/*distance between 61 and 180*/
-				if(in_array('61-180',$travel_distance))
-				{
-					$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` BETWEEN 61 and 180";
-					$resul=$this->Model->filter_data($distance_qry);
-					if(!empty($resul))
+					
+					/*distance between 31 and 60*/
+					if(in_array('31-60',$travel_distance))
 					{
-						foreach($resul as $res)
+						$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` BETWEEN 31 and 60";
+						$resul=$this->Model->filter_data($distance_qry);
+						if(!empty($resul))
 						{
-							$jobidarray[]=$res['job_id'];
+							foreach($resul as $res)
+							{
+								$jobidarray[]=$res['job_id'];
+							}
 						}
 					}
-				}
-				/*distance over 180*/
-				if(in_array('180-above',$travel_distance))
-				{
-					$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` >180";
-					$resul=$this->Model->filter_data($distance_qry);
-					if(!empty($resul))
+					/*distance between 61 and 180*/
+					if(in_array('61-180',$travel_distance))
 					{
-						foreach($resul as $res)
+						$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` BETWEEN 61 and 180";
+						$resul=$this->Model->filter_data($distance_qry);
+						if(!empty($resul))
 						{
-							$jobidarray[]=$res['job_id'];
+							foreach($resul as $res)
+							{
+								$jobidarray[]=$res['job_id'];
+							}
+						}
+					}
+					/*distance over 180*/
+					if(in_array('180-above',$travel_distance))
+					{
+						$distance_qry="SELECT `job_id`,(6371 * acos(cos( radians( $latcont ) ) * cos( radians( `latitude` ) ) * cos(radians( `longitude` ) - radians( $longcont )) + sin(radians($latcont)) * sin(radians(`latitude`)))) `distance` FROM `".PREFIX."job_activities` HAVING `distance` >180";
+						$resul=$this->Model->filter_data($distance_qry);
+						if(!empty($resul))
+						{
+							foreach($resul as $res)
+							{
+								$jobidarray[]=$res['job_id'];
+							}
 						}
 					}
 				}
 			}
+			
+			/*client history*/
+			$client_history=array();
+			if (array_key_exists('client_history', $finalarray)) 
+			{
+				$client_history=$finalarray['client_history'];
+				/*case of no hire*/
+				if(in_array('none',$client_history))
+				{
+					$qry="SELECT id from flex_jobs where job_author NOT IN (select employer_id from flex_hire_contractor)";
+					$resul=$this->Model->filter_data($qry);
+					if(!empty($resul))
+					{
+						foreach($resul as $res)
+						{
+							$jobidarray[]=$res['id'];
+						}
+					}
+				}
+				
+				/*case of 20-30 hires*/
+				if(in_array('1-20',$client_history))
+				{
+					$qry="SELECT id from flex_jobs where job_author IN(SELECT employer_id FROM flex_hire_contractor GROUP BY employer_id HAVING COUNT(*) >= 1 AND COUNT(*) <= 20)";
+					$resul=$this->Model->filter_data($qry);
+					if(!empty($resul))
+					{
+						foreach($resul as $res)
+						{
+							$jobidarray[]=$res['id'];
+						}
+					}
 
+				}
+				if(in_array('20+',$client_history))
+				{
+					$qry="SELECT id from flex_jobs where job_author IN(SELECT employer_id FROM flex_hire_contractor GROUP BY employer_id HAVING COUNT(*) > 20)";
+					$resul=$this->Model->filter_data($qry);
+					if(!empty($resul))
+					{
+						foreach($resul as $res)
+						{
+							$jobidarray[]=$res['id'];
+						}
+					}
+				}
+			}
 			
 			/*project_duration*/
 			if (array_key_exists('project_duration', $finalarray)) 
@@ -452,12 +543,18 @@ class Contractor extends Controller
 				}
 			}
 			
-			if(!empty($jobidarray))
+			if(empty($jobidarray) && in_array('20+',$client_history))
+			{
+				$wherestr.= " && ";
+				$wherestr .= '(id IN (""))';  
+			}
+			elseif(!empty($jobidarray))
 			{
 				$wherestr.= " && ";
 				$uniqueproid=array_unique($jobidarray);
 				$wherestr .= '(id IN ("' . implode('", "', $uniqueproid) . '"))';  
 			}
+			
 			
 			
 			/*Training Requirements*/
@@ -476,11 +573,7 @@ class Contractor extends Controller
 				$weeklyhours=$finalarray['weeklyhours'];
 				$wherestr .= '(job_hours IN ("' . implode('", "', $weeklyhours) . '"))'; 
 			}
-			/*client history*/
-			if (array_key_exists('client_history', $finalarray)) 
-			{
-				$client_history=$finalarray['client_history'];
-			}
+			
 			/*overnight travel*/
 			if (array_key_exists('overnight_travel', $finalarray)) 
 			{
@@ -519,6 +612,7 @@ class Contractor extends Controller
 			else
 			{
 				$qry= 'select * from '.PREFIX.'jobs where job_visibility ="anyone" && jobjob_status=1 '.$wherestr.'';
+				echo $qry;
 				$results=$this->Model->filter_data($qry);	
 			}
 		
@@ -550,7 +644,7 @@ class Contractor extends Controller
 									<span class="category-tag"><?php echo $industry; ?></span>
 						  <?php } ?>
 						</h3>
-						<p class="job-details"><?php echo ucfirst($job['job_type']); ?> - Budget: $<?php echo number_format($job['job_price']); ?> - Posted <?php echo $this->time_elapsed_string('@'.$job['job_created'].'');?></p>
+						<p class="job-details"><?php echo ucfirst($job['job_type']); ?> - Budget: $<?php if(!empty($job['job_price'])) echo number_format($job['job_price']); ?> - Posted <?php echo $this->time_elapsed_string('@'.$job['job_created'].'');?></p>
 						<p><?php 
 							$job_desc= $job['job_description']; 
 							echo $this->truncate($job_desc,'300','....');
@@ -565,7 +659,46 @@ class Contractor extends Controller
 		else
 		{
 			echo '<input type="hidden" name="count" id="cnt" value="No Jobs Found">';
-			echo "No Results Found !!";
+			echo '<div class="noResults"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156.227 82.527">
+<path fill="#E9EBF1" d="M62.445,6.966c1.038-0.176,1.541,0.124,1.915,0.771c2.241,3.881,4.531,7.731,6.723,11.64
+	c0.43,0.766,0.159,1.755-0.586,2.236c-1.255,0.813-1.712-0.314-2.193-1.156c-1.403-2.448-2.981-4.821-4.125-7.388
+	c-1.179-2.646-2.643-2.346-4.671-1.162c-8.748,5.101-17.517,10.167-26.313,15.182c-2.079,1.185-2.266,2.625-1.156,4.538
+	c6.911,11.918,13.875,23.807,20.663,35.795c1.451,2.563,2.973,2.077,4.874,0.985c4.896-2.811,9.804-5.602,14.669-8.464
+	c1.137-0.669,2.304-2,3.358-0.336c1.184,1.869-0.909,2.124-1.888,2.71c-5.694,3.411-11.434,6.75-17.166,10.102
+	c-1.906,1.114-3.423,1.535-4.862-1.018C44.18,58.102,36.554,44.868,28.851,31.682c-1.8-3.081-1.557-4.643,1.896-6.509
+	c9.339-5.045,18.377-10.648,27.547-16.008C59.729,8.328,61.23,7.606,62.445,6.966z"></path>
+<path fill="#E9EBF1" d="M27.839,63.146c0.156-0.054,0.311-0.131,0.473-0.159c1.434-0.25,3.539-2.631,4.099-0.227
+	c0.505,2.172-2.812,2.663-4.443,3.877c-1.835,1.365-2.55-0.083-3.342-1.468C16.72,51.342,8.873,37.479,0.773,23.766
+	c-1.344-2.275-0.908-2.941,1.084-4.081C12.804,13.43,23.701,7.088,34.555,0.675c1.451-0.857,2.439-1.134,3.083,0.609
+	c0.652,1.773,2.733,3.246,1.689,5.363c-0.569,1.154-1.894,0.63-2.429-0.294c-1.708-2.941-3.679-1.377-5.48-0.351
+	C22.77,10.93,14.175,15.952,5.536,20.896c-1.474,0.845-2.272,1.378-1.106,3.368c7.213,12.312,14.237,24.731,21.338,37.107
+	C26.236,62.19,26.486,63.331,27.839,63.146z"></path>
+<path fill="#1575BB" d="M136.469,55.787c0.851,0.783,1.474,1.31,2.041,1.89c5.095,5.21,10.244,10.365,15.229,15.677
+	c1.936,2.063,3.927,4.505,1.023,7.291c-2.763,2.651-5.637,2.439-8.313-0.227c-4.81-4.793-9.472-9.741-14.431-14.372
+	c-2.324-2.171-2.166-3.577,0.112-5.503C133.719,59.204,134.965,57.465,136.469,55.787z"></path>
+<path fill="#E9EBF1" d="M46.185,66.454c-0.691,2.169-2.893,2.466-4.578,3.384c-2.235,1.217-2.842-0.648-3.666-2.081
+	C31.582,56.693,25.185,45.65,18.855,34.569c-5.665-9.917-5.666-9.988,3.95-15.733c7.966-4.759,16.01-9.388,24.052-14.021
+	c1.068-0.614,2.397-1.839,3.558-0.435c1.132,1.369,2.349,2.981,2.635,4.644c0.264,1.523-1.605,1.928-2.324,0.766
+	c-1.658-2.68-3.396-1.931-5.42-0.752c-8.452,4.916-16.924,9.801-25.375,14.718c-1.546,0.898-2.672,1.971-1.515,3.999
+	c7.066,12.381,14.099,24.781,21.145,37.174c1.236,2.177,2.774,1.062,4.263,0.373C45.024,64.745,46.104,64.419,46.185,66.454z"></path>
+<path fill="#EAECF1" d="M66.881,33.438c-5.42,5.456-12.637,8.158-19.334,12.72C48.24,43.085,56.288,37.776,66.881,33.438z"></path>
+<path fill="#EBEDF2" d="M67.292,39.091c-5.691,4.037-11.738,7.454-18.048,10.415c-0.257-0.439-0.513-0.879-0.77-1.318
+	c5.961-3.503,11.922-7.006,17.884-10.509C66.669,38.149,66.98,38.62,67.292,39.091z"></path>
+<path fill="#EBECF2" d="M50.82,52.555c4.641-4.256,10.349-6.649,16.087-10.224C65.346,45.851,56.379,51.52,50.82,52.555z"></path>
+<path fill="#EAECF1" d="M48.188,38.089c3.916-3.574,8.368-6.366,13.493-7.987C57.841,33.823,53.314,36.394,48.188,38.089z"></path>
+	<path fill="#1575BB" d="M106.199,0.786c-18.538-0.087-33.856,15.387-33.82,33.688c0.038,19.229,14.749,34.516,33.268,34.614
+		c18.735,0.101,33.773-15.063,33.767-34.047C139.983,16.964,124.584,0.871,106.199,0.786z M105.794,62.392
+		c-14.878-0.052-26.702-12.137-26.697-27.29C79.1,19.924,90.876,7.875,105.773,7.807c15.127-0.07,27.017,12.077,26.943,27.523
+		C132.646,50.417,120.682,62.442,105.794,62.392z"></path>
+<path fill="#1575BB" d="M105.585,39.536c5.47,0.354,9.813,2.692,12.731,7.427c0.567,0.923,1.727,2.117,0.723,3.09
+	c-1.268,1.229-2.391-0.188-3.399-0.924c-1.336-0.976-2.534-2.145-3.902-3.063c-5.738-3.854-10.07-3.39-15.086,1.479
+	c-1.363,1.325-3.117,4.059-4.646,2.566c-1.811-1.766,0.965-3.718,2.2-5.253C97.079,41.294,101.061,39.82,105.585,39.536z"></path>
+<path fill="#1575BB" d="M99.297,33.516c-0.309,2.312-1.713,3.604-3.938,3.489c-1.993-0.103-3.412-1.514-3.437-3.509
+	c-0.026-2.244,1.509-3.757,3.699-3.775C97.85,29.701,99.102,31.231,99.297,33.516z"></path>
+<path fill="#1575BB" d="M118.383,33.289c-0.077,2.114-1.215,3.55-3.235,3.731c-2.29,0.207-3.827-1.126-3.906-3.482
+	c-0.08-2.361,1.439-3.823,3.662-3.808C116.889,29.747,118.137,31.186,118.383,33.289z"></path>
+</svg>
+<p>Sorry! No results found.</p></div>';
 		}
 		?>
 		</div>
@@ -591,13 +724,40 @@ class Contractor extends Controller
 		return $latitude.','.$longitude;
 	}
 
+	/*get current time of employer*/
+	public function local_time_of_employer($country,$city)
+	{
+		//get lat long
+		$address=$city.','.$country;
+		$address=str_replace(" ","",$address);
+		$url = "http://maps.googleapis.com/maps/api/geocode/json?address=$address";
+		
+		$json_data = file_get_contents($url);
+		$result = json_decode($json_data, TRUE);
+		$latitude = $result['results'][0]['geometry']['location']['lat'];
+		$longitude = $result['results'][0]['geometry']['location']['lng'];
+		
+		//get the timezone from current address
+		$current_timestamp=time();
+		$uri="https://maps.googleapis.com/maps/api/timezone/json?location=".$latitude.",".$longitude."&timestamp=".$current_timestamp."&sensor=false";
+		$json = file_get_contents($uri);
+		$res = json_decode($json, TRUE);
+		
+		//set the timezone
+		date_default_timezone_set($res['timeZoneId']);
+		$date = date('h:i A', time());
+		return $date;
+	}
 	
 	/* function for time elapsed string*/
 	public function settimezone()
 	{
-		$ip = $_SERVER['REMOTE_ADDR'];
-		$details = json_decode(file_get_contents("http://ip-api.com/json/".$ip.""));
-		date_default_timezone_set($details->timezone);
+		//echo  $ip = $_SERVER['REMOTE_ADDR'];
+		//$details = json_decode(file_get_contents("http://ip-api.com/json/".$ip.""));
+		//date_default_timezone_set($details->timezone);
+		
+		$timezone=$this->TimeZone->get_time_zone();
+		date_default_timezone_set($timezone);
 	}
 	
 	public function time_elapsed_string($datetime, $full = false) 
@@ -712,6 +872,7 @@ class Contractor extends Controller
 				$nav=$this->loadview('contractor/main/navigation');	
 				$nav->set('first_name',$this->udata['first_name']);
 				$nav->set('last_name',$this->udata['last_name']);
+				$nav->set('user_visibility',$this->udata['visibility_status']);
 				
 				if($view == "contractor_profile_settings")
 					$template=$this->loadview('contractor/contractor_views/contractor_profile_settings');
@@ -721,7 +882,7 @@ class Contractor extends Controller
 				$template->set('first_name',$this->udata['first_name']);
 				$template->set('last_name',$this->udata['last_name']);
 				$template->set('username',$this->udata['username']);
-				
+				$template->set('country',$this->udata['country']);
 				/*set the speciality*/
 				$all_speciality=$this->Model->Get_all_data(PREFIX.'categories');
 				$template->set('all_speciality',$all_speciality);
@@ -759,6 +920,12 @@ class Contractor extends Controller
 						$template->set('availability',$data['availability']);
 					if($data['industries'])
 						$template->set('industries',$data['industries']);
+					
+					if($data['routing_number'])
+						$template->set('rn',$data['routing_number']);
+					if($data['account_number'])
+						$template->set('an',$data['account_number']);
+					
 				}
 				
 				 /*get states*/
@@ -903,6 +1070,28 @@ class Contractor extends Controller
 		exit();
 	}
 	
+	/*Ajax function to save bank details*/
+	public function save_bank_details()
+	{
+		$an=$_POST['an'];
+		$rn=$_POST['rn'];
+		
+		/*decryption method
+		$key = pack("H*", "0123456789abcdef0123456789abcdef");
+		$iv =  pack("H*", "abcdef9876543210abcdef9876543210");
+
+		$encrypted = base64_decode($_POST["encrypted"]);
+		$shown = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $encrypted, MCRYPT_MODE_CBC, $iv);
+		echo $shown;*/
+		//save the details
+		
+		$data=array('account_number'=>$an,'routing_number'=>$rn);
+		$result=$this->Model->Update_row($data,'user_id',$this->userid,PREFIX.'contractor_profile');
+		
+		echo 'Account Details updated Successfully!!';
+		exit();
+	}
+	
 	/*******************Contractor profile Module Ends**********************/
 	
 	/****************Contractor Job Description Module***************************/
@@ -949,6 +1138,7 @@ class Contractor extends Controller
 	/*ajax function to update the posted job*/
 	public function update_posted_job()
 	{
+		$ap_job_id=$_POST['applied_job_id'];
 		$field=$_POST['fieldname'];
 		if(is_array($_POST['fieldval']))
 			$val=implode(',',$_POST['fieldval']);
@@ -1024,9 +1214,15 @@ class Contractor extends Controller
 				}
 			
 		}
-		 
+		 /*send notification to employer for the same*/
+		$applid_job=$this->Model->Get_column('job_id','id',$ap_job_id,PREFIX.'applied_jobs');
+		$job_id=$applid_job['job_id'];
+		$employer_id=$this->Model->Get_column('job_author','id',$job_id,PREFIX.'jobs');
+		$this->Notification->insertNotification('job_updated',$this->userid,$employer_id['job_author'],0,$ap_job_id);
+		
 		$result=$this->Model->Update_row($data,'id',$id,$table);
-		echo "Your data hs been updated";
+
+		echo "Your data has been updated";
 		exit();
 	}
 	
@@ -1040,7 +1236,7 @@ class Contractor extends Controller
 		
 		$data=array('payment_terms'=>$payment_term,'proposal_type'=>$paytype,'proposal_rate'=>$amount);
 		$result=$this->Model->Update_row($data,'id',$id,PREFIX.'applied_jobs');
-		echo "Your data hs been updated";
+		echo "Your data has been updated";
 		exit();
 	}
 	
@@ -1059,7 +1255,7 @@ class Contractor extends Controller
 		$this->navigation($data);
 		$count = $this->Model->get_saved_jobs_count();		// getting count of total rows
 		
-		$item_per_page = 2;		
+		$item_per_page = 10;		
 		$pages = ceil($count/$item_per_page);	
 		
 		//$data = $this->Model->get_saved_jobs();
@@ -1107,7 +1303,7 @@ class Contractor extends Controller
 		{
 			$page_number = 1;
 		}
-		$item_per_page = 2;
+		$item_per_page = 10;
 		$position = (($page_number-1) * $item_per_page);
 		$data = $this->Model->get_saved_jobs($position,$item_per_page);
 		
@@ -1330,16 +1526,16 @@ class Contractor extends Controller
 			
 			<p><b>Activity Status:</b> <?php echo ($activity_status_detail[0]['status'] == 0)?'Pending':'Completed'; ?></p>
 			
-			<p><b>Job Expense Report:</b> <a href="#"><?php echo ($activity_status_detail[0]['job_report_status'] == 0)?'Create':'View'; ?></a> </p>
+			<p><b>Job Expense Report:</b> <a href="<?php echo BASE_URL.'contractor/submit_report/?id='.$activity_status_detail[0]['id']; ?>"><?php echo ($activity_status_detail[0]['job_report_status'] == 0)?'Create':'View'; ?></a> </p>
 			
 			<?php 
 				$intial=0;
-				if($activity_status_detail[0]['status'] == 0 && $activity_status_detail[0]['job_report_status'] == 0)
+				if($activity_status_detail[0]['status'] == 0 && (($activity_status_detail[0]['job_report_status'] == 0) || ($activity_status_detail[0]['job_report_status'] == 1)))
 				{
 					$amount_due=number_format((float)$activity_detail['job_price'], 2, '.', '');
 					$amount_paid=number_format((float)$intial, 2, '.', '');
-					$button='<button type="button" id="view_activity_button" class="btn btn-blue">View Activity </button>
-					<button type="button" class="btn btn-blue" data-toggle="modal" data-target="#withdraw_activity">Withdraw From Activity</button>
+					//$button='<button type="button" id="view_activity_button" class="btn btn-blue">View Activity </button>';
+					$button='<button type="button" class="btn btn-blue" data-toggle="modal" data-target="#withdraw_activity">Withdraw From Activity</button>
 					<button type="button" data-status="1" id="activity_status_button" class="btn btn-blue">Move to Completed</button>';
 				}
 				elseif($activity_status_detail[0]['status'] == 1 && $activity_status_detail[0]['job_report_status'] == 0)
@@ -1373,9 +1569,7 @@ class Contractor extends Controller
 		
 			<div class="activity-associated-post-btns">
 				<?php echo $button; ?>
-			  <!--<button type="button" class="btn btn-blue">Close</button>
-			  <button type="submit" class="btn btn-blue">Create Job Report</button>
-			  <button type="button" class="btn btn-blue">Move to Pending</button>-->
+			  
 			</div>
 			<?php
 			 $returnstring = ob_get_contents();
@@ -1419,6 +1613,13 @@ class Contractor extends Controller
 			
 			//get the final details
 			$acti=$this->Model->Get_column('activity_name','id',$hired_acti['activity_id'],PREFIX.'job_activities');
+			
+			//store it in contract history table
+			$history_array=array(
+			'contract_id'=>$hired_acti['contract_id'],
+			'description'=>'[[contractor]] withdraw activity '.$acti['activity_name'].'');
+			$this->Model->Insert_data($history_array,PREFIX.'contract_history');
+			
 			$contractor=$this->Model->Get_row('id',$cont_id,PREFIX.'users');
 			$employer=$this->Model->Get_row('id',$emp_id,PREFIX.'users');
 			
@@ -1448,8 +1649,564 @@ class Contractor extends Controller
 		}
 		exit();
 	}
-	public function inbox()
+	
+	/*Submit job report*/
+	public function submit_report()
 	{
-		require_once(APP_DIR.'controllers/inbox.php');
+		require_once(APP_DIR.'controllers/contractor/submit_job_report.php');
+	}
+	
+	/*View Dispute*/
+	public function view_dispute()
+	{
+		require_once(APP_DIR.'controllers/contractor/submit_job_report.php');
+	}
+	
+	
+	
+	//hour minute drodpwn
+	function timeSelect($name,$mode,$selected,$disabled="") 
+	{
+		if($mode)
+		{
+			$mode = 24;
+			$default_select="Select Hour";
+		}
+		else 
+		{
+			$mode = 60;
+			$default_select="Select Minutes";
+		}
+		
+		echo '<select name="'.$name.'" '.$disabled.'>';
+		echo '<option value="-1">'.$default_select.'</option>';
+	 
+		for ($i=0;$i<$mode;$i++) 
+		{
+			if($i <=9) 
+				$i = "0".$i;
+			
+			if($i == $selected) 
+				echo '<option selected="selected" value="'.$i.'" >'.$i.'</option>';				
+			else
+				echo '<option value="'.$i.'" >'.$i.'</option>';
+		}
+		echo '</select>';
+	}
+	
+	/*company feedback*/
+	public function company_feedback()
+	{
+		require_once(APP_DIR.'controllers/contractor/company_feedback.php');
+	}
+	
+	/*contractot my Job Reports section*/
+	public function my_job_reports()
+	{
+		require_once(APP_DIR.'controllers/contractor/my_job_reports.php');
+	}
+	
+	/*contractor Report Section*/
+	public function reports()
+	{
+		require_once(APP_DIR.'controllers/contractor/reports.php');
+	}
+	
+	/*function to get all previous months from a current month*/
+	function get_previous_months($date="",$months_array=array())
+	{
+		$submonth = date("F", strtotime ( '-1 month' , strtotime ($date))) ;
+		
+		/*check for year*/
+		$current_year=date('Y');
+		$previousmonth_year=date("Y", strtotime ( '-1 month' , strtotime ($date))) ;
+		
+		if($current_year == $previousmonth_year)
+		{
+			$months_array[]=$submonth ;
+			//get the date of previous month
+			$dat=date("d-m-Y", strtotime ( '-1 month' , strtotime ($date))) ;
+			return $this->get_previous_months($dat,$months_array);
+		}
+		else
+		{
+			return $months_array;
+		}
+	}
+	
+	/*AJAX FUNCTION FOR THE DATE RANGE FILTER REPORTS SECTION*/
+	public function  daterangefilter()
+	{
+		
+		$range=$_GET['date_range'];
+		if(!empty($range))
+		{
+			$type=str_replace("#","",$_GET["type"]);
+			ob_start();
+			//get the contracts for the contractor
+			$contracts=$this->Model->Get_all_with_cond('contractor_id',$this->userid,PREFIX.'hire_contractor');
+			if(!empty($contracts))
+			{
+				foreach($contracts as $contract)
+				{
+					$contract_id=$contract['id'];
+						
+					//get the job name
+					$job=$this->Model->Get_row('id',$contract['job_id'],PREFIX.'jobs');
+				
+					//get the company name
+					$company=$this->Model->Get_row('id',$job['job_author'],PREFIX.'users');
+					
+					//check whether the job is hourly or fixed
+					$desc=$this->Model->Get_row('id',$contract['applied_job_id'],PREFIX.'applied_jobs');
+					if(empty($desc['proposal_type']))
+						$proposal_type=ucfirst($job['job_type']);
+					else
+						$proposal_type=$desc['proposal_type'];
+					
+					//check the expense details of the contract
+					$expenses=json_decode($contract['external_expanditure']);
+					$ex="";
+					foreach($expenses as $expense)
+					{
+						$ex.=ucfirst($expense->name).',';
+					}
+					
+					/*get the records for this week*/
+					if($range == "this-week")
+					{
+						$query="SELECT * FROM ".PREFIX."hired_contractor_activity_status WHERE yearweek(DATE(`modified_date`), 1) = yearweek(curdate(), 1) AND contract_id=".$contract_id." AND status=1 AND job_report_status=2 AND dispute_status=0";
+					}
+					elseif($range == "last-week")
+					{
+						$query="SELECT * FROM ".PREFIX."hired_contractor_activity_status WHERE `modified_date` >= curdate() - INTERVAL DAYOFWEEK(curdate())+6 DAY AND `modified_date` < curdate() - INTERVAL DAYOFWEEK(curdate())-1 DAY AND contract_id=".$contract_id." AND status=1 AND job_report_status=2 AND dispute_status=0";
+					}
+					elseif($range == "this-month")
+					{
+						$query="SELECT * FROM ".PREFIX."hired_contractor_activity_status WHERE MONTH(`modified_date`) = MONTH(CURRENT_DATE()) AND contract_id=".$contract_id." AND status=1 AND job_report_status=2 AND dispute_status=0";
+					}
+					elseif($range == "last-month")
+					{
+						$query="SELECT * FROM ".PREFIX."hired_contractor_activity_status WHERE YEAR(`modified_date`) = YEAR(CURRENT_DATE - INTERVAL 1 MONTH) AND MONTH(`modified_date`) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) AND contract_id=".$contract_id." AND status=1 AND job_report_status=2 AND dispute_status=0";
+					}
+					elseif(strpos($range,"statement") !== false)
+					{
+						$month=str_replace('statement-','',$range);
+						$date = date_parse($month);
+						$month=$date['month'];
+						$query="SELECT * FROM ".PREFIX."hired_contractor_activity_status WHERE MONTH(`modified_date`) = ".$month." AND contract_id=".$contract_id." AND status=1 AND job_report_status=2 AND dispute_status=0";
+					}
+					
+					$completed=$this->Model->filter_data($query);
+					if(!empty($completed))
+					{
+						$com=array();
+						$tra=array();
+						foreach($completed as $c)
+						{
+							//get the activity detail
+							$activity=$this->Model->Get_row('id',$c['activity_id'],PREFIX.'job_activities');
+							
+							//get amount from the report status
+							$activity_re=$this->Model->Get_row('activity_status_id',$c['id'],PREFIX.'hired_contractor_activity_report');
+							
+							$total=$activity_re['total_activity_amount'] + $activity_re['total_expense_amount'];
+							$date=date('m/d/y',strtotime($c['modified_date']));
+							$job_title=$job['job_title'];
+							$company=$company['company_name'];
+							
+							if($type == "transactions")
+							{
+							?>
+								<tr>
+									<td scope="col"><?php echo $date; ?></td>
+									<td scope="col"><?php echo rtrim($ex,','); ?></td>
+									<td scope="col">Paid (<?php echo $proposal_type; ?>)</td>
+									<td scope="col"><?php echo $job_title; ?></td>
+									<td scope="col"><?php echo $company; ?></td>
+									<td scope="col">$<?php echo $total; ?></td>
+									<td scope="col">0000</td>
+								</tr>
+							<?php
+							}
+							elseif($type == "expenseReports")
+							{
+								?>
+								<tr>
+									<td scope="col"><?php echo $date; ?></td>
+									<td scope="col"><?php echo $job_title; ?></td>
+									<td scope="col"><?php echo $activity['activity_name']; ?></td>
+									<td scope="col"><?php echo $company; ?></td>
+									<td scope="col">$<?php echo $total; ?></td>
+									<td scope="col"><?php echo $activity['id']; ?></td>
+								</tr>
+							<?php
+							}
+						}
+					}
+				}
+			}
+		}
+		$res = ob_get_contents();
+		ob_end_clean();
+		echo $res;
+		exit();
+	}
+	
+	/*AJAX Function to get the data past weeks/months projected and done*/
+	public function activity_sheet()
+	{	
+		/*get contracts for the current contractor*/
+		$contracts=$this->Model->Get_all_with_cond('contractor_id',$this->userid,PREFIX.'hire_contractor');
+		
+		/*Projected or actual*/
+		$timespace=$_POST['timespace']; 
+		
+		/*monthly or weekly*/
+		$timeduration=$_POST['timeduration'];
+	
+		$header="";
+		$rows="";
+		if($timespace == "Actual")
+		{
+			if($timeduration == "Monthly")
+			{
+				$six=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("-6 months")))));
+				$five=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("-5 months")))));
+				$four=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("-4 months")))));
+				$three=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("-3 months")))));
+				$two=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("-2 months")))));
+				$one=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("-1 months")))));
+				$current=strtolower(strftime("%B",strtotime(date('Y/m/d'))));
+				
+				$total=0;
+				if(!empty($contracts))
+				{
+					foreach($contracts as $contract)
+					{
+						$contractid=$contract['id'];
+						$job=$this->Model->Get_row('id',$contract['job_id'],PREFIX.'jobs');
+						
+						$qry='SELECT * FROM `flex_hired_contractor_activity_status` WHERE `modified_date` > DATE_SUB(now(), INTERVAL 6 MONTH) AND contract_id ='.$contractid.' AND status=1 AND job_report_status=2 AND dispute_status=0';
+						
+						$rows="<tr>";
+						$monthly_res=$this->Model->filter_data($qry);
+						if(!empty($monthly_res))
+						{
+							$initial="";
+							$sixbefore=0;
+							$fivebefore=0;
+							$fourbefore=0;
+							$threebefore=0;
+							$twobefore=0;
+							$onebefore=0;
+							$currentbefore=0;
+							$end="";
+							
+							$job_title=$job['job_title'];
+							$rows.="<td>".$job_title."</td>";
+							foreach($monthly_res as $m)
+							{
+								//get amount from the report status
+								$activity_re=$this->Model->Get_row('activity_status_id',$m['id'],PREFIX.'hired_contractor_activity_report');
+								$total += $activity_re['total_activity_amount'] + $activity_re['total_expense_amount'];
+								
+								$month=strtolower(strftime("%B",strtotime($m['modified_date'])));
+								
+								if($month == $six)
+									$sixbefore =$sixbefore + 1;	
+								if($month == $five)
+									$fivebefore =$fivebefore + 1;
+								if($month == $four)
+									$fourbefore =$fourbefore + 1;
+								if($month == $three)
+									$threebefore =$threebefore + 1;
+								if($month == $two)
+									$twobefore =$twobefore + 1;
+								if($month == $one)
+									$onebefore =$onebefore + 1;
+								if($month == $current)
+									$currentbefore =$currentbefore + 1;
+							}
+							$rows.="<td>".$sixbefore."</td>";
+							$rows.="<td>".$fivebefore."</td>";
+							$rows.="<td>".$fourbefore."</td>";
+							$rows.="<td>".$threebefore."</td>";
+							$rows.="<td>".$twobefore."</td>";
+							$rows.="<td>".$onebefore."</td>";
+							$rows.="<td>".$currentbefore."</td>";
+							$rows.="<td>".$total."</td>";
+						}
+						$rows.="</tr>";
+					}
+				}
+			}
+			elseif($timeduration == "Weekly")
+			{
+				$six=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("-6 days")))));
+				$five=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("-5 days")))));
+				$four=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("-4 days")))));
+				$three=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("-3 days")))));
+				$two=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("-2 days")))));
+				$one=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("-1 days")))));
+				$current=strtolower(strftime("%A",strtotime(date('Y/m/d'))));
+				
+				$total=0;
+				if(!empty($contracts))
+				{
+					foreach($contracts as $contract)
+					{
+						$contractid=$contract['id'];
+						$job=$this->Model->Get_row('id',$contract['job_id'],PREFIX.'jobs');
+						
+						$qry='SELECT * FROM `flex_hired_contractor_activity_status` WHERE `modified_date` > DATE(NOW()) - INTERVAL 7 DAY AND contract_id ='.$contractid.' AND status=1 AND job_report_status=2 AND dispute_status=0';
+						
+						$rows="<tr>";
+						$weekly_results=$this->Model->filter_data($qry);
+						if(!empty($weekly_results))
+						{
+							$initial="";
+							$sixbefore=0;
+							$fivebefore=0;
+							$fourbefore=0;
+							$threebefore=0;
+							$twobefore=0;
+							$onebefore=0;
+							$currentbefore=0;
+							$end="";
+							
+							$job_title=$job['job_title'];
+							$rows.="<td>".$job_title."</td>";
+							foreach($weekly_results as $m)
+							{
+								//get amount from the report status
+								$activity_re=$this->Model->Get_row('activity_status_id',$m['id'],PREFIX.'hired_contractor_activity_report');
+								$total += $activity_re['total_activity_amount'] + $activity_re['total_expense_amount'];
+								
+								$day=strtolower(strftime("%A",strtotime($m['modified_date'])));
+								
+								if($day == $six)
+									$sixbefore =$sixbefore + 1;	
+								if($day == $five)
+									$fivebefore =$fivebefore + 1;
+								if($day == $four)
+									$fourbefore =$fourbefore + 1;
+								if($day == $three)
+									$threebefore =$threebefore + 1;
+								if($day == $two)
+									$twobefore =$twobefore + 1;
+								if($day == $one)
+									$onebefore =$onebefore + 1;
+								if($day == $current)
+									$currentbefore =$currentbefore + 1;
+							}
+							$rows.="<td>".$sixbefore."</td>";
+							$rows.="<td>".$fivebefore."</td>";
+							$rows.="<td>".$fourbefore."</td>";
+							$rows.="<td>".$threebefore."</td>";
+							$rows.="<td>".$twobefore."</td>";
+							$rows.="<td>".$onebefore."</td>";
+							$rows.="<td>".$currentbefore."</td>";
+							$rows.="<td>".$total."</td>";
+						}
+						$rows.="</tr>";
+					}
+				}
+			}
+			
+			$header='<th scope="col">Weekly Activity Sheet</th>
+					<th>'.ucfirst($six).'</th>
+					<th>'.ucfirst($five).'</th>
+					<th>'.ucfirst($four).'</th>
+					<th>'.ucfirst($three).'</th>
+					<th>'.ucfirst($two).'</th>
+					<th>'.ucfirst($one).'</th>
+					<th>'.ucfirst($current).'</th>
+					<th scope="col">Amount Owned</th>';
+		}
+		elseif($timespace == "Projected")
+		{
+			if($timeduration == "Monthly")
+			{
+				$monthly=array();
+				$current=strtolower(strftime("%B",strtotime(date('Y/m/d'))));
+				$one=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("+1 months")))));
+				$two=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("+2 months")))));
+				$three=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("+3 months")))));
+				$four=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("+4 months")))));
+				$five=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("+5 months")))));
+				$six=strtolower(strftime("%B",strtotime(date('Y/m/d',strtotime("+6 months")))));
+				
+				$total=0;
+				if(!empty($contracts))
+				{
+					foreach($contracts as $contract)
+					{
+						$contractid=$contract['id'];
+						$job=$this->Model->Get_row('id',$contract['job_id'],PREFIX.'jobs');
+						
+						$qry='SELECT * FROM `flex_hired_contractor_activity_status` WHERE `modified_date` < DATE(NOW()) + INTERVAL 6 MONTH AND contract_id ='.$contractid.' AND status=0 AND (job_report_status=0 OR job_report_status=1)';
+						
+						$rows="<tr>";
+						$monthly_res=$this->Model->filter_data($qry);
+						if(!empty($monthly_res))
+						{
+							$initial="";
+							$sixafter=0;
+							$fiveafter=0;
+							$fourafter=0;
+							$threeafter=0;
+							$twoafter=0;
+							$oneafter=0;
+							$currentafter=0;
+							$end="";
+							
+							$job_title=$job['job_title'];
+							$rows.="<td>".$job_title."</td>";
+							foreach($monthly_res as $m)
+							{
+								//get amount from the report status
+								$activity_re=$this->Model->Get_row('activity_status_id',$m['id'],PREFIX.'hired_contractor_activity_report');
+								$total += $activity_re['total_activity_amount'] + $activity_re['total_expense_amount'];
+								
+								$month=strtolower(strftime("%B",strtotime($m['modified_date'])));
+								
+								if($month == $six)
+									$sixafter =$sixafter + 1;	
+								if($month == $five)
+									$fiveafter =$fiveafter + 1;
+								if($month == $four)
+									$fourafter =$fourafter + 1;
+								if($month == $three)
+									$threeafter =$threeafter + 1;
+								if($month == $two)
+									$twoafter =$twoafter + 1;
+								if($month == $one)
+									$oneafter =$oneafter + 1;
+								if($month == $current)
+									$currentafter =$currentafter + 1;
+							}
+							
+							$rows.="<td>".$currentafter."</td>";
+							$rows.="<td>".$oneafter."</td>";
+							$rows.="<td>".$twoafter."</td>";
+							$rows.="<td>".$threeafter."</td>";
+							$rows.="<td>".$fourafter."</td>";
+							$rows.="<td>".$fiveafter."</td>";
+							$rows.="<td>".$sixafter."</td>";
+							$rows.="<td>".$total."</td>";
+						}
+						$rows.="</tr>";
+					}
+				}
+				
+			}
+			elseif($timeduration == "Weekly")
+			{
+				$weekly=array();
+				$current=strtolower(strftime("%A",strtotime(date('Y/m/d'))));
+				$one=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("+1 days")))));
+				$two=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("+2 days")))));
+				$three=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("+3 days")))));
+				$four=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("+4 days")))));
+				$five=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("+5 days")))));
+				$six=strtolower(strftime("%A",strtotime(date('Y/m/d',strtotime("+6 days")))));
+				
+				$total=0;
+				if(!empty($contracts))
+				{
+					foreach($contracts as $contract)
+					{
+						$contractid=$contract['id'];
+						$job=$this->Model->Get_row('id',$contract['job_id'],PREFIX.'jobs');
+						
+						$qry='SELECT * FROM `flex_hired_contractor_activity_status` WHERE `modified_date`  BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY) AND contract_id ='.$contractid.' AND status=0 AND (job_report_status=0 OR job_report_status=1)';
+						
+						$rows="<tr>";
+						$weekly_results=$this->Model->filter_data($qry);
+						if(!empty($weekly_results))
+						{
+							$initial="";
+							$sixafter=0;
+							$fiveafter=0;
+							$fourafter=0;
+							$threeafter=0;
+							$twoafter=0;
+							$oneafter=0;
+							$currentafter=0;
+							$end="";
+							
+							$job_title=$job['job_title'];
+							$rows.="<td>".$job_title."</td>";
+							foreach($weekly_results as $m)
+							{
+								//get amount from the report status
+								$activity_re=$this->Model->Get_row('activity_status_id',$m['id'],PREFIX.'hired_contractor_activity_report');
+								$total += $activity_re['total_activity_amount'] + $activity_re['total_expense_amount'];
+								
+								$day=strtolower(strftime("%A",strtotime($m['modified_date'])));
+								
+								if($day == $six)
+									$sixafter =$sixafter + 1;	
+								if($day == $five)
+									$fiveafter =$fiveafter + 1;
+								if($day == $four)
+									$fourafter =$fourafter + 1;
+								if($day == $three)
+									$threeafter =$threeafter + 1;
+								if($day == $two)
+									$twoafter =$twoafter + 1;
+								if($day == $one)
+									$oneafter =$oneafter + 1;
+								if($day == $current)
+									$currentafter =$currentafter + 1;
+							}
+							
+							$rows.="<td>".$currentafter."</td>";
+							$rows.="<td>".$oneafter."</td>";
+							$rows.="<td>".$twoafter."</td>";
+							$rows.="<td>".$threeafter."</td>";
+							$rows.="<td>".$fourafter."</td>";
+							$rows.="<td>".$fiveafter."</td>";
+							$rows.="<td>".$sixafter."</td>";
+							$rows.="<td>".$total."</td>";
+						}
+						$rows.="</tr>";
+					}
+				}
+				
+			}
+				
+			$header='<th scope="col">Weekly Activity Sheet</th>
+					<th>'.ucfirst($current).'</th>
+					<th>'.ucfirst($one).'</th>
+					<th>'.ucfirst($two).'</th>
+					<th>'.ucfirst($three).'</th>
+					<th>'.ucfirst($four).'</th>
+					<th>'.ucfirst($five).'</th>
+					<th>'.ucfirst($six).'</th>
+					<th scope="col">Amount Owned</th>';
+		}
+		$output['header']=$header;
+		$output['rows']=$rows;
+		echo json_encode($output);
+		exit();
+	}
+	
+	/*Public funciton  all Notifications*/
+	public function notifications()
+	{
+		require_once(APP_DIR.'controllers/contractor/all_notifications.php');
+	}
+	
+	/* function to delete notification*/
+	public function deleteNoti()
+	{
+		$id=$_POST['notifi_id'];
+		if(!empty($id))
+		{
+			$this->Model->delete_data('id',$id,PREFIX.'notification_message');
+		}
+		exit();
 	}
 }

@@ -13,7 +13,10 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 		
 		//get the contract details
 		
-		$contract_id=$_GET['contract_id'];
+		if(isset($_GET['contract_id']))
+			$contract_id=$_GET['contract_id'];
+		else
+			$contract_id="";
 		
 		if( isset($contract_id) && !empty($contract_id))
 		{
@@ -141,6 +144,12 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 									$acti['amount_due']=number_format((float)$activity_detail['job_price'], 2, '.', '');
 									$acti['amount_paid']=number_format((float)$intial, 2, '.', '');
 								}
+								elseif($activity['status'] == 0 && $activity['job_report_status'] == 1)
+								{
+									$acti['job_report_status']="Received";
+									$acti['amount_due']=number_format((float)$activity_detail['job_price'], 2, '.', '');
+									$acti['amount_paid']=number_format((float)$intial, 2, '.', '');
+								}
 								elseif($activity['status'] == 1 && $activity['job_report_status'] == 0)
 								{
 									$acti['job_report_status']="Not Received";
@@ -189,15 +198,17 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 					$all_history=array();
 					if(!empty($history))
 					{
+						$desc="";
 						foreach($history as $h)
 						{
+							$desc=$h['description'];
 							$histry=array();
 							$histry['date']=$h['date'];
 							if (strpos($h['description'], '[[employer]]') !== false )
 								$desc=str_replace('[[employer]]',$employer_details['first_name']." ".$employer_details['last_name'],$h['description']);
 								
 							if(strpos($desc, '[[contractor]]') !== false )
-								$desc=str_replace('[[contractor]]','you',$desc);
+								$desc=str_replace('[[contractor]]','You',$desc);
 								
 							$histry['description']=$desc;
 							$all_history[]=$histry;

@@ -189,7 +189,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="billingMethod">
+							<div class="billingMethod">
+								<h3>Billing Method </h3>
+								<div class="methodRow">
+                                    <div class="bmType"><img src="<?php echo BASE_URL; ?>static/images/bank-icon.png" alt="Bank"></div>
+                                    <div class="bmDetails">
+                                        <input name="company_stripe_id" id="company_stripe_id" type="password" value="<?php if(!empty($company_details['company_stripe_id'])) echo $company_details['company_stripe_id'];?>" class="input" placeholder="Card Details"> </div>
+                                    <div class="bmAction"> <a id="customButton" href="javascript:void(0)" class="btn btn-blue btn-small">Verify Payment</a></div>
+                                </div>
+							</div>
+                            <!--<div class="billingMethod">
                                 <h3>Billing Method </h3>
                                 <div class="methodRow">
                                     <div class="bmType"><img src="<?php echo BASE_URL; ?>static/images/bank-icon.png" alt="Bank"></div>
@@ -198,7 +207,7 @@
                                     <div class="bmAction"> <a href="#" class="btn btn-blue btn-small">Edit</a></div>
                                 </div>
 								
-								<!--Add Details for bank account-->
+								<!--Add Details for bank account
 								<div class="methodRow" id="bank_account_details" style="display:none">
 									<div class="bmDetails edit-row">
 										 <div class="row">
@@ -211,7 +220,7 @@
 											 </div>
 												
 											 <div class="col-md-4">
-												<input name="ifsc_code" id="ifsc_code" type="text" class="input" placeholder="<?=($userdata['country']=="US") ?'ABA Number': 'SWIFT/BIC code';?>"> 
+												<input name="ifsc_code" id="ifsc_code" type="text" class="input" placeholder="<?//=($userdata['country']=="US") ?'ABA Number': 'SWIFT/BIC code';?>"> 
 											 </div>
 																			 
 											 <div class="col-md-4">
@@ -223,20 +232,20 @@
 											 </div>
 																			 
 											 <div class="col-md-4">
-												<input name="optional_code" id="optional_code" type="text" class="input" placeholder="<?=($userdata['country']=="US") ?'SWIFT/BIC code': 'Routing Code';?>">			  
+												<input name="optional_code" id="optional_code" type="text" class="input" placeholder="<?//=($userdata['country']=="US") ?'SWIFT/BIC code': 'Routing Code';?>">			  
 											 </div>
 										</div>    
 									</div>
 								</div>
 								
                                 <div class="methodRow">
-                                    <div class="bmType"><img src="<?php echo BASE_URL; ?>static/images/credit-card-icon.png" alt="Credit Card"></div>
+                                    <div class="bmType"><img src="<?php //echo BASE_URL; ?>static/images/credit-card-icon.png" alt="Credit Card"></div>
                                     <div class="bmDetails">
                                         <input name="company_credit_account" id="company_credit_account" type="text" class="input" placeholder="Credit Card"> </div>
                                     <div class="bmAction"> <a href="#" class="btn btn-blue btn-small">Edit</a></div>
                                 </div>
 								
-								<!--Add Details for Credit Card-->
+								<!--Add Details for Credit Card
 								<div class="methodRow" id="credit_details" style="display:none">
 									<div class="bmDetails edit-row">
 										 <div class="row">
@@ -265,7 +274,7 @@
 								
 								
                                 <div class="methodRow">
-                                    <div class="bmType"><img src="<?php echo BASE_URL; ?>static/images/paypal-icon.png" alt="Paypal"></div>
+                                    <div class="bmType"><img src="<?php //echo BASE_URL; ?>static/images/paypal-icon.png" alt="Paypal"></div>
                                     <div class="bmDetails">
                                         <input name="company_paypal" id="company_paypal" type="text" class="input" placeholder="Paypal"> </div>
                                     <div class="bmAction"> <a href="#" class="btn btn-blue btn-small">Edit</a></div>
@@ -281,6 +290,7 @@
                                     <div class="autoPlayBtn"> <a href="#" id="add_new_payment_gateway" class="btn btn-blue btn-small">Add New</a> </div>
                                 </div>
                             </div>
+							-->
                             <div class="passwordChange">
                                 <h3>Password</h3>
                                 <div class="row">

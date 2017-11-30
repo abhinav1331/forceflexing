@@ -114,7 +114,7 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 			if(!empty($pend_job_report))
 			{
 				//store only if all activities are completed 
-				if(count($pend_job_report) == $count_activities)
+				//if(count($pend_job_report) == $count_activities)
 					$pending_job_report[]=$job;
 			}
 			

@@ -11,7 +11,7 @@ $_SESSION['linkedin'] = "Login"
    if(isset($error)) {
     ?>
     <div class="alert alert-danger">
-      <strong>Error</strong> <?php echo $error; ?>
+      <strong>Error:</strong> <?php echo $error; ?>
     </div>
     <?php
    }

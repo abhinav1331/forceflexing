@@ -1,20 +1,23 @@
 <?php 
 /*echo "<pre>";
-    print_r($job_Array);
+    print_r($applied_jobs);
 echo "</pre>";*/
-
+error_reporting(0);
+ini_set('display_errors', 0);
 $recoCount = count($userrecommendedData);
 $appliedCount = count($applied_jobs);
 $inviteCount = count($job_invite);
 $hire_contractor = count($hire_contractor);
 $messagedCount = count($conversation_set);
 $hiredCount = count($hired);
-$userrecommendedData = array_slice( $userrecommendedData, 1, 10 );
-$applied_jobs = array_slice( $applied_jobs, 1, 10 );
-$job_invite = array_slice( $job_invite, 1, 10 );
-$hire_contractor = array_slice( $hire_contractor, 1, 10 );
-$conversation_set = array_slice( $conversation_set, 1, 10 );
-$hired = array_slice( $hired, 1, 10 );
+// $userrecommendedData = array_slice( $userrecommendedData, 1, 10 );
+// $applied_jobs = array_slice( $applied_jobs, 1, 10 );
+// $job_invite = array_slice( $job_invite, 1, 10 );
+if(!empty($hire_contractor)) {
+    // $hire_contractor = array_slice( $hire_contractor, 1, 10 );
+}
+// $conversation_set = array_slice( $conversation_set, 1, 10 );
+// $hired = array_slice( $hired, 1, 10 );
 
  ?>
  <main role="main">
@@ -67,7 +70,16 @@ $hired = array_slice( $hired, 1, 10 );
                                         $getUserRecord = $model->get_Data_table(PREFIX.'users','id',$value['user_id']);
                                         $countryCode = $getUserRecord[0]['country'];
                                         if (strlen($value['description']) > 200)
+                                           {
+
                                         $str = substr($value['description'], 0, 200) . '...';
+                                    } else {
+                                        if($value['description'] != "") {
+                                                 $str = $value['description'];
+                                            } else {
+                                               $str = "";
+                                            }
+                                    }
                                         $saved_jobs = $model->Get_column_Double('*','job_id',$job_Array['id'],'contractor_id',$value['user_id'],PREFIX.'saved_jobs');
                                         $job_invite = $model->Get_column_Double('*','job_id',$job_Array['id'],'contractor_id',$value['user_id'],PREFIX.'job_invite');
                                         
@@ -116,6 +128,7 @@ $hired = array_slice( $hired, 1, 10 );
                                             <div class="client-action-btn">
                                                 <div class="dropdown">
                                                     <input type="hidden" name="contractorNameId" value="<?php echo $value['user_id']; ?>">
+                                                    <input type="hidden" name="myId" value="<?php echo $myId; ?>">
                                                     <input type="hidden" name="userName" value="<?php echo $getUserRecord[0]['username']; ?>">
                                                     <button class="btn btn-blue dropdown-toggle" type="button" id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Actions <i class="fa fa-angle-down" aria-hidden="true"></i> </button>
                                                     <ul class="dropdown-menu blue animated fast fadeInUpSmall" aria-labelledby="actions">
@@ -168,7 +181,6 @@ $hired = array_slice( $hired, 1, 10 );
                                 </div>
                                 <?php foreach ($applied_jobs as $key => $value): ?>
                                 <?php 
-                                   
                                     $getUserRecord = $model->get_Data_table(PREFIX.'users','id',$value['contractor_id']);
 
                                     $countryCode = $getUserRecord[0]['country'];
@@ -235,6 +247,8 @@ $hired = array_slice( $hired, 1, 10 );
                                     </div>
                                     <div class="client-action-btn">
                                         <div class="dropdown">
+                                             <input type="hidden" name="contractorNameId" value="<?php echo $value['contractor_id']; ?>">
+                                              <input type="hidden" name="myId" value="<?php echo $myId; ?>">
                                              <input type="hidden" name="userName" value="<?php echo $getUserRecord[0]['username']; ?>">
                                              <input type="hidden" name="appliedId" value="<?php echo $value['id']; ?>">
                                             <button class="btn btn-blue dropdown-toggle" type="button" id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Actions <i class="fa fa-angle-down" aria-hidden="true"></i> </button>
@@ -247,11 +261,11 @@ $hired = array_slice( $hired, 1, 10 );
                                                     <label class="radio-custom">
                                                         <input type="radio" name="two" value="Decline" id="removePost"> <span class="radio"></span>Decline</label>
                                                 </li>
-                                               <!--  <li>
-                                                   <label class="radio-custom">
-                                                       <input type="radio" name="one" value="one1" id="duplicatePost"> <span class="radio"></span>Duplicate Post</label>
-                                               </li>
                                                <li>
+                                                   <label class="radio-custom">
+                                                       <input type="radio" name="two" value="CreateCon" id="createContract"> <span class="radio"></span>Create Contract</label>
+                                               </li>
+                                              <!--   <li>
                                                    <label class="radio-custom">
                                                        <input type="radio" name="one" value="one1" id="makePrivate"> <span class="radio"></span>Make Private</label>
                                                </li> -->
@@ -338,6 +352,9 @@ $hired = array_slice( $hired, 1, 10 );
                                     </div>
                                     <div class="client-action-btn">
                                         <div class="dropdown">
+
+                                            <input type="hidden" name="contractorNameId" value="<?php echo $getUserRecord[0]['id']; ?>">
+                                            <input type="hidden" name="myId" value="<?php echo $myId; ?>">
                                             <button class="btn btn-blue dropdown-toggle" type="button" id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Actions <i class="fa fa-angle-down" aria-hidden="true"></i> </button>
                                             <ul class="dropdown-menu blue animated fast fadeInUpSmall" aria-labelledby="actions">
                                                 <li>
@@ -489,7 +506,11 @@ $hired = array_slice( $hired, 1, 10 );
                                         </select>
                                     </form> -->
                                 </div>
-                                <?php foreach ($hire_contractor as $key => $value): ?>
+                                <?php
+                                if(empty($hire_contractor)) {
+                                    $hire_contractor = array();
+                                }
+                                 foreach ($hire_contractor as $key => $value): ?>
                                                                 <?php 
                                     $getUserRecord = $model->get_Data_table(PREFIX.'users','id',$value['contractor_id']);
                                     $countryCode = $getUserRecord[0]['country'];

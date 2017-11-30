@@ -13,7 +13,11 @@
 					$job_id=$_POST['job_id'];
 					$selected_activities=$_POST['selected_activity'];
 					$activities=implode(',',$selected_activities);
-					$company_rate=$_POST['company_rate'];
+					if(isset($_POST['company_rate']))
+						$company_rate=$_POST['company_rate'];
+					else
+						$company_rate="";
+					
 					$payment_terms=$_POST['payment_terms'];
 					if($payment_terms == "new_terms")
 					{
@@ -85,9 +89,9 @@
 									);
 									$conver_id=$this->Model->Insert_data($msg_insert,PREFIX.'message_set'); 
 								}
-							  }
 							}
 						}
+					}
 					
 					
 					/*save answers*/
@@ -100,6 +104,31 @@
 							 $this->Model->Insert_data($answer_data,PREFIX.'applied_answers'); 
 						}
 					}
+					
+					/*remove this job from saved jobs if it was there*/
+					/*check if there and then delete*/
+					$conditions=array('contractor_id'=>$contractor_id, 'job_id'=> $job_id, 'saved_for'=>'contractor');
+					$if_in_saved=$this->Model->Get_all_with_multiple_cond($conditions,PREFIX.'saved_jobs');
+					if(!empty($if_in_saved))
+					{
+						foreach($if_in_saved as $sj)
+						{
+							$saved_job_id=$sj['id'];
+							/*delete*/
+							$this->Model->delete_data('id',$saved_job_id,PREFIX.'saved_jobs');
+						}
+					}
+					
+					/*save it to the notifications*/
+					/* $nw=strtotime("now") ;
+					$notification_array=array('alert_type'=> 'applied_job','contractor_id'=>$this->userid,'job_id'=>$job_id,'alert'=>0,'created_date'=>$nw,'modified_date'=>$nw);
+					$this->Model->Insert_data($notification_array,PREFIX.'alerts'); 
+					 */
+					
+					/*get the employer from  job id*/
+					$employer_id=$this->Model->Get_column('job_author','id',$job_id,PREFIX.'jobs');
+					$this->Notification->insertNotification('job_applied',$this->userid,$employer_id['job_author'],0,$applied_job_id);
+					
 					$this->redirect('contractor/view_posted_job/?applied_job='.$applied_job_id);
 					exit();
 				}

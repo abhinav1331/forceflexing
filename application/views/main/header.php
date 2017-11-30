@@ -1,3 +1,7 @@
+<?php 
+/*error_reporting(0);
+ini_set('display_errors', 0);*/
+ ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,12 +18,41 @@
 <!-- Bootstrap -->
 <link href="<?php  echo BASE_URL;?>static/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom/Font Awesome/Animate.css -->
-    <link href="<?php  echo BASE_URL;?>static/css/toastr.css" rel="stylesheet" type="text/css" />
-    <link href="<?php  echo BASE_URL;?>static/css/jquery.timepicker.css" rel="stylesheet" type="text/css" />
-  <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link href="<?php  echo BASE_URL;?>static/css/toastr.css" rel="stylesheet" type="text/css" />
+<link href="<?php  echo BASE_URL;?>static/css/jquery.timepicker.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<?php 
+
+$url = 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+
+//load the calender script
+if (strpos($url,'contractor_profile/') !== false) 
+{
+	?>
+	<link href="<?php  echo BASE_URL;?>static/css/jquery.datepicker.css" rel="stylesheet">
+	<?php
+}
+//load emojis script
+if (strpos($url,'inbox') !== false) 
+{
+	?>
+	<link href="<?php  echo BASE_URL;?>static/emojis/css/jquery.emojipicker.css" rel="stylesheet">
+	<link href="<?php  echo BASE_URL;?>static/emojis/css/jquery.emojipicker.tw.css" rel="stylesheet">
+	<?php
+} 
+
+?>
+<link href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="<?php  echo BASE_URL;?>static/css/on-off-switch.css" rel="stylesheet">
 <link href="<?php  echo BASE_URL;?>static/css/style.css" rel="stylesheet">
 <link href="<?php  echo BASE_URL;?>static/css/main.css" rel="stylesheet">
+<script src="<?php  echo BASE_URL;?>static/js/canvasjs.min.js"></script>
+
+
+
 <?php  if(isset($additional)){	echo $additional;	} ?>
+
 <script>
 var base_url='<?php echo BASE_URL;?>';
 </script>

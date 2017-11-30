@@ -300,7 +300,7 @@ if(!empty($question_answer))
               <strong>Payment Certified</strong><br>
               <strong>Rating:(5.00) 2 reviews </strong></p>
             <p><strong><?php  if(isset($emp_country)) echo $emp_country;?></strong><br>
-              <?php if(isset($emp_city)) echo $emp_city;?>/ 10-19Am</p>
+              <?php if(isset($emp_city)) echo $emp_city;?> <?php if(isset($emp_curr_time)) echo '/ '.$emp_curr_time.''; ?></p>
             <p><strong><?php if(isset($posted_jobs)) 
 								{ 
 									$multi=($posted_jobs>1) ?'s':'';

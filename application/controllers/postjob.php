@@ -1,4 +1,5 @@
 <?php 
+error_reporting(0);
 class Postjob extends Controller
 {
 	public $Validator;
@@ -45,8 +46,24 @@ class Postjob extends Controller
 			$current_user_data=$this->Model->login_user($username);
 			$datarecord = $this->Model->get_Data_table(PREFIX.'jobs','job_author',$current_user_data['id']);
 			$this->loadview('main/header')->render();
-			$this->loadview('Employer/postjob/navigation')->render();
+			$dataNavi = $this->Model->get_Data_table(PREFIX.'company_info','company_id',$current_user_data['id']);
+			if (!empty($dataNavi)) {
+				$profileImg = $dataNavi[0]['company_image'];
+			} else {
+				$profileImg = "";
+			}
+			$c=array('to_id'=>$current_user_data['id'],'is_read'=>0);
+			$unread_msg_count=$this->Model->get_count_with_multiple_cond($c,PREFIX.'message_set');
+			$getUserNavigation = $this->loadview('Employer/main/navigation');
+				$getUserNavigation->set("nameEmp" , $current_user_data['username']);
+			$getUserNavigation->set("profile_img" , $profileImg);
+			$getUserNavigation->set("visibility_status" , $current_user_data['visibility_status']);
+			$getUserNavigation->set("dataFull" , $current_user_data);
+			$getUserNavigation->set("unread_msg_count" , $unread_msg_count);
+			$getUserNavigation->render();
 			$template = $this->loadview('Employer/postjob/showRec');
+			$all_results=$this->Model->Get_all_with_cond('country_id',231,PREFIX.'states');
+			$template->set('states',$all_results);
 			$template->set("url" , $datarecord);
 			$template->set("jobs" , $jobs);
 			$template->set("attachments" , $attachments);
@@ -86,7 +103,7 @@ class Postjob extends Controller
 						print_r($_POST);
 						echo "</pre>";
 						die();*/
-						if(isset($_FILES['fileUpload']['name'])) {
+						if(count($_FILES) != 0) {
 							$extTmp = explode("." , $_FILES['fileUpload']['name']);
 							$fileName = time();
 							$target_dir = ABSPATH."/static/uploads/";
@@ -297,6 +314,22 @@ class Postjob extends Controller
 							$Results3 = $this->Model->Insert_users($data4,PREFIX.'job_expenditure');
 						}
 						
+						//Notification Section 
+						$todayDate = date("y-m-d :H:i:s");
+						$flex_notification_message =  array(
+						 'noti_type'=>"job_posted", 
+						 'noti_message'=>"New Job Posted", 
+						 'fromUserID'=>$current_user_data['id'], 
+						 'toUserID'=>"",
+						 'forAdmin'=>"0",
+						 'forID'=>$Results1,
+						 'is_read'=>"0",
+						 'createdOn'=>$todayDate,
+						 'modifiedOn'=>$todayDate
+						);
+						$Results1 = $this->Model->Insert_users($flex_notification_message,PREFIX.'notification_message');
+						//Notification Section 
+
 						if ($_POST['jp_emp_type'] == 'invite_only') {
 						$datarecord = $this->Model->get_Data_table(PREFIX.'jobs','id',$Results1);
 						$_SESSION['invite_jobs'] = $datarecord;
@@ -305,7 +338,22 @@ class Postjob extends Controller
 							$postedJob = "Success";
 							$datarecord = $this->Model->get_Data_table(PREFIX.'jobs','job_author',$current_user_data['id']);
 							$this->loadview('main/header')->render();
-							$this->loadview('Employer/postjob/navigation')->render();
+							$dataNavi = $this->Model->get_Data_table(PREFIX.'company_info','company_id',$current_user_data['id']);
+							if (!empty($dataNavi)) {
+								$profileImg = $dataNavi[0]['company_image'];
+							} else {
+								$profileImg = "";
+							}
+							
+							$c=array('to_id'=>$current_user_data['id'],'is_read'=>0);
+							$unread_msg_count=$this->Model->get_count_with_multiple_cond($c,PREFIX.'message_set');
+							$getUserNavigation = $this->loadview('Employer/main/navigation');
+							$getUserNavigation->set("nameEmp" , $current_user_data['username']);
+							$getUserNavigation->set("profile_img" , $profileImg);
+							$getUserNavigation->set("visibility_status" , $current_user_data['visibility_status']);
+							$getUserNavigation->set("dataFull" , $current_user_data);
+							$getUserNavigation->set("unread_msg_count" , $unread_msg_count);
+							$getUserNavigation->render();
 							$template = $this->loadview('Employer/postjob/index');
 							$template->set("url" , $datarecord);
 							$all_results=$this->Model->Get_all_with_cond('country_id',231,PREFIX.'states');
@@ -320,7 +368,21 @@ class Postjob extends Controller
 					}   else {
 							$datarecord = $this->Model->get_Data_table(PREFIX.'jobs','job_author',$current_user_data['id']);
 							$this->loadview('main/header')->render();
-							$this->loadview('Employer/postjob/navigation')->render();
+							$dataNavi = $this->Model->get_Data_table(PREFIX.'company_info','company_id',$current_user_data['id']);
+							if (!empty($dataNavi)) {
+								$profileImg = $dataNavi[0]['company_image'];
+							} else {
+								$profileImg = "";
+							}
+							$c=array('to_id'=>$current_user_data['id'],'is_read'=>0);
+							$unread_msg_count=$this->Model->get_count_with_multiple_cond($c,PREFIX.'message_set');
+							$getUserNavigation = $this->loadview('Employer/main/navigation');
+							$getUserNavigation->set("nameEmp" , $current_user_data['username']);
+							$getUserNavigation->set("profile_img" , $profileImg);
+							$getUserNavigation->set("visibility_status" , $current_user_data['visibility_status']);
+							$getUserNavigation->set("dataFull" , $current_user_data);
+							$getUserNavigation->set("unread_msg_count" , $unread_msg_count);
+							$getUserNavigation->render();
 							$template = $this->loadview('Employer/postjob/index');
 							$template->set("url" , $datarecord);
 							$all_results=$this->Model->Get_all_with_cond('country_id',231,PREFIX.'states');
@@ -335,7 +397,7 @@ class Postjob extends Controller
 				{
 					//render view for no access
 					$this->loadview('main/header')->render();
-					$this->loadview('Employer/postjob/navigation')->render();
+					$this->loadview('home/navigation')->render();
 					$this->loadview('main/noaccess')->render();
 					$this->loadview('main/footer')->render();
 				}
@@ -366,10 +428,25 @@ class Postjob extends Controller
 			if(count($params) == 0) {
 				$this->redirect('');
 			} else {
-				$username = $_COOKIE['force_username'];
+				if(isset($_SESSION['force_username'])) {
+					$username = $_SESSION['force_username'];
+				} else {
+					$username = $_COKKIE['force_username'];
+				}
 				$current_user_data=$this->Model->login_user($username);
 				$this->loadview('main/header')->render();
-				$this->loadview('Employer/postjob/navigation')->render();
+				$dataNavi = $this->Model->get_Data_table(PREFIX.'company_info','company_id',$current_user_data['id']);
+				$getUserNavigation = $this->loadview('Employer/main/navigation');
+				if (!empty($dataNavi)) {
+					$profileImg = $dataNavi[0]['company_image'];
+				} else {
+					$profileImg = "";
+				}
+				$getUserNavigation->set("nameEmp" , $current_user_data['username']);
+				$getUserNavigation->set("profile_img" , $profileImg);
+				$getUserNavigation->set("visibility_status" , $current_user_data['visibility_status']);
+				$getUserNavigation->set("dataFull" , $current_user_data);
+				$getUserNavigation->render();
 				$temp = $this->loadview('Employer/postjob/jobpreview');
 				$temp->set('params',$params);
 				$temp->set('userDate',$current_user_data);

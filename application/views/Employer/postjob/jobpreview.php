@@ -59,6 +59,10 @@ echo "</pre>";*/
                     </li>
                     <?php 
                       $i=0;
+
+                        /*echo "<pre>";
+                          print_r($params);
+                        echo "</pre>";*/
                       foreach($params['jp_activity_name'] as $jobs_Activities) {
                         $startTime = $params['jp_act_start_time'][$i];
                         $dateTime = $params['jp_act_start_date'][$i];

@@ -136,6 +136,7 @@
 									?>
 									<?php echo $em[2];?> - <?php echo $pr;?>
 								</p>
+								<p><?php if(count($em) > 4)echo $em[4];?></p>
 							</div>
 							<?php
 						}
@@ -156,10 +157,12 @@
 						if(is_array($education_array))
 						{
 							foreach($education_array as $edu)
-							{?>
+							{
+							?>
 								<div class="edu-history-bar">
 									<h3><span class="courseType"><?php echo $edu[0];?></span></h3>
-									<p class="timePeriod"><?php echo $edu[1] . "-".$edu[2]; ?></p>
+									<p class="timePeriod"><?php echo $edu[1];?> <?php echo $edu[2] . "-".$edu[3]; ?></p>
+									<p><?php if(count($edu) > 4)echo $edu[4];?></p>
 								</div>
 					<?php	}
 						}
@@ -208,7 +211,7 @@
 			?></p>
             <p><strong>Availability:</strong> <?php 
 			if(isset($availability) and !empty($availability)){
-				echo ucfirst($availability);
+				echo str_replace('-',' ',ucfirst($availability));
 			}
 			?></p>
             <p><strong>Languages:</strong> <?php 
@@ -223,7 +226,7 @@
 				
 			
             <p><a href="<?php echo BASE_URL; ?>contractor/contractor_profile/<?php echo $username;?>">View my profile as others see It</a></p>
-            <div><a href="<?php echo BASE_URL; ?>/contractor/contractor_profile_settings" class="view-profile-btn">Profile Settings</a></div>
+            <div><a href="<?php echo BASE_URL; ?>/contractor/contractor_profile_settings" class="view-profile-btn">Edit Profile Settings</a></div>
           </div>
         </aside>
       </div>

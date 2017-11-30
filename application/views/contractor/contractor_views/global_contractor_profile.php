@@ -103,13 +103,15 @@
             <div class="work-history-feedback">
               <div class="hdr-work-feedback clearfix">
                 <h2>Work history and feedback</h2>
-                <select class="input medium inline">
-                  <option>Newest first</option>
-                  <option>Oldest first</option>
-                </select>
+                <!--<select class="input medium inline" id="job_history">
+                  <option value="desc">Newest first</option>
+                  <option value="asc">Oldest first</option>
+                </select>-->
               </div>
               <div class="in-progress-jobs">
-                <h3 id="inProgressJobs">15 jobs in progress <i class="fa fa-angle-down"></i></h3>
+				<?php if(!empty($inprogress)){ ?>
+                <h3 id="inProgressJobs"><?php echo $inprogress;?> jobs in progress</h3>
+				<?php } ?>
                 <div class="jobs-list-inProgress" style="display:none;">
                   <div class="feedbackedJob">
                     <div class="fbJobTitles">
@@ -125,54 +127,46 @@
                 </div>
               </div>
               <div class="feedbackedJobListing">
-                <div class="feedbackedJob">
-                  <div class="fbJobTitles">
-                    <h4>Website from scratch for mobile app</h4>
-                    <time>Mar 2016  -  jun 2016</time>
-                    <div class="fbRatings"> <img src="<?php echo BASE_URL; ?>/static/images/5-star-rating.png"/> <span>5.00</span> </div>
-                  </div>
-                  <div class="fbJobEarningType">
-                    <h4>$450.00 earned</h4>
-                    <p>Fixed job</p>
-                  </div>
-                </div>
-                <div class="feedbackedJob">
-                  <div class="fbJobTitles">
-                    <h4>Website from scratch for mobile app</h4>
-                    <time>Mar 2016  -  jun 2016</time>
-                    <div class="fbRatings"> <img src="<?php echo BASE_URL; ?>/static/images/5-star-rating.png"/> <span>5.00</span> </div>
-                  </div>
-                  <div class="fbJobEarningType">
-                    <h4>$450.00 earned</h4>
-                    <p>Fixed job</p>
-                  </div>
-                </div>
-                <div class="feedbackedJob">
-                  <div class="fbJobTitles">
-                    <h4>Website from scratch for mobile app</h4>
-                    <time>Mar 2016  -  jun 2016</time>
-                    <div class="fbRatings"> <img src="<?php echo BASE_URL; ?>/static/images/5-star-rating.png"/> <span>5.00</span> </div>
-                  </div>
-                  <div class="fbJobEarningType">
-                    <h4>$450.00 earned</h4>
-                    <p>Fixed job</p>
-                  </div>
-                </div>
-                <div class="feedbackedJob">
-                  <div class="fbJobTitles">
-                    <h4>Website from scratch for mobile app</h4>
-                    <time>Mar 2016  -  jun 2016</time>
-                    <div class="fbRatings"> <img src="<?php echo BASE_URL; ?>/static/images/5-star-rating.png"/> <span>5.00</span> </div>
-                  </div>
-                  <div class="fbJobEarningType">
-                    <h4>$450.00 earned</h4>
-                    <p>Fixed job</p>
-                  </div>
-                </div>
+			  <?php if(!empty($working_history)) 
+			  {
+				foreach($working_history as $his)
+				{?>
+					<div class="feedbackedJob">
+						<div class="fbJobTitles">
+							<h4><?php echo $his['job_title'];  ?></h4>
+							<time><?php echo date('M Y',strtotime($his['start_date'])); ?>  -  <?php echo date('M Y',strtotime($his['end_date'])); ?></time>
+							<div class="fbRatings"> 
+								<?php for($i=0;$i<round($his['rating']);$i++){?>
+									<i class="fa fa-star" aria-hidden="true"></i>
+								<?php } ?>
+								<span><?php echo round($his['rating']); ?></span> 
+							</div>
+						</div>
+						<div class="fbJobEarningType">
+							<?php if (array_key_exists("total_earning",$his)){ ?>
+								<h4>$<?php echo number_format($his['total_earning'],2); ?> earned</h4>
+							<?php } ?>
+							<p><?php echo ucfirst($his['job_type']); ?></p>
+						</div>
+					</div>
+	<?php		}
+			  }?>
+                
               </div>
             </div>
-            <div class="availability-dates"> <img src="<?php echo BASE_URL; ?>/static/images/calendar.png" alt="calendar">
-              <p class="no-availability">Contractor not available from: Oct 5 to Oct 20</p>
+            <div class="availability-dates"> 
+				<div class="available_dates"></div>
+				<?php 
+				$inactive=json_decode($inactive_dates);
+				if(!empty($inactive)){
+				?>
+				<input type='hidden' id='inactive_dates' value='<?php echo $inactive_dates;?>'
+				<?php } ?>
+				<!--<img src="<?php //echo BASE_URL; ?>/static/images/calendar.png" alt="calendar"-->
+				<?php if(!empty($inactive) ){
+					?>
+					<p class="no-availability">Contractor not available on the dates marked in red.</p>
+				<?php } ?>
             </div>
             <div class="pro-skill-tests">
               <h2>Test</h2>
@@ -227,6 +221,7 @@
 												?>
 												<?php echo $em[2];?> - <?php echo $pr;?>
 											</p>
+											<p><?php if(count($em) > 4)echo $em[4];?></p>
 										</div>
 										<?php
 									}
@@ -247,7 +242,7 @@
 							{?>
 								<div class="edu-history-bar">
 									<h3><span class="courseType"><?php echo $edu[0];?></span></h3>
-									<p class="timePeriod"><?php echo $edu[1] . "-".$edu[2]; ?></p>
+									<p class="timePeriod"><?php echo $edu[1].' '.$edu[2] . "-".$edu[3]; ?></p>
 								</div>
 					<?php	}
 						}
@@ -258,17 +253,43 @@
         </aside>
         <aside class="pro-overview">
           <div class="job-success-bar">
-            <h3>Job Sucess</h3>
+            <h3>Job Success</h3>
             <div class="progress">
               <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 92%;"> <span class="progress-number">92%</span> </div>
             </div>
           </div>
           <div class="work-history">
-            <h4>Work history</h4>
+			<?php 
+			$availability= $userdata['availability'];
+			/* if($total_hours > 0 || $completed_jbs > 0)
+			{?>
+				<h4>Availability</h4>
+			<?php }
+			else
+			{
+				?>
+				<h4>No Work history</h4>
+				<?php
+			}
+			?>
             <div>
-              <p class="pro-hours">560 hours worked</p>
-              <p class="pro-jobs">70 jobs</p>
-            </div>
+			<?php
+			if($total_hours > 0){ ?>
+              <p class="pro-hours"><?php echo $total_hours; ?> hours worked</p>
+			<?php } ?>
+             
+			  <?php if($completed_jbs > 0){ ?>
+				<p class="pro-jobs"><?php echo $completed_jbs; ?> jobs</p>
+			  <?php } ?>
+            </div> */
+			
+			if(!empty($availability))
+			{?>
+				<h4>Availability</h4>
+				<div> <p class="pro-hours"><?php echo ucfirst(str_replace('-',' ',$availability)); ?></p></div> 
+			<?php
+			}
+			?>
           </div>
           <div class="profile-link">
             <h4>Profile link</h4>
@@ -281,10 +302,13 @@
             <div>
               <p>
 				  <?php
-					  $ip = $_SERVER['REMOTE_ADDR'];
+					 /* $ip = $_SERVER['REMOTE_ADDR'];
 					  $details = json_decode(file_get_contents("http://ipinfo.io/{$ip}/json"));
 					  $timezone = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $details->country);
-					  date_default_timezone_set($timezone[0]); 
+					  date_default_timezone_set($timezone[0]); */
+					  
+					  $timezone=$instance->TimeZone->get_time_zone();
+					  date_default_timezone_set($timezone);
 					  
 					  $last_login_time=$user['last_login_time'];
 					  if(strtotime($last_login_time) < strtotime("-10 minutes"))

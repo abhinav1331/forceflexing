@@ -150,6 +150,6 @@ class Contractor_model extends Model
 	
 	public function delete_data($wherekey,$whereval,$table)
 	{
-		return $this->delete_all_records($table,$wherekey,$whereval);
+		return $this->delete_all_record($table,$wherekey,$whereval);
 	}
 }

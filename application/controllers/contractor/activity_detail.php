@@ -88,6 +88,12 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 								$acti['amount_due']=number_format((float)$activity_detail['job_price'], 2, '.', '');
 								$acti['amount_paid']=number_format((float)$intial, 2, '.', '');
 							}
+							elseif($activity['status'] == 0 && $activity['job_report_status'] == 1)
+							{
+								$acti['job_report_status']="Received";
+								$acti['amount_due']=number_format((float)$activity_detail['job_price'], 2, '.', '');
+								$acti['amount_paid']=number_format((float)$intial, 2, '.', '');
+							}
 							elseif($activity['status'] == 1 && $activity['job_report_status'] == 0)
 							{
 								$acti['job_report_status']="Not Received";

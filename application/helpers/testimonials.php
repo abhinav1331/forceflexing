@@ -1,7 +1,7 @@
 <?php 
 class Testimonials extends Model
 {
-	public $table = PREFIX."testimonials";
+	private $table = 'flex_testimonials';
 	
 	/* Display Testimonials */
 	public function index($format = "Array")

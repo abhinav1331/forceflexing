@@ -38,16 +38,16 @@
           <form method="POST" id="employer-sign-up" action="<?php  echo BASE_URL;?>registration/employer">
             <div class="row">
               <div class="col-sm-6">
-                <input name="first_name" type="text" value="<?php if(isset($_POST['first_name'])): echo $_POST['first_name']; endif; ?>" placeholder="First Name">
+                <input name="first_name" id="first_name" style="text-transform: capitalize;" type="text" value="<?php //if(isset($_POST['first_name'])): echo $_POST['first_name']; endif; ?>" placeholder="First Name">
               </div>
               <div class="col-sm-6">
-                <input name="last_name" type="text" value="<?php if(isset($_POST['last_name'])): echo $_POST['last_name']; endif; ?>" placeholder="Last Name">
+                <input name="last_name" id="last_name" style="text-transform: capitalize;" type="text" value="<?php //if(isset($_POST['last_name'])): echo $_POST['last_name']; endif; ?>" placeholder="Last Name">
               </div>
         <div class="col-sm-6">
-                <input name="user_name" value="<?php if(isset($_POST['user_name'])): echo $_POST['user_name']; endif; ?>" type="text" placeholder="User Name">
+                <input name="user_name" value="<?php //if(isset($_POST['user_name'])): echo $_POST['user_name']; endif; ?>" type="text" placeholder="User Name">
               </div>
               <div class="col-sm-6">
-                <input name="company_name" type="text" value="<?php if(isset($_POST['cmpy_name'])): echo $_POST['cmpy_name']; endif; ?>" placeholder="Company Name">
+                <input name="company_name" type="text" value="<?php //if(isset($_POST['cmpy_name'])): echo $_POST['cmpy_name']; endif; ?>" placeholder="Company Name">
               </div>
               <div class="col-sm-6">
                 <select name="country">
@@ -56,18 +56,19 @@
               
               </div>
               <div class="col-sm-6">
-                <input name="email" type="text" value="<?php if(isset($_POST['email'])): echo $_POST['email']; endif; ?>" placeholder="Email">
+                <input name="email" type="text" value="<?php //if(isset($_POST['email'])): echo $_POST['email']; endif; ?>" placeholder="Email">
               </div>
               <div class="col-sm-6">
-                <input name="password" id="password" type="password" value="<?php if(isset($_POST['pass'])): echo $_POST['pass']; endif; ?>"  placeholder="Password">
-              </div>
+                <input name="password" id="password" type="password" value="<?php //if(isset($_POST['pass'])): echo $_POST['pass']; endif; ?>"  placeholder="Password">
+				<span class="pwd-tip" style="display:none;">Minimum 6 characters required!</span>
+			  </div>
               <div class="col-sm-6">
-                <input name="con_pass" value="<?php if(isset($_POST['con_pass'])): echo $_POST['con_pass']; endif; ?>" type="password" placeholder="Confirm Password">
+                <input name="con_pass" value="<?php //if(isset($_POST['con_pass'])): echo $_POST['con_pass']; endif; ?>" type="password" placeholder="Confirm Password">
               </div>
 			  <input type="hidden" name="user_role" value="employer">
               <div class="col-sm-12">
                 <label for="emails-newsletter" class="custom-checkbox">
-                  <input id="emails-newsletter" type="checkbox">
+                  <input id="emails-newsletter" type="checkbox" checked>
                   <span class="custom-check"></span>
                   Yes! Send me genuinely useful emails every now and then to help me get the most out of Upwork.</label>
                 <label for="terms" class="custom-checkbox">

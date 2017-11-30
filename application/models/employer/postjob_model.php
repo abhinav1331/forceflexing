@@ -43,6 +43,10 @@ class Postjob_model extends Model
 	{
 		return $this->get_table_data($table,$field,$value);
 	}
+	public function get_Data_table_groupMy($table,$field,$value)
+	{
+		return $this->get_DataTable_groupMy($table,$field,$value);
+	}
 	public function get_job_details($table,$field,$value)
 	{
 		return $this->get_Job_Detail($table,$field,$value);
@@ -52,7 +56,12 @@ class Postjob_model extends Model
 	{
 		return $this->get_table_data($table,$wherekey,$wherevalue);
 	}
-		
+	
+	public function Get_all_with_multiple_cond($where_cond,$table,$order="asc")
+	{
+		return $this->get_all_mul_cond($where_cond,$table,$order);
+	}
+	
 		
 	public function Get_record_jobe_count($table,$wherekey,$wherevalue)
 	{

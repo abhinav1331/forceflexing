@@ -2,17 +2,16 @@
 /*
  * ForceFlexing v0.5.3
  */
-
 //Start the Session
 session_start(); 
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
-
+date_default_timezone_set( 'America/New_York' );
 // Defines
 define('ROOT_DIR', realpath(dirname(__FILE__)) .'/');
 define('APP_DIR', ROOT_DIR .'application/');
 define('PREFIX', 'flex_');
-define('SITEURL', 'http://force.imarkclients.com/');
+define('SITEURL', 'http://force.stagingdevsite.com/');
 
 // Includes
 require(APP_DIR .'config/config.php');
@@ -21,6 +20,7 @@ require(ROOT_DIR .'system/view.php');
 require(ROOT_DIR .'system/controller.php');
 require(ROOT_DIR .'system/backend.php');
 require(ROOT_DIR .'system/force.php');
+
 
 // Define base URL
 global $config;

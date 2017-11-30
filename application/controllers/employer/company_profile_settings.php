@@ -136,6 +136,7 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username']))
 				'company_fb' => $company_facebook_link,
 				'contact_vat' =>$vat,
 				'company_indus' => $company_industries,
+				'company_stripe_id' => base64_encode($company_stripe_id),
 				'security_ques' => $question,
 				'security_ans' =>$answer
 				);
@@ -265,8 +266,24 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username']))
 			}
 			
 			$this->loadview('main/header')->render();
-			$this->loadview('Employer/company_profile_settings/navigation')->render();	
+
+			$current_user_data=$this->Model->login_user($username);
+			$dataNavi = $this->Model->get_Data_table(PREFIX.'company_info','company_id',$current_user_data['id']);
+			if (!empty($dataNavi)) {
+				$profileImg = $dataNavi[0]['company_image'];
+			} else {
+				$profileImg = "";
+			}
+			$c=array('to_id'=>$current_user_data['id'],'is_read'=>0);
+			$unread_msg_count=$this->Model->get_count_with_multiple_cond($c,PREFIX.'message_set');
+			$getUserNavigation = $this->loadview('Employer/main/navigation');
+			$getUserNavigation->set("nameEmp" , $current_user_data['username']);
+			$getUserNavigation->set("profile_img" , $profileImg);
+			$getUserNavigation->set("dataFull" , $current_user_data);
+			$getUserNavigation->set("unread_msg_count" , $unread_msg_count);
+			$getUserNavigation->render();
 			$template=$this->loadview('Employer/company_profile_settings/index');
+			$getUserNavigation->render();
 			$template->set("success",$success);
 			$template->set("instance",$this);
 			$template->set("comp_id",$company_id);
@@ -299,7 +316,11 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username']))
 			
 			$template->set("userdata",$current_user_data);
 			$template->render();
-			$this->loadview('main/footer')->render();
+
+			
+			$footer = $this->loadview('main/footer');
+			//$footer->set("userdata",$current_user_data);
+			$footer->render();
 		}
 		else
 		{

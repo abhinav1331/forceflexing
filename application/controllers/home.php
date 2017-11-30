@@ -15,8 +15,31 @@ class Home extends Controller
 		//$Model = $this->loadModel('Example_model');	
 		$sql = "SELECT * FROM flex_users";
 		$row = $this->Model->getSomething($sql);
-		$this->loadview('main/header')->render();	
-		$this->loadview('home/navigation')->render();	// Rendering The Header in View/Home/Header.php
+		$this->loadview('main/header')->render();
+
+		if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || isset($_SESSION['force_username']) && isset($_SESSION['force_password']))
+		{
+			if (isset($_COOKIE['force_username'])) 
+			{
+				$username = $_COOKIE['force_username'];
+			}
+			else 
+			{
+				$username = $_SESSION['force_username'];
+			}
+			/* get login user details*/
+			$this->udata=$this->Model->getSomething('select * from flex_users where username="'.$username.'"');
+			$role=$this->udata[0]['role'];
+		}
+		else
+		{
+			$role="";
+		}
+
+		$nav=$this->loadview('home/navigation');
+		$nav->set('user_role',$role);
+		$nav->render();
+
 		$template = $this->loadview('home/index');			// Loading The index in View/Home/index.php
 		$template->set('data','Chhvai');					//Rendering the data on that page [set(Variable Name,Variable Content)]
 		$template->set('row',$row);
@@ -25,13 +48,13 @@ class Home extends Controller
 	}
 	
 	
-	public function login()
+	/*public function login()
 	{
 		$this->loadview('main/header')->render();	
 		$this->loadview('home/navigation')->render();
 		$this->loadview('home/login')->render();	
 		$this->loadview('main/footer')->render();			
-	}
+	}*/
 	
 	public function logout()
 	{

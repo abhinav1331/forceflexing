@@ -34,25 +34,25 @@
 				  
 				  <p class="pro-skills">
 					<?php
-						if(isset($skills) && $skills!="")
+						if(isset($skills) && !empty($skills))
 						{
 							$skills_array=unserialize($skills);
-							foreach($skills_array as $s)
-								echo '<span class="industry-tag">'.$s.'</span>';
+							if(is_array($skills_array))
+							{
+								foreach($skills_array as $s)
+									echo '<span class="industry-tag">'.$s.'</span>';
+							}
 						}
 					?>
-                      <br>
-                      <a href="#" data-toggle="modal" data-target="#skill"data-toggle="modal" data-target="#skill"><?php echo (isset($skills) && $skills!="") ?'Edit':'Add'?> Skill</a>
-				  </p>
-                  
+                  </p>
+                   <a href="#" data-title="Edit Skill" class="<?php echo (isset($skills) && $skills != "" && $skills != "N;")?'edit-me':'';?>" data-toggle="modal" data-target="#skill" data-toggle="modal" data-target="#skill"><?php echo (isset($skills) && $skills!="" && $skills != "N;") ?'<i class="fa fa-pencil"></i>':'Add Skill'?></a>
 			  </div>
 			  <!--skills end-->
 			  
 			 <!--locations start-->
 			 <div class="loc-main">
-				 
-				 <p class="pro-location">
-					<?php if(isset($location) && $location != "") 
+				<p class="pro-location<?php echo (isset($location) && !empty($location))?'':' empty'; ?>">
+					<?php if(isset($location) && !empty($location) ) 
 						{
 							$locations=unserialize($location);
 							$i=0;
@@ -66,12 +66,9 @@
 							}
 						}
 						?>
-                      <br>
-                 <a href="#" id="add_location_poup" data-toggle="modal" data-target="#location"><?php echo (isset($location) && $location != "") ?'Edit':'Add'?> Location</a>
-				  </p>
-                
-              
-			</div>
+                </p>
+                 <a href="#"  data-title="Edit Location" id="add_location_poup" class="<?php echo (isset($location) && $location != "")?'edit-me':'';?>" data-toggle="modal" data-target="#location"><?php echo (isset($location) && $location != "") ?'<i class="fa fa-pencil"></i>':'Add Location'?> </a>
+            </div>
 			  <!--locations end-->
 			  
 			  <!--Add speciality-->
@@ -83,9 +80,8 @@
 								<span class="industry-tag"><?php  echo $speciality;?></span>
 					<?php  }
 						?>
-                    <br><a href="#"  data-toggle="modal" data-target="#speciality"><?php echo (isset($speciality) && $speciality != "") ?'Edit':'Add'?> Speciality</a>
-				</p>
-                 
+                </p>
+                <a href="#"  data-title="Edit Speciality"  data-toggle="modal" class="<?php echo (isset($speciality) && $speciality != "")?'edit-me':'';?>" data-target="#speciality"><?php echo (isset($speciality) && $speciality != "") ?'<i class="fa fa-pencil"></i>':'Add Speciality'?></a> 
 			  </div>
 			  <!--Speciality Ends-->
 			  
@@ -106,10 +102,8 @@
 							}
 						}
 						?>
-                      <br>
-                      <a href="#"  data-toggle="modal" data-target="#industries"><?php echo (isset($industries) && $industries != "") ?'Edit':'Add'?> Industries</a>
-				  </p>
-                
+                  </p>
+				  <a href="#"  data-title="Edit Industries" class="<?php echo (isset($industries) && $industries != "")?'edit-me':'';?>"  data-toggle="modal" data-target="#industries"><?php echo (isset($industries) && $industries != "") ?'<i class="fa fa-pencil"></i>':'Add Industries'?></a>
 			  </div>
 			  <!-- Industries end-->
 			  
@@ -118,6 +112,68 @@
           <div class="add-more-details">
             <h3>Overview</h3>
             <textarea name="" id="overview" cols="" rows="" placeholder="Add Overview"><?php if(isset($description) && $description!="") echo $description; ?></textarea>
+			 
+			<h3>Bank Details</h3>
+			<div class="bank_details">
+				<div class="row">
+					<!--check country and add details accordingly-->
+					
+					<?php
+					if(isset($an) && !empty($an))
+							$acn=$an;
+						else
+							$acn="";
+					if(isset($rn) && !empty($rn))
+							$rd=$rn;
+						else
+							$rd="";	
+						
+					if($country == "CA")
+					{
+						?>
+						<div class="col-md-6">
+							<div class="row">
+								<div class="col-md-6">
+									<input type="password" class="form-control input" id="transit_number" value="<?php echo $rd; ?>" placeholder="Transit Number">
+								</div>
+								<div class="col-md-6">
+									<input type="password" class="form-control input" id="institution_number" value="<?php echo $rd; ?>" placeholder="Institution Number">
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="row">
+								<div class="col-md-8">
+									<input type="password" class="form-control input" id="account_number" value="<?php echo $acn; ?>" placeholder="Account Number">
+								</div>
+								<div class="col-md-4">
+									<a href="javascript:void(0);" class="btn-blue pull-right" id="save_bank_details">Save</a>
+								</div>
+							</div>
+						</div>
+						<?php
+					}
+					elseif($country == "US")
+					{
+						?>
+						<div class="col-md-6">
+							<input type="password" class="form-control input" value="<?php echo $acn; ?>" id="account_number" placeholder="Account Number">
+						</div>
+						<div class="col-md-6">
+							<div class="row">
+								<div class="col-md-8">
+									<input type="password"  class="form-control input" id="routing_number" value="<?php echo $rd; ?>" placeholder="Routing Number">
+								</div>
+								<div class="col-md-4">
+									<a href="javascript:void(0);" class="btn-blue pull-right" id="save_bank_details">Save</a>
+								</div>
+							</div>
+						</div>
+						<?php
+					}	?>
+				</div>
+			</div>
+			
             <h3>Employment History</h3>
 			<!-- Employemnt History-->
               <div class="pd-btn-group">
@@ -125,6 +181,7 @@
 			<a href="javascript:void(0);" class="btn-blue pull-right" id="save_emp_history">Save</a>
                   </div>
               <div class="clearfix"></div>
+			  <div class="outer-main">
 			<?php if(isset($employment_history) && $employment_history !="")
 					$employment=unserialize($employment_history);
 				if(!empty($employment))
@@ -154,6 +211,8 @@
 									<a class="remove-employment" href="javascript:void(0);"><i class="fa fa-times" aria-hidden="true"></i></a>
 								</div>
 							</div>
+						</div>
+<div class="col-md-12"><textarea placeholder="Description" id="company_desc"  class="form-control input"><?php if(count($e) > 4)echo $e[4];?></textarea>
 						</div>
 					</div>
 					<?php
@@ -185,8 +244,12 @@
 								</div>
 							</div>
 						</div>
+						<div class="col-md-12">
+							<textarea placeholder="Description" id="company_desc" class="form-control input"></textarea>
+						</div>
 					</div>
 	 	<?php   }?>
+		</div>
 			<!--Emploment history ends-->
 			<!--education-->
             <h3>Education</h3> 
@@ -199,17 +262,67 @@
 				if(isset($education) && $education!="")
 					$education_array=unserialize($education);
 			?>
-			<?php 
-				if(!empty($education_array))
-				{
-					foreach($education_array as $e)
+			<div class="outer-main">
+				<?php 
+					if(!empty($education_array))
+					{
+						foreach($education_array as $e)
+						{
+						?>
+							<div class="row education">
+								<div class="col-md-6">
+									<div class="row">
+										<div class="col-md-6">
+											<input type="text"  value="<?php echo $e[0]; ?>" name="qualification" id="qualification" class="form-control input" placeholder="Name of School">
+										</div>
+										<div class="col-md-6">
+											<input type="text"  value="<?php echo $e[1]; ?>" name="area-of-study" id="area-of-study" class="form-control input" placeholder="Area Of Study">
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="row">
+										<div class="col-md-6">
+											<select name="from-edu" id="from-edu" class="form-control input">		
+												<option value="">From</option>
+												<?php
+													foreach(range(1995, (int)date("Y")-1) as $qyear)
+													{
+														$selected=($e[2] == $qyear)?'selected':'';
+														echo "<option value='".$qyear."' ".$selected.">".$qyear."</option>";
+													}						
+												?>
+											</select>
+										</div>
+										<div class="col-md-6">
+											<select name="to-edu" id="to-edu" class="form-control input">		
+												<option value="">To</option>
+												<?php
+													foreach(range(1995, (int)date("Y")) as $qtoyear)
+													{
+														$selected=($e[3] == $qtoyear)?'selected':'';
+														echo "<option value='".$qtoyear."' ".$selected.">".$qtoyear."</option>";
+													}						
+												?>
+											</select>
+											<a class="remove-education" href="javascript:void(0);"><i class="fa fa-times" aria-hidden="true"></i></a>
+										</div>
+									</div>
+								</div>
+							</div>
+				<?php   } 
+					}	
+					else
 					{
 					?>
 						<div class="row education">
 							<div class="col-md-6">
 								<div class="row">
-									<div class="col-md-12">
-										<input type="text"  value="<?php echo $e[0]; ?>" name="qualification" id="qualification" class="form-control input" placeholder="Qualification">
+									<div class="col-md-6">
+										<input type="text" name="qualification" id="qualification" class="form-control input" placeholder="Name of School">
+									</div>
+									<div class="col-md-6">
+											<input type="text"  name="area-of-study" id="area-of-study" class="form-control input" placeholder="Area Of Study">
 									</div>
 								</div>
 							</div>
@@ -219,10 +332,9 @@
 										<select name="from-edu" id="from-edu" class="form-control input">		
 											<option value="">From</option>
 											<?php
-												foreach(range(1995, (int)date("Y")-1) as $qyear)
+												foreach(range(1995, (int)date("Y")-1) as $year)
 												{
-													$selected=($e[1] == $qyear)?'selected':'';
-													echo "<option value='".$qyear."' ".$selected.">".$qyear."</option>";
+													echo "\t<option value='".$year."'>".$year."</option>\n\r";
 												}						
 											?>
 										</select>
@@ -231,10 +343,9 @@
 										<select name="to-edu" id="to-edu" class="form-control input">		
 											<option value="">To</option>
 											<?php
-												foreach(range(1995, (int)date("Y")) as $qtoyear)
+												foreach(range(1995, (int)date("Y")) as $year)
 												{
-													$selected=($e[2] == $qtoyear)?'selected':'';
-													echo "<option value='".$qtoyear."' ".$selected.">".$qtoyear."</option>";
+													echo "\t<option value='".$year."'>".$year."</option>\n\r";
 												}						
 											?>
 										</select>
@@ -243,48 +354,8 @@
 								</div>
 							</div>
 						</div>
-			<?php   } 
-				}	
-				else
-				{
-				?>
-					<div class="row education">
-						<div class="col-md-6">
-							<div class="row">
-								<div class="col-md-12">
-									<input type="text" name="qualification" id="qualification" class="form-control input" placeholder="Qualification">
-								</div>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="row">
-								<div class="col-md-6">
-									<select name="from-edu" id="from-edu" class="form-control input">		
-										<option value="">From</option>
-										<?php
-											foreach(range(1995, (int)date("Y")-1) as $year)
-											{
-												echo "\t<option value='".$year."'>".$year."</option>\n\r";
-											}						
-										?>
-									</select>
-								</div>
-								<div class="col-md-6">
-									<select name="to-edu" id="to-edu" class="form-control input">		
-										<option value="">To</option>
-										<?php
-											foreach(range(1995, (int)date("Y")) as $year)
-											{
-												echo "\t<option value='".$year."'>".$year."</option>\n\r";
-											}						
-										?>
-									</select>
-									<a class="remove-education" href="javascript:void(0);"><i class="fa fa-times" aria-hidden="true"></i></a>
-								</div>
-							</div>
-						</div>
-					</div>
-		  <?php }?>
+			  <?php }?>
+			</div>
 		  <!--Education ends-->
 			
 			<!--Training-->
@@ -392,38 +463,37 @@
         <aside class="page-sidebar">
           <div class="add-professional-details">
 			<div class="hour-main">
-				
-				<p class="hourly_wage_val"><?php if(isset($hourly_wages) && $hourly_wages!="") echo $hourly_wages. " $/hr "; ?> <br> <a href="#" class="hourly_wage" data-toggle="modal" data-target="#hourly_wage"><?php echo (isset($hourly_wages) && $hourly_wages != "") ?'Edit':'Add'?> Hourly Wage</a></p>
-              
-			</div>
+				<p class="hourly_wage_val">
+					<?php if(isset($hourly_wages) && $hourly_wages!="") echo "<strong>Hourly Wage: </strong>$".$hourly_wages. " /hr "; ?> 
+				</p>
+				<a href="#" class="hourly_wage <?php echo (isset($hourly_wages) && $hourly_wages != "")?'edit-me':'';?>" data-title="Edit Hourly Wage" data-toggle="modal" data-target="#hourly_wage"><?php echo (isset($hourly_wages) && $hourly_wages != "") ?'<i class="fa fa-pencil"></i>':'Add Hourly Wage'?> </a>
+            </div>
             
 			<div class="avail-main">
-				
-				<p class="pro-availability"><?php if(isset($availability) && $availability!="") echo ucfirst($availability); ?><br><a href="#" data-toggle="modal" data-target="#availability" ><?php echo (isset($availability) && $availability != "") ?'Edit':'Add'?> Availability</a></p>
-               
-			</div>
+				<p class="pro-availability">
+					<?php if(isset($availability) && $availability!="") echo "<strong>Availability: </strong>".ucfirst($availability); ?>
+				</p>
+				<a href="#"  data-title="Edit Availability" data-toggle="modal" class="<?php echo (isset($availability) && $availability != "")?'edit-me':'';?>" data-target="#availability" ><?php echo (isset($availability) && $availability != "") ?'<i class="fa fa-pencil"></i>':'Add Availability'?> </a>
+            </div>
 			
 			<div class="lan-main">
-				
 				<p class="all-languages">
 				<?php  
-				if(isset($languages) && $languages!="")
-				{
-					echo $languages;
-				}
+					if(isset($languages) && $languages!="")
+					{
+						echo "<strong>Languages: </strong>".$languages;
+					}
 				?>
-                    <br>
-                <a href="#" id="language" data-toggle="modal" data-target="#lang"><?php echo (isset($languages) && $languages != "") ?'Edit':'Add'?> Languages</a>
-				</p>
-                
-           
+                </p>
+				<a href="#"  data-title="Edit Language" id="language" class="<?php echo (isset($languages) && $languages != "")?'edit-me':'';?>" data-toggle="modal" data-target="#lang"><?php echo (isset($languages) && $languages != "") ?'<i class="fa fa-pencil"></i>':'Add Languages';?></a>
 			</div>
 			
 			<div class="type-main">
-				
-				<p class="freelance-type"><?php if(isset($contractor_type) && $contractor_type != "") echo ucfirst($contractor_type); ?> <br><a href="#" id="contractor-type" data-toggle="modal" data-target="#contrac-type"><?php echo (isset($contractor_type) && $contractor_type != "") ?'Edit':'Add'?> type</a></p>
-           
-			</div>
+				<p class="freelance-type">
+					<?php if(isset($contractor_type) && $contractor_type != "") echo "<strong>Type of Contractor: </strong>". ucfirst($contractor_type); ?>
+				</p>
+				<a href="#"  data-title="Edit Contract Type" class="<?php echo (isset($contractor_type) && $contractor_type != "")?'edit-me':'';?>" id="contractor-type" data-toggle="modal" data-target="#contrac-type"><?php echo (isset($contractor_type) && $contractor_type != "") ?'<i class="fa fa-pencil"></i>':'Add type'?></a>
+           </div>
 			
             <div><a href="<?php echo BASE_URL;?>contractor/contractor_profile/"  class="view-profile-btn">View profile</a></div>
           </div>
@@ -451,7 +521,7 @@
 					?>
 					<select name="contractor-type" id="type-select" class="input">
 						<option value="">Select</option>
-						<option value="freelancer" <?php if($type == "freelancer") echo 'selected';?>>Freelancer</option>
+						<option value="individual" <?php if($type == "individual") echo 'selected';?>>Individual</option>
 						<option value="agency" <?php if($type == "agency") echo 'selected';?> >Agency</option>
 					</select>
                 <button type="button" class="btn-blue" id="save_contractor_type">Save</button>
@@ -606,8 +676,10 @@
 					?>
 					<select name="availability" id="availability-select" class="input">
 						<option value="">Select</option>
-						<option value="yes" <?php echo ($av == "yes")?'selected':''; ?>>Yes </option>
-						<option value="no" <?php echo ($av == "no")?'selected':''; ?>>No</option>
+						<option value="less-than-20-hours-per-week" <?php echo ($av == "less-than-20-hours-per-week")?'selected':''; ?>>Less than 20 hours per week </option>
+						<option value="20-to-30-hours-per-week" <?php echo ($av == "20-to-30-hours-per-week")?'selected':''; ?>>20 to 30 hours per week</option>
+						<option value="over-30-hours-per-week" <?php echo ($av == "over-30-hours-per-week")?'selected':''; ?>>Over 30 hours per week</option>
+						
 					</select>
 				</div>
                 <button type="button" class="btn-blue"  id="save_avail">Save</button>
@@ -651,17 +723,18 @@
 					else
 						$spec="";
 					?>
-					<select name="speciality" id="speciality-val" class="form-control input">
-						<?php if(isset($all_speciality) && !empty($all_speciality))
-						{
-							foreach($all_speciality as $speciality)
+					<input type="text" name="speciality" id="speciality-val" class="form-control input" value='<?php echo $spec; ?>'>
+						<?php
+							$all_var=array();
+							if(isset($all_speciality) && !empty($all_speciality))
 							{
-								?>
-								<option value="<?php echo $speciality['category_name'];?>" <?php if($spec == $speciality['category_name']) echo 'selected';?>> <?php echo $speciality['category_name'];?></option>
-					  <?php }
-						}
+								foreach($all_speciality as $speciality)
+								{
+									$all_var[]=$speciality['category_name'];
+								}
+							}
 						?>
-					</select>
+						<input type='hidden' id='sp_val' value='<?php echo json_encode($all_var); ?>'>
 				</div>
                 
                 <button type="button" class="btn-blue" id="save_speciality">Save</button>
@@ -674,5 +747,5 @@
 <style>
  .ui-datepicker-calendar {
     display: none;
-    }
+ }
 </style>

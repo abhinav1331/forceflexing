@@ -45,6 +45,13 @@ class Backend {
 		global $config;
 		header('Location: '. $config['base_url'] . $loc.'/');		
 	}
+	
+	public function pre($Array)
+	{
+		echo"<pre>";
+		print_R($Array);
+		echo"</pre>";
+	}
     
 }
 

@@ -27,20 +27,22 @@
 		/****************************************Distance Fyunction ****************************************/
 
 
-	if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) {
+	if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) 
+	{
 		if (isset($_COOKIE['force_username'])) {
 			$username = $_COOKIE['force_username'];
 		} else {
 			$username = $_SESSION['force_username'];
 		}
 		$current_user_data=$this->Model->login_user($username);
-
+		
 		//if user is logged in
 		if(isset($current_user_data) && !empty($current_user_data)) {
 			$role_name=$this->Model->Get_column('role_name','roleid',$current_user_data['role'],PREFIX.'roles');
+			
 			//if employed then load page 
-			if($role_name['role_name'] == 'employer') {
-
+			if($role_name['role_name'] == 'employer') 
+			{
 				$url=$_SERVER['REQUEST_URI'];
 				$pos = strrpos($url, '/');
 				$urlArray = explode("/",$url);
@@ -85,6 +87,7 @@
 				}
 
 				$applied_jobs = $this->Model->Get_column_Double('*','job_id',$job_Array['id'],'status',0,PREFIX.'applied_jobs');
+				
 				$job_invite = $this->Model->Get_column_Double('*','job_id',$job_Array['id'],'status',0,PREFIX.'job_invite');
 				$hire_contractor = $this->Model->Get_column_Double('*','job_id',$job_Array['id'],'status',1,PREFIX.'hire_contractor');
 				$conversation_set = $this->Model->Get_column_Double('*','job_id',$job_Array['id'],'conv_from',$current_user_data['id'],PREFIX.'conversation_set');
@@ -92,10 +95,24 @@
 				
 				
 
-				if ($job_Array['job_author'] == $current_user_data['id'] &&  $job_Array['jobjob_status'] != 4) {
+				if ($job_Array['job_author'] == $current_user_data['id'] &&  $job_Array['jobjob_status'] != 4) 
+				{
 					$this->loadview('main/header')->render();
-					$this->loadview('Employer/main/navigation')->render();			
-					$mainTemp = $this->loadview('Employer/contractorMaster/index');		
+					$dataNavi = $this->Model->get_Data_table(PREFIX.'company_info','company_id',$current_user_data['id']);
+					if (!empty($dataNavi)) {
+						$profileImg = $dataNavi[0]['company_image'];
+					} else {
+						$profileImg = "";
+					}
+					$c=array('to_id'=>$current_user_data['id'],'is_read'=>0);
+					$unread_msg_count=$this->Model->get_count_with_multiple_cond($c,PREFIX.'message_set');
+					$getUserNavigation = $this->loadview('Employer/main/navigation');
+					$getUserNavigation->set("nameEmp" , $current_user_data['username']);
+					$getUserNavigation->set("profile_img" , $profileImg);
+					$getUserNavigation->set("dataFull" , $current_user_data);
+					$getUserNavigation->set("unread_msg_count" , $unread_msg_count);
+					$getUserNavigation->render();
+					$mainTemp = $this->loadview('Employer/contractorMaster/index');	
 					$mainTemp->set("model" , $this->Model);
 					$mainTemp->set("instance" , $instance);
 					$mainTemp->set("jobTitle" , $jobTitle);
@@ -105,25 +122,34 @@
 					$mainTemp->set("hire_contractor" , $hire_contractor);
 					$mainTemp->set("conversation_set" , $conversation_set);
 					$mainTemp->set("job_invite" , $job_invite);
+					$mainTemp->set("myId" , $current_user_data['id']);
 					$mainTemp->set("hired" , $hired);
 					$mainTemp->render();
 					$modalTemp = $this->loadview('Employer/contractorMaster/modal');
 					$modalTemp->render();
 					$this->loadview('main/footer')->render();	
-				} else {
+				}
+				else 
+				{
 					$this->loadview('main/header')->render();
 					$this->loadview('Employer/postjob/navigation')->render();
 					$this->loadview('main/noaccess')->render();
 					$this->loadview('main/footer')->render();
 				}
-			} else {
-			$this->redirect();
+			} 
+			else 
+			{
+				$this->redirect('');
 			}
-		} else {
-		$this->redirect();
-	}
-	} else {
-		$this->redirect();
+		} 
+		else 
+		{
+			$this->redirect('login');
+		}
+	} 
+	else
+	{
+		$this->redirect('');
 	}
 
  ?>

@@ -48,6 +48,9 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 						if(!empty($country_name))
 							$template->set('emp_city',$cityname['name']);
 						
+						/*get the current local time of employer*/
+						$current_time_emp=$this->local_time_of_employer($country_name['name'],$cityname['name']);
+						$template->set('emp_curr_time',$current_time_emp);
 					}
 					
 					/*get member since info */
@@ -183,6 +186,19 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 					if(!empty($flex_rates))
 						$template->set('flexed_data',$flex_rates);
 					
+					/*Get count of hired contractors*/
+					
+					$hired=$this->Model->get_count("job_id",$jobid,PREFIX.'hire_contractor');
+					$template->set('hired',$hired);
+					
+					/*Before applying for a job user must have filled his/her profile information*/
+					/*check for contractor profile*/
+					$contractor_profile_exists=$this->Model->Get_row('user_id',$this->userid,PREFIX.'contractor_profile');
+					if(!empty($contractor_profile_exists) && !empty($contractor_profile_exists['account_number']) && !empty($contractor_profile_exists['routing_number']))
+						$cpe="yes";
+					else
+						$cpe="no";
+					$template->set('cpe',$cpe);
 				}
 				$template->render();
 				$this->loadview('main/footer')->render();	

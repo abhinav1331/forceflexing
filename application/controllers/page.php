@@ -43,7 +43,6 @@ class Page extends Controller
 		{
 			$this->error404();
 		}	
-		
 	}
 	
 	function error404()

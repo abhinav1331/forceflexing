@@ -7,8 +7,9 @@
 							<a href="<?php echo SITEURL.'admin/viewUsers'; ?>"><button type="button" class="btn btn-outline btn-primary">View All User</button>
 							</a>
 						</h1>
-						<?php echo"<pre>"; print_R($_POST); echo"</pre>"; ?>
+						<?php //echo"<pre>"; print_R($_POST); echo"</pre>"; ?>
 						<form method="post" id="myform">
+						<input type="hidden" name="user_id"  <?php if(isset($Fileds['id'])){ echo "value='$Fileds[id]'"; } ?> >
 							<div class="form-group col-lg-6">
 							<label for="exampleInputEmail1">First Name</label>
 							<input type="text" <?php if(isset($Fileds['first_name'])){ echo "value='$Fileds[first_name]'"; } ?> name="first_name" class="form-control" placeholder="First Name">
@@ -32,7 +33,7 @@
 						  <div class="form-group col-lg-6">
 							<label for="exampleInputPassword1">Password</label>
 							<div class="input-group">
-							  <input type="password" readonly class="form-control" <?php if(isset($Fileds['password'])){ echo "value='$Fileds[password]'"; } ?> name="password" placeholder="Password">
+							  <input type="password" disabled class="form-control" <?php if(isset($Fileds['password'])){ echo "value='$Fileds[password]'"; } ?> name="password" placeholder="Password">
 							  <span class="input-group-btn">
 								<button class="btn btn-info gnt_pwd" type="button" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Generating.." >Reset Password!</button>
 							  </span>
@@ -56,7 +57,7 @@
 							<select name="role" class="form-control">
 								<option value="">Select Role</option>
 								<option <?php if($Fileds['role'] == 2) echo"selected"; ?> value="2">Employer</option>
-								<option <?php if($Fileds['role'] == 2) echo"selected"; ?> value="3">Contractor</option>
+								<option <?php if($Fileds['role'] == 3) echo"selected"; ?> value="3">Contractor</option>
 							</select>
 							<?php if(isset($errors['Role'])){ ?><p class="text-danger"> <?php echo $errors['Role']; ?> </p><?php } ?>
 						  </div>

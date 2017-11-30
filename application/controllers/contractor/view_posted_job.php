@@ -42,6 +42,12 @@
 					if(!empty($country_name))
 						$template->set('emp_city',$cityname['name']);
 					
+					if(!empty($country_name))
+							$template->set('emp_city',$cityname['name']);
+						
+						/*get the current local time of employer*/
+						$current_time_emp=$this->local_time_of_employer($country_name['name'],$cityname['name']);
+						$template->set('emp_curr_time',$current_time_emp);
 				}
 				
 				/*get member since info */

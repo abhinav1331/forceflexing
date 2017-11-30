@@ -6,16 +6,17 @@
       <div class="page-main">
         <section class="search-contractors-wrap">
           <h1>Search Contractors</h1>
-          <div class="contractor-search-area">
+          <!--<div class="contractor-search-area">
             <form>
               <select name="" class="input inline">
+			 
                 <option>Type of Job</option>
                 <option>Category</option>
                 <option>Category</option>
               </select>
               <input name=""  type="submit" value="Search" class="btn submit">
             </form>
-          </div>
+          </div>-->
           <div class="contractor-filters-area">
           <h3>Filters</h3>		 
 		  <form id="searchContract" method="get">	  
@@ -88,7 +89,7 @@
                 </p>
                 <p>
                   <label>Training Completed:</label>
-                  <select name="" class="input">
+                  <select disabled name="" class="input">
                     <option>Option 1</option>
                     <option>Option 2</option>
                     <option>Option 3</option>
@@ -99,75 +100,25 @@
           </div>
           <div class="clear-filter-btns">
           <button type="button" class="btn btn-blue">Clear Filters</button>
-          <button type="submit" class="btn btn-gray">Search</button>
+          <button type="submit" value="ContractorSearch" name="search" class="btn btn-gray">Search</button>
           </div>
           </form>
-          <div id="results" class="contractors-list">
-          <article class="contractor-box">
-          <figure class="contractor-avatar">
-            <img src="../images/contracts-user-img.jpg" alt="Contractor Picture"> </figure>
-            <div class="contractor-action">
-            <div class="dropdown">
-                    <button class="btn btn-blue dropdown-toggle" type="button" id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Actions <i class="fa fa-angle-down" aria-hidden="true"></i> </button>
-                    <ul class="dropdown-menu blue animated fast fadeInUpSmall" aria-labelledby="actions">
-                      <li><a href="#">Invite</a></li>
-                      <li><a href="#">Save</a></li>
-                    </ul>
-                  </div>
-            </div>
-            
-            <div class="contractor-pro-details"><h3><a href="#">Lorem ipsum</a></h3>
-            <p>Lorem ipsum/ Dummy  heading</p>
-            <p><strong>Hourly wage:</strong> $22/hour <span class="sep">I</span> <strong>Hours worked:</strong> 245 hours <span class="sep">I</span> <strong>Job Success:</strong> 100%</p></div>
-            <div class="contractror-descrip">
-            <h3>Description:</h3>
-            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text</p> 
-            </div>
-            <div class="contractor-training">
-            <h3>Training completed:</h3>
-            <p class="pro-industries"><span class="industry-tag">Health care industrie</span> <span class="industry-tag">Mechanical industrie</span> <span class="industry-tag">Automobile industrie</span></p>
-            </div>
-            <div class="contractor-experience">
-            <p><strong>Industry Expertise:</strong> 10 years</p> 
-            </div>
-          </article>
-          <article class="contractor-box">
-          <figure class="contractor-avatar">
-            <img src="../images/contracts-user-img.jpg" alt="Contractor Picture"> </figure>
-            <div class="contractor-action">
-            <div class="dropdown">
-                    <button class="btn btn-blue dropdown-toggle" type="button" id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Actions <i class="fa fa-angle-down" aria-hidden="true"></i> </button>
-                    <ul class="dropdown-menu blue animated fast fadeInUpSmall" aria-labelledby="actions">
-                      <li><a href="#">Invite</a></li>
-                      <li><a href="#">Save</a></li>
-                    </ul>
-                  </div>
-            </div>
-            
-            <div class="contractor-pro-details"><h3><a href="#">Lorem ipsum</a></h3>
-            <p>Lorem ipsum/ Dummy  heading</p>
-            <p><strong>Hourly wage:</strong> $22/hour <span class="sep">I</span> <strong>Hours worked:</strong> 245 hours <span class="sep">I</span> <strong>Job Success:</strong> 100%</p></div>
-            <div class="contractror-descrip">
-            <h3>Description:</h3>
-            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text</p> 
-            </div>
-            <div class="contractor-training">
-            <h3>Training completed:</h3>
-            <p class="pro-industries"><span class="industry-tag">Health care industrie</span> <span class="industry-tag">Mechanical industrie</span> <span class="industry-tag">Automobile industrie</span></p>
-            </div>
-            <div class="contractor-experience">
-            <p><strong>Industry Expertise:</strong> 10 years</p> 
-            </div>
-          </article>
-          <div class="clr"></div>
-          <div class="contractor-pagination">
+          <div class="contractors-list">
+			<div id="results">
+			  <?php  if(isset($Data)){	echo $Data;	}?>
+			</div>		
+         <div class="clr"></div>
+          <!--<div class="contractor-paginationd">
           <a href="#" class="prev-btn">Previous</a> <a href="#" class="current">1</a> <a href="#">2</a> <a href="#">3</a> <a href="#">4</a> <a href="#" class="next-btn">Next</a>
+          </div>-->
+			<div class="contractor-pagination searchContr">
+				
+			</div>
           </div>
-          </div>
+		 
         </section>
-		<div class="contractor-pagination">
-			
-		</div>
+		
+		
       </div>
     </div>
   </section>

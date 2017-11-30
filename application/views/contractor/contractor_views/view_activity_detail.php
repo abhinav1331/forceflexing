@@ -196,7 +196,10 @@
 									
 									<p><b>Activity Status:</b> Completed</p>
 									
-									<p><b>Job Expense Report:</b> <a href="#">View</a> <a href="#">Create</a></p>
+									<p>
+										<b>Job Expense Report:</b> <a href="#">View</a> 
+										<a href="#">Create</a>
+									</p>
 										
 									<p><b>Amount Due:</b> $100</p>
 									<p><b>Amount Paid:</b> $100	</p>

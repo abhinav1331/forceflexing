@@ -102,7 +102,7 @@ jQuery( function() {
         jQuery(form).ajaxSubmit({
           type: "POST",
           data: jQuery(form).serialize(),
-          url: 'http://force.imarkclients.com/employer/sendMessage', 
+          url: 'http://force.stagingdevsite.com/employer/sendMessage', 
           success: function(data) 
           {
             jQuery("textarea[name='sendMessage']").val("");
@@ -256,7 +256,7 @@ jQuery( function() {
         jQuery(form).ajaxSubmit({
           type: "POST",
           data: jQuery(form).serialize(),
-          url: 'http://force.imarkclients.com/employer/editActivityUpdate', 
+          url: 'http://force.stagingdevsite.com/employer/editActivityUpdate', 
           success: function(data) 
           {
             console.log(data);
@@ -331,7 +331,7 @@ jQuery( function() {
         jQuery(form).ajaxSubmit({
           type: "POST",
           data: jQuery(form).serialize(),
-          url: 'http://force.imarkclients.com/employer/addActivityInJob', 
+          url: 'http://force.stagingdevsite.com/employer/addActivityInJob', 
           success: function(data) 
           {
             var job_id = jQuery(".job_id").val();
@@ -428,24 +428,27 @@ jQuery(function($) {
 
 
 function JobStatus(event) {
-  if (jQuery(event).prop('checked')==true){
-    var status = "1";
-  } else {
-    var status = "0";
-  }
-  var ActivityId = jQuery(event).siblings(".thisJobIdActivity").val();
-    jQuery.ajax({
-      type:"post",
-      url : '/employer/ChangeJobStatus',
-      data :{"status":status , "ActivityId" : ActivityId},
-      success : function(response) {
-        if(status == 1) {
-            toastr.success("Activity Status Changed to CLOSED");
-        } else {
-            toastr.success("Activity Status Changed to OPEN");
-        }
+  setTimeout(function(){ 
+      if (jQuery(event).prop('checked')==true){
+        var status = "1";
+      } else {
+        var status = "0";
       }
-    });
+      var ActivityId = jQuery(event).siblings(".thisJobIdActivity").val();
+        jQuery.ajax({
+          type:"post",
+          url : '/employer/ChangeJobStatus',
+          data :{"status":status , "ActivityId" : ActivityId},
+          success : function(response) {
+            if(status == 1) {
+                toastr.success("Activity Status Changed to CLOSED");
+            } else {
+                toastr.success("Activity Status Changed to OPEN");
+            }
+          }
+        });
+   }, 100);
+
 
 }
 
@@ -588,6 +591,20 @@ function editActivity(event) {
         var jobSlug = jQuery("input[name='jobSLUG']").val();
         var userName = jQuery(this).parent().parent().parent().siblings("input[name='userName']").val();
         window.location.href = base_url+"employer/contract/"+jobSlug+"/"+userName;
+      } else if(actionUserReco == "messagecontractor") {
+        var contractorNameId = jQuery(this).parent().parent().parent().siblings("input[name='contractorNameId']").val();
+        var myId = jQuery(this).parent().parent().parent().siblings("input[name='myId']").val();
+        var myjobId = jQuery("input[name='currentJobId']").val();
+
+        jQuery.ajax({
+        type:"post",
+        url : '/employer/sendMessageMaster',
+        data :{"contractorNameId":contractorNameId, "myId" : myId , "myjobId" : myjobId},
+        success : function(response) {
+          toastr.success("Message Sent Successfully");
+          window.location.href = base_url+"inbox/";
+        }
+      });
       }
     });
   });
@@ -600,7 +617,12 @@ function editActivity(event) {
         var jobSlug = jQuery("input[name='jobSLUG']").val();
         var userName = jQuery(this).parent().parent().parent().siblings("input[name='userName']").val();
         window.location.href = base_url+"employer/contract/"+jobSlug+"/"+userName;
-      } else if(actionUserReco == "Decline") {
+      } else  if(actionUserReco == "CreateCon") {
+        var jobSlug = jQuery("input[name='jobSLUG']").val();
+        var userName = jQuery(this).parent().parent().parent().siblings("input[name='userName']").val();
+        window.location.href = base_url+"employer/contract/"+jobSlug+"/"+userName;
+      }  
+      else if(actionUserReco == "Decline") {
         var appliedId = jQuery(this).parent().parent().parent().siblings("input[name='appliedId']").val();
         jQuery.ajax({
           type:"post",
@@ -612,9 +634,44 @@ function editActivity(event) {
           }
         });
       }
+      else if(actionUserReco == "message") {
+        var contractorNameId = jQuery(this).parent().parent().parent().siblings("input[name='contractorNameId']").val();
+        var myId = jQuery(this).parent().parent().parent().siblings("input[name='myId']").val();
+        var myjobId = jQuery("input[name='currentJobId']").val();
+
+        jQuery.ajax({
+          type:"post",
+          url : '/employer/sendMessageMaster',
+          data :{"contractorNameId":contractorNameId, "myId" : myId , "myjobId" : myjobId},
+          success : function(response) {
+            toastr.success("Message Sent Successfully");
+            window.location.href = base_url+"inbox/";
+          }
+        });
+      }
     });
   });
 
+  jQuery(document).ready(function(){
+    jQuery("input[name='three']").change(function(){
+      var actionUserReco = jQuery(this).val();
+      if(actionUserReco == "message") {
+        var contractorNameId = jQuery(this).parent().parent().parent().siblings("input[name='contractorNameId']").val();
+        var myId = jQuery(this).parent().parent().parent().siblings("input[name='myId']").val();
+        var myjobId = jQuery("input[name='currentJobId']").val();
+
+        jQuery.ajax({
+          type:"post",
+          url : '/employer/sendMessageMaster',
+          data :{"contractorNameId":contractorNameId, "myId" : myId , "myjobId" : myjobId},
+          success : function(response) {
+            toastr.success("Message Sent Successfully");
+            window.location.href = base_url+"inbox/";
+          }
+        });
+      }
+    });
+  });
   jQuery(document).ready(function(){
     jQuery("input[name='four']").change(function(){
       var actionUserReco = jQuery(this).val();
@@ -647,3 +704,84 @@ function editActivity(event) {
       alert(actionHired);
     });
   });
+
+
+  jQuery(document).ready(function(){
+    jQuery(".datatable-job-report").each(function(){
+      jQuery(this).DataTable({searching: false, paging: false});
+    });
+  });
+
+
+
+jQuery(document).on('keyup','#myInput',function(){
+	var valThis = jQuery(this).val().toLowerCase();
+    jQuery('.SectionAble>a').each(function(){
+      var text = jQuery(this).text().toLowerCase();
+      (text.indexOf(valThis) == 0) ? jQuery(this).parent().parent().parent().show() : jQuery(this).parent().parent().parent().hide();            
+    });
+});
+  
+  /*function myFunction(event) {
+    var valThis = jQuery(event).val().toLowerCase();
+    jQuery('.SectionAble>a').each(function(){
+      var text = jQuery(this).text().toLowerCase();
+      (text.indexOf(valThis) == 0) ? jQuery(this).parent().parent().parent().show() : jQuery(this).parent().parent().parent().hide();            
+    });
+  }
+*/
+
+// JQUery Restrict Number in Textbox
+  jQuery(document).ready(function(){
+    jQuery('input[name="first_name"]').keydown(function(e) {
+        var node = jQuery(this);
+        node.val(node.val().replace(/[^a-z]/g,'') );
+    })
+  });
+// JQUery Restrict Number in Textbox
+
+///Close this activity
+
+function JobStatus1(event) {
+  setTimeout(function(){ 
+      if (jQuery(event).prop('checked')==true){
+        var status = "1";
+      } else {
+        var status = "0";
+      }
+      var ActivityId = jQuery(".thisJobIdActivity").val();
+        jQuery.ajax({
+          type:"post",
+          url : '/employer/ChangeJobStatus',
+          data :{"status":status , "ActivityId" : ActivityId},
+          success : function(response) {
+            if(status == 1) {
+                toastr.success("Activity Status Changed to CLOSED");
+            } else {
+                toastr.success("Activity Status Changed to OPEN");
+            }
+          }
+        });
+   }, 100);
+
+
+}
+    jQuery(document).ready(function(){
+    new DG.OnOffSwitch({
+        el: '#closeJob',
+        textOn: 'Closed',
+        textOff: 'Open', 
+        trackColorOn:'#666',
+        trackColorOff:'#00ff00',
+        trackBorderColor:'#555',
+        textColorOff:'#fff',
+         listener:function(name, checked){
+            JobStatus1();
+        }
+    });
+  });
+///Close this activity
+
+
+
+

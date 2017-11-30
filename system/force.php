@@ -3,7 +3,6 @@
 function force()
 {
 	global $config;
-    
     // Set our defaults
     $controller = $config['default_controller'];
     $action = 'index';
@@ -17,15 +16,14 @@ function force()
 	if($request_url != $script_url) $url = trim(preg_replace('/'. str_replace('/', '\/', str_replace('index.php', '', $script_url)) .'/', '', $request_url, 1), '/');
     
 	// Split the url into segments
-	$segments = explode('/', $url);
-	
+	$segments = explode('/', $url);	
 	// Do our default checks
 	if(isset($segments[0]) && $segments[0] != '') $controller = $segments[0];
 		
 	if(isset($segments[1]) && $segments[1] != '') $action = $segments[1];
 
 	// Get our controller file
-    $path = APP_DIR . 'controllers/' . $controller . '.php';
+   $path = APP_DIR . 'controllers/' . $controller . '.php';
 	if(file_exists($path)){
         require_once($path);
 	} else {

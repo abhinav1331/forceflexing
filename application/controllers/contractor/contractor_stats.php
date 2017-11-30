@@ -11,6 +11,7 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 		$data=$this->Model->Get_row('user_id',$this->userid,PREFIX.'contractor_profile');
 		$this->navigation($data);
 		$template = $this->loadview('contractor/contractor_views/view_contractor_stats');
+		
 		//get the applied jobs
 		$applied_jobs_count=$this->Model->get_count('contractor_id',$this->userid,PREFIX.'applied_jobs');
 		$template->set('appl_job_count',$applied_jobs_count);
@@ -22,6 +23,14 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 		//get the employer proposals
 		$employer_proposal=$this->Model->get_count('contractor_id',$this->userid,PREFIX.'job_invite');
 		$template->set('employer_proposals',$employer_proposal);
+		
+		//Profile views 
+		$profile_view=$this->Model->Get_column('profile_views','user_id',$this->userid,PREFIX.'contractor_profile');
+		if(!empty($profile_view))
+			$profile_views=$profile_view['profile_views'];
+		else
+			$profile_views=0;
+		$template->set('pv',$profile_views);
 		
 		$template->render();
 		$this->loadview('main/footer')->render();	

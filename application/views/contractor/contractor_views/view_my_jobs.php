@@ -54,7 +54,7 @@
 														</li>
 														<li>
 															<label class="radio-custom">
-																<a href="<?php echo BASE_URL.'/contractor/activity_detail/?contract_id='.$job['contract_id'].'';?>">View Activity Detail</a>
+																<a href="<?php echo BASE_URL.'contractor/activity_detail/?contract_id='.$job['contract_id'].'';?>">View Activity Detail</a>
 															</label>
 														</li>
 														<li>

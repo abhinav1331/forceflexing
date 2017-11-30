@@ -1,3 +1,9 @@
+<?php 
+echo "<pre>";
+  print_r($jobs);
+echo "</pre>";
+ ?>
+
 <main role="main">
   <section class="page-wrap">
     <div class="container">

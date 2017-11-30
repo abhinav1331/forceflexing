@@ -55,56 +55,28 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-envelope fa-fw"></i> <i class="fa fa-caret-down"></i>
+                        <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
                     </a>
-                    <ul class="dropdown-menu dropdown-messages">
+                    <ul class="dropdown-menu dropdown-alerts">
+                       <?php if( isset($notifications) ) { echo $notifications; } ?>
                         <li>
-                            <a href="#">
-                                <div>
-                                    <strong>John Smith</strong>
-                                    <span class="pull-right text-muted">
-                                        <em>Yesterday</em>
-                                    </span>
-                                </div>
-                                <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="#">
-                                <div>
-                                    <strong>John Smith</strong>
-                                    <span class="pull-right text-muted">
-                                        <em>Yesterday</em>
-                                    </span>
-                                </div>
-                                <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="#">
-                                <div>
-                                    <strong>John Smith</strong>
-                                    <span class="pull-right text-muted">
-                                        <em>Yesterday</em>
-                                    </span>
-                                </div>
-                                <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a class="text-center" href="#">
-                                <strong>Read All Messages</strong>
+                            <a class="text-center" href="<?php echo SITEURL.'admin/getNotification/'; ?>">
+                                <strong>View All Notifications</strong>
                                 <i class="fa fa-angle-right"></i>
                             </a>
-                        </li>
+                        </li>						
                     </ul>
                     <!-- /.dropdown-messages -->
                 </li>
+				
+				
+				<li class="dropdown">
+                    <a href="<?php echo SITEURL.'admin/logout/'; ?>">
+                        <i class="fa fa-sign-out"></i>
+                    </a>
+				</li>
                 <!-- /.dropdown -->
-                <li class="dropdown">
+              <!--  <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
                     </a>
@@ -181,9 +153,9 @@
                         </li>
                     </ul>
                     <!-- /.dropdown-tasks -->
-                </li>
+               <!--  </li>-->
                 <!-- /.dropdown -->
-                <li class="dropdown">
+               <!--  <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
                     </a>
@@ -241,9 +213,9 @@
                         </li>
                     </ul>
                     <!-- /.dropdown-alerts -->
-                </li>
+             <!--   </li>
                 <!-- /.dropdown -->
-                <li class="dropdown">
+              <!--   <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
                     </a>
@@ -257,9 +229,9 @@
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
-                </li>
+               <!--  </li>
                 <!-- /.dropdown -->
-            </ul>
+           </ul>
             <!-- /.navbar-top-links -->
 
             <div class="navbar-default sidebar" role="navigation">
@@ -269,7 +241,7 @@
                             <a href="<?php echo BASE_URL.'admin/';?>"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
                          <li>
-                            <a href="#"><i class="fa fa-wrench fa-fw"></i> Users<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-users"></i> Users<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a href="<?php echo BASE_URL.'admin/viewUsers';?>">View All Users</a>
@@ -281,7 +253,19 @@
                             <!-- /.nav-second-level -->
                         </li>
 						<li>
-                            <a href="#"><i class="fa fa-wrench fa-fw"></i> Jobs<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-file-text"></i> Pages<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="<?php echo BASE_URL.'admin/pages';?>">View All Pages</a>
+                                </li>
+                                <li>
+                                    <a href="<?php echo BASE_URL.'admin/pages/addNew';?>">Add Page</a>
+                                </li>                                
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+						<li>
+                            <a href="#"><i class="fa fa-briefcase"></i> Jobs<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a href="<?php echo BASE_URL.'admin/allJobs/';?>">View All Jobs</a>
@@ -293,7 +277,10 @@
                             <a href="#"><i class="fa fa-wrench fa-fw"></i> Theme Settings<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="<?php echo BASE_URL.'admin/options/?addOption=addCountry';?>">Add Country</a>
+                                    <a href="<?php echo BASE_URL.'admin/options/Country';?>">Add Country</a>
+                                </li>  
+								<li>
+                                    <a href="<?php echo BASE_URL.'admin/options/menu';?>">Menu</a>
                                 </li>                                                             
                             </ul>
                             <!-- /.nav-second-level -->

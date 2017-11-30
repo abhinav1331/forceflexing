@@ -13,7 +13,7 @@ class Registration extends Controller
 		$loader =  array(
 			'api_key' => '81l4b3asq8ir1j', 
 			'api_secret' => 'DGdLucwPsfVF9CBc', 
-			'callback_url' => 'http://force.imarkclients.com/registration/register/'
+			'callback_url' => 'http://force.stagingdevsite.com/registration/register/'
 		);
 
 		$this->Validator = $this->loadHelper('validator');
@@ -307,7 +307,7 @@ class Registration extends Controller
 					 'connected_with'=>'EMAIL',
 					 'created_date'=>$date,
 					 'modified_date'=>$date,
-					 'is_verified'=>'0',
+					 'is_verified'=>'1',
 					 'username'=>$postdata['user_name'],
 					 'token'=>md5($postdata['email'].rand(1000,9999))
 					);

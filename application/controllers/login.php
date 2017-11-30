@@ -5,16 +5,18 @@ class Login extends Controller
 	public $Model;	
 	public $Linkedin;	
 	public $SendMail;
+	public $TimeZone;
 	public function __construct() {
 		$loader =  array(
 			'api_key' => '81l4b3asq8ir1j', 
 			'api_secret' => 'DGdLucwPsfVF9CBc', 
-			'callback_url' => 'http://force.imarkclients.com/registration/register/'
+			'callback_url' => SITEURL.'registration/register/'
 		);
 		$this->Validator = $this->loadHelper('validator');
 		$this->Model = $this->loadModel('Login_Model');
 		$this->LinkedIn = $this->loadHelper('linkedin', $loader);
 		$this->SendMail=$this->loadHelper('sendmail');
+		$this->TimeZone=$this->loadHelper('timezone');
 	}
 		
 	public function index()
@@ -34,11 +36,17 @@ class Login extends Controller
 			}
 
 		} else {
+			 $url = $this->LinkedIn->getLoginUrl(
+					array(
+						LinkedIn::SCOPE_BASIC_PROFILE, 
+						LinkedIn::SCOPE_EMAIL_ADDRESS, 
+						LinkedIn::SCOPE_COMPANY_ADMIN, 
+						LinkedIn::SCOPE_WRITE_SHARE
+					)
+				);
 			if(isset($_POST['submit'])) {
 				$postdata = $_POST;
-				echo $testng = $this->login($postdata);
-
-			} else {
+				$testng = $this->login($postdata);
 				$url = $this->LinkedIn->getLoginUrl(
 					array(
 						LinkedIn::SCOPE_BASIC_PROFILE, 
@@ -47,6 +55,9 @@ class Login extends Controller
 						LinkedIn::SCOPE_WRITE_SHARE
 					)
 				);
+
+			} else {
+				
 				$this->loadview('main/header')->render();
 				$this->loadview('Employer/signup/navigation')->render();			
 				// $this->loadview('home/login-new')->render();
@@ -68,12 +79,16 @@ class Login extends Controller
 				$password = $postdata['password'];
 				$datarecord = $this->Model->Check_loggin_credentials(PREFIX.'users','username',$username);
 				if(count($datarecord) != 0) {
-					/*echo "<pre>";
-					print_r($postdata);
-					echo "</pre>";
-					echo "<pre>";
-					print_r($datarecord);
-					echo "</pre>";*/
+					
+					$url = $this->LinkedIn->getLoginUrl(
+						array(
+							LinkedIn::SCOPE_BASIC_PROFILE, 
+							LinkedIn::SCOPE_EMAIL_ADDRESS, 
+							LinkedIn::SCOPE_COMPANY_ADMIN, 
+							LinkedIn::SCOPE_WRITE_SHARE
+						)
+					);
+
 					$password=md5($password);
 					$passdata = $datarecord[0]['password'];
 					if($passdata == $password) {
@@ -103,39 +118,79 @@ class Login extends Controller
 							}
 
 						} else {
+
+							 $url = $this->LinkedIn->getLoginUrl(
+								array(
+									LinkedIn::SCOPE_BASIC_PROFILE, 
+									LinkedIn::SCOPE_EMAIL_ADDRESS, 
+									LinkedIn::SCOPE_COMPANY_ADMIN, 
+									LinkedIn::SCOPE_WRITE_SHARE
+								)
+							);
 							$message = "User Not Verified!! Please verify your Email.";
 							$this->loadview('main/header')->render();
 							$this->loadview('Employer/signup/navigation')->render();			
 							$template = $this->loadview('home/login-new');
 							$template->set('error',$message);
+							$template->set("url" , $url);
 							$template->render();
 							$this->loadview('main/footer')->render();	
 						}
 					} else {
+
+						$url = $this->LinkedIn->getLoginUrl(
+							array(
+								LinkedIn::SCOPE_BASIC_PROFILE, 
+								LinkedIn::SCOPE_EMAIL_ADDRESS, 
+								LinkedIn::SCOPE_COMPANY_ADMIN, 
+								LinkedIn::SCOPE_WRITE_SHARE
+							)
+						);
 						$message = "Incorrect Password!!";
 						$this->loadview('main/header')->render();
 						$this->loadview('Employer/signup/navigation')->render();			
 						$template = $this->loadview('home/login-new');
 						$template->set('error',$message);
+						$template->set("url" , $url);
 						$template->render();
 						$this->loadview('main/footer')->render();	
 					}
 
 				} else {
+
+					$url = $this->LinkedIn->getLoginUrl(
+						array(
+							LinkedIn::SCOPE_BASIC_PROFILE, 
+							LinkedIn::SCOPE_EMAIL_ADDRESS, 
+							LinkedIn::SCOPE_COMPANY_ADMIN, 
+							LinkedIn::SCOPE_WRITE_SHARE
+						)
+					);
 					$message = "Invalid Username";
 					$this->loadview('main/header')->render();
 					$this->loadview('Employer/signup/navigation')->render();			
 					$template = $this->loadview('home/login-new');
 					$template->set('error',$message);
+					$template->set("url" , $url);
 					$template->render();
 					$this->loadview('main/footer')->render();	
 				}
 			} else {
+				
+					$url = $this->LinkedIn->getLoginUrl(
+						array(
+							LinkedIn::SCOPE_BASIC_PROFILE, 
+							LinkedIn::SCOPE_EMAIL_ADDRESS, 
+							LinkedIn::SCOPE_COMPANY_ADMIN, 
+							LinkedIn::SCOPE_WRITE_SHARE
+						)
+					);
 				$message = "Missing Parameters!!";
 				$this->loadview('main/header')->render();
 				$this->loadview('Employer/signup/navigation')->render();			
 				$template = $this->loadview('home/login-new');
 				$template->set('error',$message);
+				$template->set("url" , $url);
 				$template->render();
 				$this->loadview('main/footer')->render();	
 			}
@@ -182,8 +237,8 @@ class Login extends Controller
 			//send mail(load confirm password email template)
 			$file=APP_DIR.'email_templates/confirm_password.html';
 			$emailBody = file_get_contents($file);
-			$search  = array('[[fname]]', '[[lname]]','[[pagelink]]');
-			$replace = array($userdata[0]['first_name'],$userdata[0]['last_name'],SITEURL.'change_password/index/?email='.$email.'&key='.$token);
+			$search  = array('[[fname]]', '[[lname]]','[[username]]','[[pagelink]]');
+			$replace = array($userdata[0]['first_name'],$userdata[0]['last_name'],$userdata[0]['username'],SITEURL.'change_password/index/?email='.$email.'&key='.$token);
 			$emailBody  = str_replace($search, $replace, $emailBody);
 			
 			//send mail
@@ -208,12 +263,17 @@ class Login extends Controller
 				$loginuser = $_SESSION['force_username'];
 			
 			/*save current user login time as per user timezone*/
-			$ip = $_SERVER['REMOTE_ADDR'];
+			/*$ip = $_SERVER['REMOTE_ADDR'];
 			$details = json_decode(file_get_contents("http://ip-api.com/json/".$ip.""));
-			date_default_timezone_set($details->timezone);
+			date_default_timezone_set($details->timezone);*/
+			
+			$timezone=$this->TimeZone->get_time_zone();
+			date_default_timezone_set($timezone);
 			
 			$data=array('last_login_time'=> date("Y-m-d H:i:s"));
 			$this->Model->Update_row($data,'username',$loginuser,PREFIX.'users');
+			
+			
 		}
 	}
 }

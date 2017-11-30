@@ -39,13 +39,13 @@
           <form method="POST" id="contrator-sign-up" action="<?php  echo BASE_URL;?>registration/contractor">
             <div class="row">
               <div class="col-sm-6">
-                <input name="first_name" value="<?php if(isset($_POST['first_name'])): echo $_POST['first_name']; endif; ?>" type="text" placeholder="First Name">
+                <input name="first_name" id="first_name" style="text-transform: capitalize;" value="<?php //if(isset($_POST['first_name'])): echo $_POST['first_name']; endif; ?>" type="text" placeholder="First Name">
               </div>
               <div class="col-sm-6">
-                <input name="last_name" value="<?php if(isset($_POST['last_name'])): echo $_POST['last_name']; endif; ?>" type="text" placeholder="Last Name">
+                <input name="last_name" id="last_name" style="text-transform: capitalize;" value="<?php //if(isset($_POST['last_name'])): echo $_POST['last_name']; endif; ?>" type="text" placeholder="Last Name">
               </div>
 			  <div class="col-sm-6">
-                <input name="user_name" value="<?php if(isset($_POST['user_name'])): echo $_POST['user_name']; endif; ?>" type="text" placeholder="User Name">
+                <input name="user_name" value="<?php //if(isset($_POST['user_name'])): echo $_POST['user_name']; endif; ?>" type="text" placeholder="User Name">
               </div>
               <div class="col-sm-6">
                 <!--<input name="company_name" value="<?php //if(isset($_POST['cmpy_name'])): echo $_POST['cmpy_name']; endif; ?>" type="text" placeholder="Company Name">-->
@@ -65,7 +65,7 @@
 							else
 								$selected= "";
 							?>
-							 <option <?php echo $selected;?> value="<?php echo $category['category_name'];?>"><?php echo $category['category_name'];?></option>
+							 <option <?php //echo $selected;?> value="<?php echo $category['category_name'];?>"><?php echo $category['category_name'];?></option>
 							 <?php
 						}
 					}
@@ -78,13 +78,14 @@
                 </select>
               </div>
               <div class="col-sm-6">
-                <input name="email" value="<?php if(isset($_POST['email'])): echo $_POST['email']; endif; ?>" type="text" placeholder="Email">
+                <input name="email" value="<?php //if(isset($_POST['email'])): echo $_POST['email']; endif; ?>" type="text" placeholder="Email">
               </div>
               <div class="col-sm-6">
-                <input name="password" id="password" value="<?php if(isset($_POST['password'])): echo $_POST['password']; endif; ?>" type="password" placeholder="Password">
+                <input name="password" id="password" value="<?php //if(isset($_POST['password'])): echo $_POST['password']; endif; ?>" type="password" placeholder="Password">
+				<span class="pwd-tip" style="display:none;">Minimum 6 characters required!</span>
               </div>
 			  <div class="col-sm-6">
-                <input name="con_pass" value="<?php if(isset($_POST['con_pass'])): echo $_POST['con_pass']; endif; ?>" type="password" placeholder="Confirm Password">
+                <input name="con_pass" value="<?php //if(isset($_POST['con_pass'])): echo $_POST['con_pass']; endif; ?>" type="password" placeholder="Confirm Password">
               </div>
 			   <input type="hidden" name="user_role" value="contractor">
               <!--<div class="col-sm-12">

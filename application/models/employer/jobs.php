@@ -23,14 +23,14 @@ class Jobs extends Model
 			$hired = $this->get_hired($keys['id']);
 			echo '<article>
                             <div class="open-job-info">
-                                <h3><a href="#">'.$jobTitle.'</a></h3>
+                                <h3><a href="'.BASE_URL.'employer/contractorMaster/'.$jobslug.'">'.$jobTitle.'</a></h3>
                                 <ul class="job-posted-info">
                                     <li>Posted: '.$posted_date.'</li>                                   
                                 </ul>
-                                <ul class="view-jobs-btn-group">
+                                <!--<ul class="view-jobs-btn-group">
                                     <li><a href="#">View Activity Detail</a></li>
                                     <li><a href="#">View suggested contractors</a></li>
-                                </ul>
+                                </ul>-->
                             </div>
                             <div class="open-jobs-task">
                                 <ul>';
@@ -68,10 +68,10 @@ class Jobs extends Model
                                             <label class="radio-custom">
                                                 <input class="action" type="radio" name="one" value="duplicatePost"> <span class="radio"></span>Duplicate Post</label>
                                         </li>
-                                        <li>
+                                        <!--<li>
                                             <label class="radio-custom">
                                                 <input class="action" type="radio" name="one" value="one1" id="makePrivate"> <span class="radio"></span>Make Private</label>
-                                        </li>
+                                        </li>-->
                                     </ul>
                                 </div>
                             </div>

@@ -1,7 +1,8 @@
 <?php 
 class Menu extends Options
 {
-	public $table = PREFIX .'options'; 
+	private $table = 'flex_options';
+
 	public function Insert_Menu($data)
 	{
 		return $this->Insert_options($data);
@@ -30,13 +31,16 @@ class Menu extends Options
 	
 	public function UpdateMenuName($MenuName,$MenuID)
 	{
-		$this->update(array('option_value'=>$MenuName),'id',$MenuID,$this->table);		
+		$this->update(array('option_value'=>$MenuName),'id',$MenuID,$this->table);	
+		echo "Menu Name Updated";		
 	}
 	
 	public function UpdateMenuList($MenuName,$MenuID,$MenuList)
 	{
 		$this->update(array('option_value'=>$MenuName),'id',$MenuID,$this->table);
 		$this->update(array('option_value'=>$MenuList),'option_name','menuList_'.$MenuID,$this->table);
+		
+		echo "Menu Updated";
 	}
 	
 	

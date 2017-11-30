@@ -1,8 +1,5 @@
 <?php 
-/*  echo "<pre>";
-    print_r($jobApplication);
-  echo "</pre>";
-  die();*/
+
  ?>
 <?php 
   if(isset($_POST['submit'])) {
@@ -38,8 +35,10 @@
     $overages = json_encode(array($before_overages , $after_overages , $after_price));
     $data=array(
       'job_id'=>$_POST['job_id'],
+      'applied_job_id'=>$_POST['appliedID'],
       'activity_id'=>json_encode($_POST['activityId']),
       'contractor_id'=>$_POST['user_id'],
+      'employer_id'=>$_POST['current_user_id'],
       'flex_amount'=>$_POST['priceFlex'],
       'external_expanditure'=>$_POST['extraExpanditureContract'],
       'additionalInfo'=>$_POST['additionalInformation'],
@@ -49,6 +48,35 @@
       );
     $applied_job_id=$Model->Insert_users($data,PREFIX.'hire_contractor'); 
 
+
+      
+      //Notification Section 
+      $todayDate = date("y-m-d :H:i:s");
+      $flex_notification_message =  array(
+       'noti_type'=>"contract_created", 
+       'noti_message'=>"Contract has been created", 
+       'fromUserID'=>$_POST['current_user_id'], 
+       'toUserID'=>$_POST['user_id'],
+       'forAdmin'=>"1",
+       'forID'=>$_POST['job_id'],
+       'is_read'=>"0",
+       'createdOn'=>$todayDate,
+       'modifiedOn'=>$todayDate
+      );
+      $Results1 = $Model->Model->Insert_users($flex_notification_message,PREFIX.'notification_message');
+      //Notification Section 
+
+
+    $file=APP_DIR.'email_templates/view_proposal.html';
+    $emailBody = file_get_contents($file);
+    $search  = array('[[fname]]','[[pagelink]]');
+
+    //send mail to employer
+    $message = "http://force.stagingdevsite.com/contractor/view_contract/?contract_id=".$applied_job_id;
+    $usersSection = $Model->Get_column1('*','id',$_POST['user_id'],PREFIX.'users');
+    $replace = array($usersSection[0]['first_name'],$message);
+    $emailBodyemp  = str_replace($search, $replace, $emailBody);
+    $SendMail->setparameters($usersSection[0]['email'],'Contract Accepted',$emailBodyemp);
 ?>
 
 
@@ -56,7 +84,7 @@
   jQuery(document).ready(function(){
   setTimeout(function(){
             toastr.success("Hiring Request has been sent successfuly");
-            window.Location.href = "http://force.imarkclients.com/employer/job_report";
+            window.Location.href = "<?php echo BASE_URL;) ?>/employer/job_report";
  }, 3000);
 });
 
@@ -72,6 +100,7 @@
 <main role="main">
   <form action="" method="post" enctype="multipart/form-data">
     <input type="hidden" class="job_id" name="job_id" value="<?php echo $job_id; ?>">
+    <input type="hidden" class="job_id" name="appliedID" value="<?php echo $value['id']; ?>">
     <input type="hidden" class="user_id" name="user_id" value="<?php echo $user_id; ?>">
     <input type="hidden" class="user_id" name="current_user_id" value="<?php echo $current_user_data['id']; ?>">
   <section class="page-wrap contract">

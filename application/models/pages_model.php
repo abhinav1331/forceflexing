@@ -2,7 +2,7 @@
 
 class Pages_Model extends Model
 {
-	public $table = PREFIX .'pages';
+	public $table = 'flex_pages';
 	
 	public function Getpage($whereval)
 	{

@@ -64,7 +64,7 @@
 					<input   <?php if($jobs[0]['nu_emp'] == "multiple") {echo "checked";} ?> type="radio" name="jp_reqemp" id="jp_reqemp_mul" value="multiple" id="empRequired_2">
 					<span class="radio"></span>Multiple
 				</label>
-				<input value="<?php echo $jobs[0]['emp_count']; ?>" <?php if($jobs[0]['nu_emp'] == "multiple") {?>style='display:block !important;'<?php } ?> type="number" id="jp_mul_emp" name="jp_mul_emp" class="input inline small"> 
+				<input value="<?php echo $jobs[0]['emp_count']; ?>" <?php if($jobs[0]['nu_emp'] == "multiple") {?>style='display:block !important;'<?php } ?> type="number" id="jp_mul_emp" name="jp_mul_emp" class="input inline small"  min="0"> 
 			</div>
 			
             <div class="emp-job-activity">
@@ -88,7 +88,7 @@
                 <div class="activityReunion" id="activityReunion1">
                   <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
-                      <th scope="row">Activites Name:</th>
+                      <th scope="row"><?php echo $i; ?>.) Activites Name:</th>
                       <td>
   						<div class="row">
   							<div class="col-md-7">
@@ -101,13 +101,13 @@
                       <th scope="row">Select:</th>
                       <td>
   						<label class="radio-custom">
-                          <input type="radio" name="jp_start_stop_time[]" value="fixed" id="jp_start_stop_time_fix" checked>
+                          <input type="radio" name="jp_start_stop_time<?php echo $i; ?>[]" value="fixed" id="jp_start_stop_time_fix" checked>
                           <span class="radio"></span>fixed start and stop time <a href="javascript:void(0);" class="calendar-icon">date</a></label>
   						
   						<span class="sep">or</span>
   						
   						<label class="radio-custom">
-                          <input type="radio" name="jp_start_stop_time[]" value="flexible" id="jp_start_stop_time_flex">
+                          <input type="radio" name="jp_start_stop_time<?php echo $i; ?>[]" value="flexible" id="jp_start_stop_time_flex">
                           <span class="radio"></span>flexible start/stop <a href="javascript:void(0);" class="calendar-icon">date</a></label>
   					</td>
                     </tr>
@@ -118,10 +118,10 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <?php $startExplode = explode(" " , $job_activi['start_datetime']); ?>
-                                <input value="<?php echo $startExplode[0]; ?>" type="text" name="jp_act_start_date[]" id="jp_act_start_date" class="input small calendar-icon jp_act_start_date" placeholder="start date">
+                                <input value="<?php echo $startExplode[0]; ?>" type="text" name="jp_act_start_date[]" id="jp_act_start_date<?php if($i >1) { echo $i; } ?>" class="input small calendar-icon jp_act_start_date" placeholder="start date">
                               </div>
                               <div class="col-md-6">
-                                <input value="<?php echo $startExplode[1]; ?>" type="text"  name="jp_act_start_time[]" id="jp_act_start_time" class="input small watch-icon jp_act_start_time" placeholder="start time">
+                                <input value="<?php echo $startExplode[1]; ?>" type="text"  name="jp_act_start_time[]" id="jp_act_start_time<?php if($i >1) { echo $i; } ?>" class="input small watch-icon jp_act_start_time" placeholder="start time">
                               </div>
                             </div>
                           </div>
@@ -129,10 +129,10 @@
                             <div class="row">
                               <div class="col-md-6">
                                  <?php $endExplode = explode(" " , $job_activi['end_datetime']); ?>
-                                <input value="<?php echo $endExplode[0]; ?>" type="text" name="jp_act_end_date[]" id="jp_act_end_date" class="input small calendar-icon jp_act_start_date" placeholder="finish date">
+                                <input value="<?php echo $endExplode[0]; ?>" type="text" name="jp_act_end_date[]" id="jp_act_end_date<?php if($i >1) { echo $i; } ?>" class="input small calendar-icon jp_act_start_date" placeholder="finish date">
                               </div>
                               <div class="col-md-6">
-                                <input value="<?php echo $endExplode[1]; ?>"  type="text"  name="jp_act_end_time[]" id="jp_act_end_time" class="input small watch-icon jp_act_start_time" placeholder="finish time">
+                                <input value="<?php echo $endExplode[1]; ?>"  type="text"  name="jp_act_end_time[]" id="jp_act_end_time<?php if($i >1) { echo $i; } ?>" class="input small watch-icon jp_act_start_time" placeholder="finish time">
                               </div>
                             </div>
                           </div>
@@ -150,11 +150,19 @@
                                 </select>
                                 <select onchange="onchangeState(this);" data-attribute='activityReunion1' name="jp_act_state[]" id="sel12 stateId" class="input small states">
                                    <option value="">Select State</option>
+                                   <?php 
+                                   foreach($states as $state) {
+                                    ?>
+                                    <option <?php if($state['id'] == $job_activi['state']) { echo "selected"; } ?> value="<?php echo $state['id']; ?>"><?php echo $state['name']; ?></option>
+                                    <?php
+                                   }
+                                    ?>
                                 </select>
                               </div>
   							               <div class="col-md-6">
                                 <select name="jp_act_city[]" id="sel13 cityId" class="input small cities">
                                    <option value="">Select City</option>
+                                   <option selected value="<?php echo $job_activi['city']; ?>"><?php echo $job_activi['city']; ?></option>
                                 </select>
                               </div>
                             </div>
@@ -203,6 +211,12 @@
                     </tr>
                   </table>
                 </div>
+                  <?php
+                  $i++;
+                  ?>
+                  <script>
+
+                  </script>
                   <?php
                   }
                  ?>
@@ -936,7 +950,7 @@
                 </div>
                 <div class="col-md-6">
                   <h4>Industry Knowledge</h4>
-                  <input name="industry_knowledge" placeholder="Industry Knowledge" id="industry_knowledge" type="text" class="input" value="<?php echo json_decode($jobs[0]['job_industry_knowledge']); ?>">
+                  <input name="industry_knowledge" placeholder="Industry Knowledge" id="industry_knowledge" type="text" class="input" value="<?php echo $jobs[0]['job_industry_knowledge']; ?>">
                 </div>
               </div>
               <div class="ask-questions">

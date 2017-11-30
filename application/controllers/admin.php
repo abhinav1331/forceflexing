@@ -10,49 +10,193 @@ class Admin extends Backend
 	public $Testimonials;
 	public $Menu;
 	public $Pages;
-	
+	public $Contracts;
+	public $Payouts;
+	public $Mailer;
+		
 	public function __construct()
 	{
 		ob_start();
 		/* Loading Modals */
 		$this->Users = $this->loadModel('Users','admin');
 		$this->Jobs = $this->loadModel('jobs','admin');
-		$this->Notification = $this->loadModel('notification','admin');
+		//$this->Notification = $this->loadModel('notification','admin');
 		$this->Pages = $this->loadModel('page','admin');
+		$this->Contracts = $this->loadModel('contracts','admin');
 		
 		/* Loading Helpers */
 		$this->Options = $this->loadHelper('options');
 		$this->Menu = $this->loadHelper('menu');
 		$this->Validate = $this->loadHelper('validator');
 		$this->Testimonials = $this->loadHelper('testimonials');
+		$this->Notification = $this->loadHelper('notification');
+		$this->Mailer = $this->loadHelper('sendmail');
+		
+		// Getting Stripe Gateway Credentials Form Admin
+		$Keys = $this->Options->get_keys();
+		$Deckeys = json_decode($Keys['option_value']);
+		$this->Payouts = $this->loadHelper('FF_Payouts',$Deckeys);
+		ob_end_flush();
 	}
 	
+	
+	public function logout()
+	{
+		session_destroy(); 
+		$this->redirect('admin');
+	}
 	public function index()
 	{		
 		$this->check_login();	// Session check
-		$this->loadview('admin/main/include/header')->render();
-		$this->loadview('admin/main/index')->render();
+		$header = $this->loadview('admin/main/include/header');
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',	$Noti);
+		$header->render();
+		
+	
+		$this->Users->query("SELECT id, COUNT(*) AS TOTAL, COUNT(IF(role='2',1,null)) as Emply, 
+    COUNT(IF(role='3',1,null))as Contractors, (SELECT COUNT(*) FROM ".PREFIX."jobs) as JobsCount FROM ".PREFIX."users");
+		$Counts = $this->Users->resultset();
+		
+		$view = $this->loadview('admin/main/index');
+		$view->set('counts',$Counts);
+		$view->render();
+		
 		$this->loadview('admin/main/include/footer')->render();		
 	}
 	
 	public function login()
 	{
+		$additional_css = '<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';	
+		$additional_js = '<script src="'.BASE_URL.'static/js/toastr.js"></script>';	
+		
 		if(isset($_POST['ad_login']) && $_POST['ad_pass'] != '' && $_POST['ad_email'] != '')
 		{
-			if($_POST['ad_pass'] == 'admin' && $_POST['ad_email'] == 'admin@gmail.com')
-			{
+			$pass = md5( $_POST['ad_pass'] );
+			$email = $_POST['ad_email'];
+			 
+			$login = $this->Users->query("SELECT * FROM ".PREFIX."users WHERE email = '".$email."' AND password = '".$pass."' AND (role = '1' OR role = '5')");
+			
+			$results = $this->Users->resultset($login);
+			
+			if(!empty($results)):
 				$_SESSION['admin'] = 'admin';
-				$_SESSION['log_in'] = '1';
+				$_SESSION['log_in'] = '1';	
+				$_SESSION['user_id'] = $results[0]['id'];
 				$this->redirect('admin/index');
-			}
+			else:
+				
+				/* Render header  */
+				$header = $this->loadview('admin/login/header');
+				$header->set('additional_css',$additional_css);
+				$header->render();
+				
+				$view = $this->loadview('admin/login/index');
+				//$view->set('error','Invalid Email-ID or Password');
+				$view->render();
+				
+				
+				/* Render Footer */
+				$footer = $this->loadview('admin/login/footer');
+				$additional_js .='<script> toastr.error("Invalid Email-ID or Password", "Error!"); </script>';
+				$footer->set('additional_js',$additional_js);
+				$footer->render();
+			endif;
 			
 		}
 		else
 		{
-			$this->loadview('admin/login/header')->render();
-			$this->loadview('admin/login/index')->render();
-			$this->loadview('admin/login/footer')->render();
 			
+			
+			if(isset($_GET['recover']) && !empty($_GET['recover'] ))
+			{
+			$results = $this->CheckToken($_GET['recover']);
+				if( !empty($results))
+				{
+					$valid = 'Yes';		
+				}
+				else
+				{					
+					$valid = 'No';		
+				}				
+			}
+			
+			$header = $this->loadview('admin/login/header');
+			$header->set('additional_css',$additional_css);
+			$header->render();
+			$this->loadview('admin/login/index')->render();
+			$footer = $this->loadview('admin/login/footer');
+			$footer->set('additional_js',$additional_js);
+			if(isset($valid))
+			{
+				$footer->set('valid',$valid);				
+			}
+			$footer->render();
+			
+		}
+		
+	}
+	
+	public function CheckToken($token)
+	{
+		$recover = $this->Users->query("SELECT * FROM ".PREFIX."users WHERE token = '".$token."'");
+		return $results = $this->Users->resultset($recover);
+	}
+	
+	public function recover()
+	{
+		if( isset($_POST['action']) && $_POST['action'] == 'recoverPassword' ):
+			$Password = $_POST['pass'];
+			$token = $_POST['token'];
+			$results = $this->CheckToken($token);
+			if(!empty($results))
+			{
+				$Updated = $this->Users->update(array( 'password' => md5($Password), 'token'=>NULL ),'token',$token,PREFIX."users");
+				echo json_encode( array( 'status'=>'success', 'message'=>'Password Reset Successfully' ) );
+				
+			}
+			else
+			{
+				echo json_encode( array( 'status'=>'error', 'message'=>'Invalid Request' ) );
+			}
+			
+			
+		else:
+			echo json_encode( array( 'status'=>'error', 'message'=>'Invalid Request' ) );
+		endif;
+		
+		
+	}
+	
+	public function forgotPassword()
+	{
+		if(isset($_POST['action']) && $_POST['action'] == 'resetPassword')
+		{
+				$email = $_POST['emailForgot'];				
+				
+				$login = $this->Users->query("SELECT * FROM ".PREFIX."users WHERE email = '".$email."' AND (role = '1' OR role = '5')");
+				$results = $this->Users->resultset($login);				
+				if( !empty($results) )
+				{
+					$timestamp = $this->Users->Timestamp();
+					$token = base64_encode($email.$timestamp);			
+					$this->Users->update(array( 'token' => $token  ),'id',$results[0]['id'],PREFIX."users");
+					$Mailed = $this->Mailer->setparameters($to=$results[0]['email'],$subject="Reset Password",$message="Check",$from="sc7618009@gmail.com");					
+					if($Mailed):
+						echo json_encode( array( 'status'=>'success', 'message'=>'Please Check your Email For a Password Reset Link to reset Password' ) );
+					else:
+						echo json_encode( array( 'status'=>'error', 'message'=>'Please try Again the Process as Mail was not sent ! ' ) );
+					endif;
+					
+				}
+				else
+				{
+					echo json_encode( array( 'status'=>'error', 'message'=>'Email ID Does\'nt Exists !' ) );					
+				}						
+		}
+		else
+		{
+			echo json_encode( array( 'status'=>'error', 'message'=>'Request not completed' ) );
 		}
 		
 	}
@@ -106,15 +250,15 @@ class Admin extends Backend
 				echo json_encode(array('title'=>$title,'button'=>$button,'content'=>$data));
 				exit;
 			}
-			elseif($_POST['account'] == 'delete')
+			/* elseif($_POST['account'] == 'delete')
 			{
 				exit;
-			}
-			elseif($_POST['account'] == 'reset')
+			} */
+			/* elseif($_POST['account'] == 'reset')
 			{
 				$this->generateRandomPassword();
 				exit;
-			}
+			} */
 			else
 			{
 				$this->redirect('admin/viewUsers');
@@ -131,6 +275,8 @@ class Admin extends Backend
 		
 		$header = $this->loadview('admin/main/include/header');
 		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
 		$header->render();			
 		
 		$Data = $this->Users->Get_all_data('flex_users');
@@ -149,11 +295,21 @@ class Admin extends Backend
 		$table .='<tbody>';		
 			foreach($Data as $keys)
 			{
+				if($keys["role"] == 3)
+				{
+					$role = 'Contractor';
+				}
+				
+				if($keys["role"] == 2)
+				{
+					$role = 'Employer';
+				}
+				
 				$table .='<tr>';
 					$table .='<td>'.$keys["first_name"].'</td>';
 					$table .='<td>'.$keys["username"].'</td>';
 					$table .='<td>'.$keys["email"].'</td>';
-					$table .='<td>'.$keys["role"].'</td>';
+					$table .='<td>'.$role.'</td>';
 					$table .='<td>'.$keys["connected_with"].'</td>';		
 					$table .='<td>
 					<button type="button" value="'.$keys["id"].'" class="btn btn-info ad_view" data-loading-text="<i class=\'fa fa-spinner fa-spin\'></i> Processing Order">View</button>				
@@ -175,10 +331,10 @@ class Admin extends Backend
 						{
 							$table .='<li><a href="javascript:void(0)">Account Not Activated</a></li>';
 						}
-						
+						/* 
 						$table .='<li><a rel="'.$keys["id"].'" id="reset" class="account" href="javascript:void(0)">Reset Password</a></li>						
-						<li><a rel="'.$keys["id"].'" id="delete" class="account" href="javascript:void(0)">Delete Account</a></li>						
-					  </ul>
+						<li><a rel="'.$keys["id"].'" id="delete" class="account" href="javascript:void(0)">Delete Account</a></li>	 */					
+					 $table .=' </ul>
 					</div></td>';		
 				$table .='</tr>';				
 			}
@@ -263,7 +419,7 @@ class Admin extends Backend
 							
 							
 						}
-						elseif(attr == "reactivate")
+						else if(attr == "reactivate")
 						{
 							var details = jQuery.parseJSON(res);
 							$(".modal-title").html(details.title);
@@ -291,6 +447,10 @@ class Admin extends Backend
 										}					
 									});	
 							});
+						}
+						else if(attr == "reset")
+						{
+							
 						}
 						
 						$("#myLargeModalLabel").modal(\'show\');
@@ -350,6 +510,8 @@ class Admin extends Backend
 		$additional_css = '<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';		
 		$header = $this->loadview('admin/main/include/header');
 		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
 		$header->render();
 		
 		
@@ -546,32 +708,49 @@ class Admin extends Backend
 	
 	public function editUser()
 	{
+		/* Render Header */
+				$additional_css = '<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';		
+				$header = $this->loadview('admin/main/include/header');
+				$header->set('additional_css',$additional_css);
+				$Noti = $this->getNotification('Header');
+				$header->set('notifications',$Noti);
+				$header->render();
 		
 		if(isset($_GET['PersonID']))
 		{
 			if(isset($_POST['update_user']))
 			{
 				$Data = $this->Validate->sanitize($_POST); // You don't have to sanitize, but it's safest to do so.
+				
 				$this->Validate->validation_rules(array(
 					'first_name'   => 'required|alpha',
 					'last_name'    => 'required|alpha',
-					'company'      => 'required|alpha',
+					'company'      => 'required',
 					'email'        => 'required|valid_email',
-					'password'     => 'required|max_len,100|min_len,6',				
+					//'password'     => 'required|max_len,100|min_len,6',				
 					'country'      => 'required',
 					'role'		   => 'required'
 				));	
+				
+				if(isset($_POST['password']))
+				{
+					$this->Validate->validation_rules(array(
+					'password'     => 'required|max_len,100|min_len,6'					
+					));	
+				}
+				
+				
 				$validated_data = $this->Validate->run($Data);
-				if($validated_data === false)
+				$ValidEmail = $this->Users->Check_email($Data['email']);
+				if($validated_data === false && $ValidEmail === false)
 				{		
-					$errors = $this->Validate->get_errors_array();		
+					$errors = $this->Validate->get_errors_array();				
 					$options = $this->Options->show_countries();	// GEt Country list to show
 					$addUser = $this->loadview('admin/users/edit');
 					$addUser->set('errors',$errors);
 					$addUser->set('Fileds',$Data);
 					$addUser->set('options',$options);
-					$addUser->render();
-					
+					$addUser->render();					
 				}
 				else
 				{
@@ -580,120 +759,130 @@ class Admin extends Backend
 					 'last_name'=>$_POST['last_name'], 
 					 'company_name'=>$_POST['company'],
 					 'country'=>$_POST['country'],
-					 'email'=>$_POST['email'],
-					 'password'=>md5($_POST['password']),
+					 'email'=>$_POST['email'],					 
 					 'role'=>$_POST['role'],
 					 'connected_with'=>'EMAIL',
 					 'created_date'=>date("Y-m-d"),
 					 'modified_date'=>date("Y-m-d"),
-					 'is_verified'=>'1',
-					 'username'=>$_POST['username']
-				);
-					$result = $this->Users->Insert($data,'flex_users');
-					if($result)
-					{
-						$msg_success = 'User Inserted Successfully';
-					}
-					else
-					{
-						$msg_error = 'User not inserted Please Try Again After Some Time';
-					}
+					 'is_verified'=>'1'
 					
-					$options = $this->Options->show_countries();	// GEt Country list to show
-					$addUser = $this->loadview('admin/users/add');				
-					if(isset($msg_success))
-					{
-						$addUser->set('Success',$msg_success);
-					}
-					elseif(isset($msg_error))
-					{
-						$addUser->set('Error',$msg_error);
-					}				
-					$addUser->set('options',$options);
-					$addUser->render();
+					);
 					
+					if(isset($_POST['password']))
+					{
+						$data['password'] = md5($_POST['password']);
+					}
+				
+				if(isset($_GET['PersonID']) && $_GET['PersonID'] == $_POST['user_id'] )
+				{
+					$result = $this->Users->Update_row($data,'id',$_GET['PersonID'],'flex_users');
+					$this->pre($result);
+						if($result)
+						{
+							$msg_success = 'User Inserted Successfully';
+						}
+						else
+						{
+							$msg_error = 'User not inserted Please Try Again After Some Time';
+						}
+				
+						$options = $this->Options->show_countries();	// GEt Country list to show
+						$addUser = $this->loadview('admin/users/add');				
+						if(isset($msg_success))
+						{
+							$addUser->set('Success',$msg_success);
+						}
+						elseif(isset($msg_error))
+						{
+							$addUser->set('Error',$msg_error);
+						}				
+						$addUser->set('options',$options);
+						$addUser->render();
+				}
+				else
+				{
+					$this->redirect('admin/viewUsers');
+					exit;
 				}
 				
+			}
+				
 				
 			}
-		
+			else
+			{
 				
-			$Details = $this->Users->get_single_row('id',$_GET['PersonID'],'flex_users');
-			if(empty($Details))
-			{
-				$this->redirect('admin/viewUsers');
-				exit;
-			}
-			/* Render Header */
-			$additional_css = '<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';		
-			$header = $this->loadview('admin/main/include/header');
-			$header->set('additional_css',$additional_css);
-			$header->render();
-			
-			/* Body View Render */
-			
-			$options = $this->Options->show_countries($Details['country']);	// GEt Country list to show
-			$addUser = $this->loadview('admin/users/edit');
-			$addUser->set('Fileds',$Details);
-			$addUser->set('options',$options);
-			$addUser->render();
-			
-			$additional_scripts = '
-		<script src="'.BASE_URL.'static/js/toastr.js"></script>	
-		<script src="'.BASE_URL.'static/js/jquery.validate.min.js"></script>	
-		<script>			
-			$(document).on(\'click\',\'.gnt_pwd\',function() 
-			{
-				var con = confirm("Are You Sure ? You want to Reset Password ! User Will Be Notify through Email ");
-				if(con == true)
+				$Details = $this->Users->get_single_row('id',$_GET['PersonID'],'flex_users');
+				if(empty($Details))
 				{
-					var $this = $(this);
-					$this.button(\'loading\');
-					$.ajax({
-							type:"POST",
-							url:"'.SITEURL.'admin/generateRandomPassword",						
-							success:function(res){
-								$this.button(\'reset\');	
-								$("input[name=\'password\']").val(res);						 
-							}					
-					});	
-				}							
-			}); 
-			
-			function isValidEmailAddress(emailAddress) {
-			var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
-			 //alert( pattern.test(emailAddress) );
-			return pattern.test(emailAddress);
-			};
-			
-			/* Validation  */
-			$(".update_user").click(function(){
-					
-			$("#myform").validate({
-				  rules: {
-					first_name: "required",
-					company: "required",
-					last_name: "required",
-					password: "required",
-					country: "required",
-					role: "required"
-				  },
-				  messages: 
-				  {
-					first_name: "Please specify User First Name !",
-					company: "Please specify Company Name !",
-					last_name: "Please specify User Last Name !",
-					password: "Password field can\'t be Empty ! "					
-				  }
-				});
-			})		 
-			
-			</script>';
-			
-			
-			$footer = $this->loadview('admin/main/include/footer');
-			$footer->set('additional', $additional_scripts);
-			$footer->render();
+					$this->redirect('admin/viewUsers');
+					exit;
+				}
+				/* Body View Render */
+				
+				$options = $this->Options->show_countries($Details['country']);	// GEt Country list to show
+				$addUser = $this->loadview('admin/users/edit');				
+				$addUser->set('Fileds',$Details);
+				$addUser->set('options',$options);
+				$addUser->render();				
+			}
+				$additional_scripts = '
+			<script src="'.BASE_URL.'static/js/toastr.js"></script>	
+			<script src="'.BASE_URL.'static/js/jquery.validate.min.js"></script>		
+			<script>			
+				$(document).on(\'click\',\'.gnt_pwd\',function() 
+				{
+					var con = confirm("Are You Sure ? You want to Reset Password ! User Will Be Notify through Email ");
+					if(con == true)
+					{
+						var $this = $(this);
+						$this.button(\'loading\');
+						$.ajax({
+								type:"POST",
+								url:"'.SITEURL.'admin/generateRandomPassword",						
+								success:function(res){
+									$this.button(\'reset\');	
+									$("input[name=\'password\']").val(res);						 
+									$("input[name=\'password\']").removeAttr("disabled");						 
+								}					
+						});	
+					}							
+				}); 
+				
+				function isValidEmailAddress(emailAddress) {
+				var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
+				 //alert( pattern.test(emailAddress) );
+				return pattern.test(emailAddress);
+				};
+				
+				/* Validation  */
+				$(".update_user").click(function(){
+						
+				$("#myform").validate({
+					  rules: {
+						first_name: "required",
+						company: "required",
+						last_name: "required",
+						password: "required",
+						country: "required",
+						role: "required"					
+					  },
+					  messages: 
+					  {
+						first_name: "Please specify User First Name !",
+						company: "Please specify Company Name !",
+						last_name: "Please specify User Last Name !",
+						password: "Password field can\'t be Empty ! "					
+					  }
+					});
+				})		 
+				
+				</script>';
+				
+				
+				$footer = $this->loadview('admin/main/include/footer');
+				$footer->set('additional', $additional_scripts);
+				$footer->render();
 		}
 		else
 		{
@@ -748,6 +937,27 @@ class Admin extends Backend
 			return $validated_data = $this->Validate->run($Data);			
 			
 	}
+	
+	public function Validate_PageContent($Data)
+	{
+		
+		//$Data = $this->Validate->sanitize($Data); // You don't have to sanitize, but it's safest to do so.
+
+			$this->Validate->validation_rules(array(
+				'page_title'	 => 'required',
+				'tag_line'   	 => 'required',
+				'content'      	 => 'required',
+				'status'         => 'required',			
+				'banner_image'   => 'required_file|extension,png;jpg'			
+			));
+
+			return $validated_data = $this->Validate->run($Data);			
+			
+	}
+	
+	
+	
+	
 	
 	private function Validate_Notification($Data)
 	{
@@ -836,30 +1046,31 @@ class Admin extends Backend
 	
 	public function allJobs()
 	{
-		if(isset($_GET['pop']) && $_GET['pop'] == 'on')
+		/* if(isset($_GET['pop']) && $_GET['pop'] == 'on')
 		{
 			$user_slug = $this->Jobs->getJob('job_slug',$_GET['viewJob'],'flex_jobs');			
-		}
+		} */
 		
 		$additional_css = '
 		<link href="'.BASE_URL.'static/admin/css/dataTables.bootstrap.css" rel="stylesheet">
 		<link href="'.BASE_URL.'static/admin/css/dataTables.responsive.css" rel="stylesheet">
 		';
-		
 		$header = $this->loadview('admin/main/include/header');
 		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
 		$header->render();
 		
 		$Data = $this->Jobs->Get_all_jobs('flex_jobs');
 		$view = $this->loadview('admin/job/index');
 		$view->set('Details', $Data);
-		if(isset($_GET['viewJob']) && $_GET['pop'] == 'on')	
+		/* if(isset($_GET['viewJob']) && $_GET['pop'] == 'on')	
 		{
 			$view->set('title', $user_slug['title']);
 			$view->set('content',$user_slug['content']);
-			$view->set('profile',$user_slug['profile']);
+			$view->set('profile',$user_slug['profile']);			
 			
-		}	
+		}	 */
 		$view->render();
 	
 		$additional_scripts = '';
@@ -874,7 +1085,7 @@ class Admin extends Backend
 			});
 			});
 		</script>';
-		if(isset($_GET['pop']) && $_GET['pop'] == 'on')
+		/* if(isset($_GET['pop']) && $_GET['pop'] == 'on')
 		{
 			$additional_scripts .= '
 			<script>
@@ -882,7 +1093,7 @@ class Admin extends Backend
 					$("#myModal").modal("show");;
 				});
 			</script>';		
-		}
+		} */
 	
 		$footer = $this->loadview('admin/main/include/footer');
 		$footer->set('additional', $additional_scripts);
@@ -890,13 +1101,15 @@ class Admin extends Backend
 		
 	}
 
-	public function addJob()
+	private function addJob()
 	{
 		$additional_css = '
 		<link href="'.BASE_URL.'static/admin/css/editor.css" rel="stylesheet">
 		<link href="'.BASE_URL.'static/admin/css/jquery-ui.css" rel="stylesheet">';		
 		$header = $this->loadview('admin/main/include/header');
 		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
 		$header->render();	
 		
 		$this->loadview('admin/job/addJob')->render();
@@ -992,12 +1205,53 @@ class Admin extends Backend
 		echo"</pre>";
 	}
 	
+	public function viewJob($Jobslug)
+	{
+		$this->check_login();
+		if(empty($Jobslug))
+		{	$this->redirect('/admin/allJobs');	}
+		
+		
+		$header = $this->loadview('admin/main/include/header');
+		//$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
+		$header->render();
+	
+		$user_slug = $this->Jobs->getJob('job_slug',$Jobslug,'flex_jobs');	
+		if(empty($user_slug['title']))
+		{	$this->redirect('/admin/allJobs'); exit;	}
+		$view = $this->loadview('admin/job/view');
+			$view->set('title', $user_slug['title']);
+			$view->set('content',$user_slug['content']);
+			$view->set('profile',$user_slug['profile']);
+			$view->set('Activity',$user_slug['Activity']);
+			$view->set('Payment',$user_slug['Payment']);
+			$view->set('Description',$user_slug['Description']);
+			$view->set('Attachment',$user_slug['Attachment']);
+		$view->render();
+		
+			
+		$footer = $this->loadview('admin/main/include/footer');
+		//$footer->set('additional', $additional_scripts);
+		$footer->render();
+	}
+	
+	
+	
 	public function options()
 	{
 		
 		$this->check_login();
-		 $this->loadview('admin/main/include/header')->render();
-		/*
+		$additional_css ='<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">';
+		$additional_css .= '
+		<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';	
+		$header = $this->loadview('admin/main/include/header');
+		$Noti = $this->getNotification('Header');
+		$header->set('additional_css',$additional_css);
+		$header->set('notifications',$Noti);
+		$header->render();
+		
 		$segment = explode('/',$_SERVER['REQUEST_URI']);		
 		if($segment[3] == 'menu')
 		{
@@ -1057,15 +1311,8 @@ class Admin extends Backend
 				}
 			
 		}
-		// Footer Addition Scripts include 
-			 */
 		
-		
-		
-		//$segment[3];
-		// $this->check_login();	// Session check
-			
-		if(isset($_GET['addOption']) && $_GET['addOption'] == 'addCountry')
+		if($segment[3] == 'Country')
 		{	
 			$value = $this->Options->get_single_row('option_name', 'show_country','flex_options');
 			if(isset($_POST['submit']) && $_POST['countries'] != '')
@@ -1100,19 +1347,130 @@ class Admin extends Backend
 			
 			$view->render();
 		}
-		elseif(isset($_GET['addOption']) && $_GET['addOption'] == 'addnotification')
+		/* elseif(isset($_GET['addOption']) && $_GET['addOption'] == 'addnotification')
 		{
 			$view = $this->loadview('admin/options/notification');
 			//$view->set('',);
 			$view->render();
-		} 
+		}  */
 		//$this->loadview('admin/options/index')->render();
+		
+		if($segment[3] == 'payment')
+		{
+			if(isset($_POST['save']))
+			{
+				
+			
+			$Data = $this->Validate->sanitize($_POST);	
+			$this->Validate->validation_rules(array(
+			'pb_key'   => 'required',
+			'sk_key' => 'required',			
+			));
+			
+			$this->Validate->filter_rules(array(
+				'pb_key' => 'trim',
+				'sk_key' => 'trim'				
+			));
+			
+			if( isset($Data['live_mode']) )
+			{
+				$this->Validate->validation_rules(array(
+				'Lpb_key'   => 'required',
+				'Lsk_key' => 'required',			
+				));
+			
+				$this->Validate->filter_rules(array(
+					'Lpb_key' => 'trim',
+					'Lsk_key' => 'trim'				
+				));
+			}
+						
+			$validated_data = $this->Validate->run($Data);
+			
+			
+			if($validated_data === false)
+				{		
+					$errors = $this->Validate->get_errors_array();				
+					$addUser = $this->loadview('admin/options/payment');
+					$addUser->set('errors',$errors);
+					$addUser->set('Fileds',$Data);					
+					$addUser->render();					
+				}
+			else
+				{
+					
+					$FData = $this->Options->get_keys();					
+					$Array = array
+						(
+							'option_name' =>'flex_keys',
+							'option_value' =>json_encode( $Data )
+						);
+					
+					if(empty($FData))
+					{
+						$Result = $this->Options->Insert_options($Array);
+					}
+					else
+					{
+						if( $FData['id'] == $Data['id'] )
+						{						
+							$this->Options->edit_options($Array,'id',$FData['id']);
+							$this->redirect("admin/options/payment");
+							exit;						
+						}
+					} 
+					
+				}	
+			}
+			else
+			{
+				$Keys = $this->Options->get_keys();
+				$Deckeys = json_decode($Keys['option_value']);
+								
+				if(isset($Deckeys->Lpb_key))
+				{
+					$LivePB = $Deckeys->Lpb_key;					
+				}					
+				else
+				{
+					$LivePB = NULL;
+				}
+				if(isset($Deckeys->Lsk_key))
+				{
+					$LiveSK = $Deckeys->Lsk_key;					
+				}					
+				else
+				{
+					$LiveSK = NULL;
+				}
+				if(isset($Deckeys->live_mode))
+				{
+					$LiveMode = $Deckeys->live_mode;					
+				}					
+				else
+				{
+					$LiveMode = NULL;
+				}
+				
+				$fields = array( 'id'=>$Keys['id'],'pb_key'=>$Deckeys->pb_key,'sk_key'=> $Deckeys->sk_key,'Lpb_key'=>$LivePB,'Lsk_key'=> $LiveSK,'live_mode'=>$LiveMode);	
+				$view = $this->loadview('admin/options/payment');
+				$view->set('Fileds',$fields);			
+				$view->render();
+			}
+		}
 		
 		$additional_scripts = '
 					<script src="'.BASE_URL.'static/js/jquery.validate.min.js"></script>
 					<script src="'.BASE_URL.'static/js/jquery.nestable.js"></script>
+					<script src="'.BASE_URL.'static/js/toastr.js"></script>
+					<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 					<script>
 					$(document).ready(function(){
+						
+						
+						$(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
+							$(".alert-danger").slideUp(1000);
+						});
 
 						$(".dd").nestable();	
 						$(\'.AddItem\').click(function(){
@@ -1140,18 +1498,25 @@ class Admin extends Backend
 						
 						$(".Savemenu").click(function()
 						{
-							var meName = $("input[name=\'menu_name\']").val();	
+							var meName = jQuery.trim($("input[name=\'menu_name\']").val());	
 							var meNameID = $("input[name=\'menu_name\']").attr("rel");	
-							
-							$.ajax({
-									type:"POST",
-									url:"'.SITEURL.'admin/UpdateMenu",
-									data:{menu:$(\'.dd\').nestable(\'serialize\'),menuname:meName,menuID:meNameID},
-									success:function(res)
-										{
-											//console.log(res);	
-										}
-									})						
+							if( meName != "" )
+							{
+								$.ajax({
+										type:"POST",
+										url:"'.SITEURL.'admin/UpdateMenu",
+										data:{menu:$(\'.dd\').nestable(\'serialize\'),menuname:meName,menuID:meNameID},
+										success:function(res)
+											{
+												toastr.success("Menu Updateds", "Successfully");									
+											}
+										});
+							}
+							else
+							{
+								
+								toastr.error("Menu Name Can\'t be Empty ! ", "Successfully");
+							}								
 						})
 						
 						
@@ -1163,10 +1528,11 @@ class Admin extends Backend
 								var title = $(this).attr("value");
 								var url = $(this).attr("url");	
 													
-								$(\'#menus\').append(\'<li data-value="\'+url+\'" data-name="\'+title+\'" class="dd-item"><div class="dd-handle">\'+title+\' <i class="fa fa-window-close" aria-hidden="true"></i></div></li>\');
+								$(\'#menus\').append(\'<li data-value="\'+url+\'" data-name="\'+title+\'" class="dd-item"><div class="dd-handle">\'+title+\' <i class="fa fa-window-close dd-nodrag" aria-hidden="true"></i></div></li>\');
 
 								
 							})
+							$(".page_li").prop("checked", false);
 						});
 
 						$(document).on("click",".dd-nodrag",function(){
@@ -1198,10 +1564,20 @@ class Admin extends Backend
 		{
 			if(isset($_POST['save']))
 			{
-				$content = $_POST;
+				$content = array_merge($_POST,$_FILES);
+				if($this->Validate_PageContent($content) === false)
+				{		
+					$errors = $this->Validate->get_errors_array();					
+					$this->CreatePage($errors,$content);
+					
+				}
+				else
+				{
 				$ID = $this->Pages->SavePage($content);
 				$this->redirect("admin/pages/editPage/$ID");
-				exit;
+				exit; 
+				
+				}
 			}
 			else
 			{
@@ -1214,7 +1590,7 @@ class Admin extends Backend
 			{				
 				if(isset($_POST['update']))
 				{
-					$content = $_POST;
+					$content = array_merge($_POST,$_FILES);
 					$this->Pages->UpdatePage($content,$segement[4]);
 					$this->redirect("admin/pages/editPage/".$segement[4]);
 					exit; 
@@ -1264,11 +1640,13 @@ class Admin extends Backend
 		<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';				
 		$header = $this->loadview('admin/main/include/header');
 		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
 		$header->render();
 		
 		$heading = '<h1 class="page-header">Pages 
 					<a href="'.SITEURL .'admin/pages/addNew"><button type="button" class="btn btn-outline btn-primary">Add Page</button></a>
-					<a href="'.SITEURL .'admin/pages/Trash"><button type="button" class="btn btn-outline btn-primary">Trash Page</button></a>
+					<a href="'.SITEURL .'admin/pages/Trash"><button type="button" class="btn btn-outline btn-primary">Trash Page</button></a>					
 					</h1>';				
 		
 		/* Content Section */
@@ -1312,37 +1690,90 @@ class Admin extends Backend
 		
 	}
 	
-	private function CreatePage()
+	private function CreatePage($error = NULL, $Data = NULL)
 	{
 		
 		/* Header Section */
 		$additional_css = '<link href="'.BASE_URL.'static/admin/css/jquery-ui.css" rel="stylesheet">';		
 		$header = $this->loadview('admin/main/include/header');
 		//$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
 		$header->render();	
 		
 		/* Content Section */
 		$view = $this->loadview('admin/pages/add');
+		if($error != '' && $Data != '')
+		{
+			$Array =array();
+			$Array['title'] = $Data['page_title'];
+			$Array['tag_line'] = $Data['tag_line'];
+			$Array['content'] = $Data['content'];
+			
+			
+			$view->set('errors',$error);
+			$view->set('data',$Array);
+		}
+		
 		$view->render();
 		
 		
 		/* Footer Section */
 		$additional_scripts = '';
 		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/tinymce.js"></script>
+		<script src="'.BASE_URL.'static/js/jquery.validate.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
 		<script>
 		$(document).ready(function() 
 			{
-				tinymce.init({ selector:"textarea" });
+				tinymce.init({ selector:"textarea",plugins: [
+    "advlist autolink lists link image charmap print preview hr anchor pagebreak a11ychecker",
+    "searchreplace wordcount visualblocks visualchars code fullscreen tinymcespellchecker advcode",
+    "insertdatetime media nonbreaking save table contextmenu directionality",
+    "template paste textcolor colorpicker textpattern imagetools codesample toc help emoticons hr"] });
 				/* ADDING EDITOR */
 				//$(".txtEditor").Editor();
 				 //CKEDITOR.replace( "editor1" );
 			   //CKEDITOR.replaceAll( "txtEditor" );
+			   
+		  	
+			$("#myform").validate({
+				  rules: {
+					page_title: "required",
+					tag_line: "required",
+					content: "required",
+					status: "required",
+					banner_image: {					 
+					  extension: "png|jpg|jpeg"
+					}					
+				  },
+				  messages: 
+				  {
+					page_title: "Please specify Page Title !",
+					tag_line: "Please specify Tag Line !",
+					content: "Page Content Can\'t be empty !",
+					status: "Page Published is required ! "	,				
+					banner_image: "Only PNG JPEG Format Allowed "	,				
+				  }
+				});
+			   
 			});
+			function readURL(input) {			
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $(\'#blah\').attr(\'src\', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }		
 		</script>';
 		$footer = $this->loadview('admin/main/include/footer');
 		$footer->set('additional', $additional_scripts);
 		$footer->render();
 		
+	
 	}
 	
 	private function EditPage($ID)
@@ -1359,6 +1790,8 @@ class Admin extends Backend
 		$additional_css = '<link href="'.BASE_URL.'static/admin/css/jquery-ui.css" rel="stylesheet">';		
 		$header = $this->loadview('admin/main/include/header');
 		//$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
 		$header->render();	
 		
 		/* Content Section */
@@ -1373,12 +1806,22 @@ class Admin extends Backend
 		<script>
 		$(document).ready(function() 
 			{
-				tinymce.init({ selector:"textarea" });
+				tinymce.init({ selector:"textarea", plugins: ["code"] });
 				/* ADDING EDITOR */
 				//$(".txtEditor").Editor();
 				 //CKEDITOR.replace( "editor1" );
 			   //CKEDITOR.replaceAll( "txtEditor" );
 			});
+		function readURL(input) {			
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $(\'#blah\').attr(\'src\', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }	
+            }	
 		</script>';
 		$footer = $this->loadview('admin/main/include/footer');
 		$footer->set('additional', $additional_scripts);
@@ -1393,6 +1836,8 @@ class Admin extends Backend
 		<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';				
 		$header = $this->loadview('admin/main/include/header');
 		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
 		$header->render();
 		
 		$heading = '<h1 class="page-header">Trash Pages 
@@ -1500,15 +1945,13 @@ class Admin extends Backend
 				$MenuList = json_encode($_POST['menu']);
 				$MenuName = $_POST['menuname'];
 				$menuid   = $_POST['menuID'];	
-				$result = $this->Menu->UpdateMenuList($MenuName,$menuid,$MenuList);
-				print_r($result);
+				$result = $this->Menu->UpdateMenuList($MenuName,$menuid,$MenuList);				
 			}
 			elseif(isset($_POST['menuID']))
 			{
 				$MenuName = $_POST['menuname'];
 				$menuid   = $_POST['menuID'];	
-				$result = $this->Menu->UpdateMenuName($MenuName,$menuid);
-				print_r($result);
+				$result = $this->Menu->UpdateMenuName($MenuName,$menuid);				
 			}
 			
 		}
@@ -1529,7 +1972,7 @@ class Admin extends Backend
 	*	Admin Section
 	*/
 	
-	public function AddNotification()
+	private function AddNotification()
 	{
 		/* Header Section */
 		$additional_css = '<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';		
@@ -1629,7 +2072,7 @@ class Admin extends Backend
 		$footer->render();
 	}
 	
-	public function EditNotification()
+	private function EditNotification()
 	{
 		if(isset($_GET['ID_Notify']))
 		{
@@ -1748,7 +2191,7 @@ class Admin extends Backend
 		}
 	}
 	
-	public function viewNotification()
+	private function viewNotification()
 	{
 		/* Header Section */
 		$additional_css = '
@@ -1822,11 +2265,76 @@ class Admin extends Backend
 		
 	}
 	
-	public function deleteNotification()
+	private function deleteNotification()
 	{
 		$this->Notification->DelNotification($data,'id',$_GET['ID_Notify']);		
 	}
-
+	
+	public function getNotification( $position = NULL )
+	{
+		if( $position == 'Header')
+		{
+			$getList = $this->Notification->get_notification(1);
+					
+			$list = '';
+			$list .= $getList[0];
+			$list .= '<li class="divider"></li>';
+			$list .= $getList[1];
+			$list .= '<li class="divider"></li>';
+			$list .= $getList[2];
+			$list .= '<li class="divider"></li>';
+			return $list;
+		}
+		else
+		{
+			$additional_css = '
+			<link href="'.BASE_URL.'static/admin/css/dataTables.bootstrap.css" rel="stylesheet">
+			<link href="'.BASE_URL.'static/admin/css/dataTables.responsive.css" rel="stylesheet">
+			';		
+			$header = $this->loadview('admin/main/include/header');
+			$header->set('additional_css',$additional_css);
+			$Noti = $this->getNotification('Header');
+			$header->set('notifications',$Noti);
+			$header->render();
+			
+			
+			
+			$list = $this->Notification->get_notification(1);
+			$table = '';
+			$table .= ' <table width="100%" class="table table-striped table-bordered table-hover dataTables">';
+			$table .= '<thead>
+					<tr>						
+						<th>Notifications</th>
+					</tr>
+				</thead>';	
+			$table .='<tbody style="list-style-type: none;">';		
+			foreach( $list as $keys ):
+				$table .='<tr><td>'.$keys.'</td></tr>';	
+			endforeach;
+			$table .='</tbody></table>';
+				
+			
+			$view = $this->loadview('admin/notification/index');
+			$view->set('Details', $table);		
+			$view->render();
+			
+			
+			$additional_scripts = '
+			<script src="'.BASE_URL.'static/admin/js/jquery.dataTables.min.js"></script>
+			<script src="'.BASE_URL.'static/admin/js/dataTables.bootstrap.min.js"></script>
+			<script src="'.BASE_URL.'static/admin/js/dataTables.responsive.js"></script>
+			<script>$(document).ready(function() {
+				$(".dataTables").DataTable();
+				});				
+			</script>';
+			
+			$footer = $this->loadview('admin/main/include/footer');
+			$footer->set('additional', $additional_scripts);
+			$footer->render();	
+		}
+		
+	}
+	
 	/* 
 	*	Testimonials Section 
 	*	@Author Chhavinav Sehgal
@@ -1843,6 +2351,8 @@ class Admin extends Backend
 		$additional_css = '<link href="'.BASE_URL.'static/admin/css/jquery-ui.css" rel="stylesheet">';	
 		$header = $this->loadview('admin/main/include/header');
 		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
 		$header->render();	
 		
 		
@@ -1963,4 +2473,417 @@ class Admin extends Backend
 	}
 	
 	
+	/* 
+	*	Contracts Section 
+	*	@Author Chhavinav Sehgal
+	*	Admin Section
+	*/
+	
+	public function contracts()
+	{
+		$this->check_login();
+		$additional_css = '
+		<link href="'.BASE_URL.'static/admin/css/dataTables.bootstrap.css" rel="stylesheet">
+		<link href="'.BASE_URL.'static/admin/css/dataTables.responsive.css" rel="stylesheet">
+		';
+		
+		$header = $this->loadview('admin/main/include/header');
+		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
+		$header->render();
+		
+		$Data = $this->Contracts->Get_all_contracts(PREFIX.'hire_contractor');
+		$view = $this->loadview('admin/contracts/index');
+		$view->set('Details', $Data);
+		
+		$view->render();
+	
+		$additional_scripts = '';
+		$additional_scripts .= '
+		<script src="'.BASE_URL.'static/admin/js/jquery.dataTables.min.js"></script>
+		<script src="'.BASE_URL.'static/admin/js/dataTables.bootstrap.min.js"></script>
+		<script src="'.BASE_URL.'static/admin/js/dataTables.responsive.js"></script>
+		<script>$(document).ready(function() {
+			$(".dataTables").DataTable({
+			"columns": [	null,null,null,null,{ "orderable": false }],	
+			responsive: true
+			});
+			});
+		</script>';	
+		$footer = $this->loadview('admin/main/include/footer');
+		$footer->set('additional', $additional_scripts);
+		$footer->render();
+			
+			
+	}
+	
+	public function Viewcontracts($contractSlug)
+	{
+		$this->check_login();
+		
+		$additional_css = '
+		<link href="'.BASE_URL.'static/admin/css/dataTables.bootstrap.css" rel="stylesheet">
+		<link href="'.BASE_URL.'static/admin/css/dataTables.responsive.css" rel="stylesheet">
+		';		
+		$header = $this->loadview('admin/main/include/header');
+		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
+		$header->render();
+		
+		
+		echo $ContractID = base64_decode($contractSlug);
+		// Get Contract Details 
+		$Contract = $this->Contracts->get_table_data(PREFIX.'hire_contractor','id',$ContractID,'ASC');
+		if(!empty($Contract[0]))
+		{
+			$Activ = $this->Contracts->getActivity($Contract[0]['job_id'],json_decode($Contract[0]['activity_id']));			
+			$paymentDetails = $this->Contracts->getpaymentDetails($Contract[0]['job_id'],$ContractID);
+			
+			$Job =  $this->Jobs->get_single_row('id',$Contract[0]['job_id'],PREFIX.'jobs');
+			
+			$Data = $this->Contracts->Get_all_contracts(PREFIX.'hire_contractor');
+			$view = $this->loadview('admin/contracts/view');
+			$view->set('jotTitle', $Job['job_title'] );
+			$view->set('paymentDetails', $paymentDetails );
+			$view->set('Activ', $Activ );
+		
+			$view->render();
+		}
+		else
+		{
+			$this->redirect("admin/contracts");
+			exit;			
+		}
+		$footer = $this->loadview('admin/main/include/footer');
+		//$footer->set('additional', $additional_scripts);
+		$footer->render();
+			
+		
+	}
+	
+	
+	/* 
+	*	Messaging Section 
+	*	@Author Chhavinav Sehgal
+	*	Admin Section
+	*/
+	
+	public function inbox()
+	{
+		$this->check_login();
+		$this->recentChatList();
+		$additional_css = '';
+		$additional_css .= '<link href="'.BASE_URL.'static/admin/css/admin.css" rel="stylesheet">';
+		$additional_css .= '<link href="'.BASE_URL.'static/admin/css/dropzone.css" rel="stylesheet">';
+		$additional_css .= '<link href="'.BASE_URL.'static/admin/css/emoji.css" rel="stylesheet">';
+		$additional_css .= '<link href="'.BASE_URL.'static/css/toastr.css" rel="stylesheet">';
+		$header = $this->loadview('admin/main/include/header');
+		$header->set('additional_css',$additional_css);
+		$Noti = $this->getNotification('Header');
+		$header->set('notifications',$Noti);
+		$header->render();
+		
+		// Get Contact Listing
+		$contactlist = $this->allContactList();
+		$recentChatList = $this->recentChatList();
+		$view = $this->loadview('admin/inbox/index');	
+		$view->set('contactlist',$contactlist);		
+		$view->set('recentChatList',$recentChatList);		
+		$view->render();
+		
+		
+		$additional_scripts = '';
+		$additional_scripts .= '<script> var admin_url = "'.SITEURL.'admin/"; </script>';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/dropzone.js"></script>';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/js/toastr.js"></script>';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/custom-dropzone.js"></script>';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/config.js"></script>';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/util.js"></script>';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/jquery.emojiarea.js"></script>';
+		$additional_scripts .= '<script src="'.BASE_URL.'static/admin/js/emoji-picker.js"></script>';
+		$additional_scripts .= '<script>
+		$(function() {
+        // Initializes and creates emoji set from sprite sheet
+        window.emojiPicker = new EmojiPicker({
+          emojiable_selector: "[data-emojiable=true]",
+          assetsPath: "'.BASE_URL.'static/admin/images/",
+          popupButtonClasses: "fa fa-smile-o"
+        });       
+        window.emojiPicker.discover();
+      });
+		
+		
+		</script>';
+		$footer = $this->loadview('admin/main/include/footer');
+		$footer->set('additional', $additional_scripts);
+		$footer->render();	
+	}
+	
+	public function InsertInbox()
+	{
+		$this->check_login();
+		
+		if(isset($_FILES) && !empty($_FILES))
+		{
+			$ID = $this->saveAttachment($_FILES,$_POST['fromUserId']);
+			if( $ID == 0 )
+			{
+				echo json_encode( array('status'=>'error','message'=>'File Not uploaded !'));
+				die();
+			}
+			else
+			{
+				$AttachmentID = $ID;				
+			}
+			
+		}
+		
+		if(isset($_POST) && !empty($_POST['ConversionId']))
+		{
+			
+			if(isset($AttachmentID))
+			{
+				$Attachment_ID = $AttachmentID;
+			}
+			else
+			{
+				$Attachment_ID = 0;
+			}
+			
+			if(isset($_POST['message']) && !empty( $_POST['message'] ))
+			{
+				$message = $_POST['message'];
+			}
+			else
+			{
+				$message = NULL;
+			}
+			
+			$data = array(
+				'conv_id'		=>	$_POST['ConversionId'],
+				'to_id'			=>	$_POST['toUserId'],
+				'from_id'		=>	$_POST['fromUserId'],
+				'message'		=>	$message,
+				'attachment'	=>	$Attachment_ID,
+				'message_time'	=>	$this->Users->Timestamp(),
+				);	
+			
+			
+			if( $Attachment_ID != 0 && $message == NULL )
+			{
+				$Ins = $this->Users->Insert($data,PREFIX.'message_set');
+				if( $Ins )
+				{
+					echo json_encode( array('status'=>'success') );
+				}	
+			}
+			elseif( $Attachment_ID == 0 && $message != NULL )
+			{
+				$Ins = $this->Users->Insert($data,PREFIX.'message_set');
+				if( $Ins )
+				{
+					echo json_encode( array('status'=>'success') );
+				}
+			}
+			elseif( $Attachment_ID != 0 && $message != NULL )
+			{
+				$Ins = $this->Users->Insert($data,PREFIX.'message_set');
+				if( $Ins )
+				{
+					echo json_encode( array('status'=>'success') );
+				}
+			}
+			else
+			{
+				echo json_encode( array('status'=>'error','message'=>'This Action is not Allowed !') );
+			}					
+		}
+	}
+	
+	public function allContactList()
+	{ 
+		$this->check_login();
+		$result = $this->Users->get_table_data(PREFIX.'users','is_verified',1,'ASC');
+		$list = ''; 
+		$list .= '<ul>';		
+		foreach($result as $keys):
+		if( $keys['role'] == 1 ): $role = 'Super Admin'; elseif( $keys['role'] == 2 ): $role = 'Employer'; elseif( $keys['role'] == 3 ): $role = 'Contractor'; elseif( $keys['role'] == 5 ): $role = 'Admin'; endif;
+		
+			if( $keys['id'] != $_SESSION['user_id'] ):
+				$list .='<li class="chatme" data-role="'.$keys["role"].'" data-userID="'.$keys["id"].'">'.$keys["username"].' ( '.$role.' ) </li>';
+			endif;
+		endforeach;
+		$list .= '</ul>';
+		return $list;
+	}
+	
+	public function saveAttachment($File,$AuthorID)
+	{
+		//print_R($File);
+		$attachment 	= 	$File;	 
+		$filname 		= 	$File['file']['name'];	 
+		$target_file	=	time().'__'.$filname;
+		$uri			=	ABSPATH.'/static/attachments/'.$target_file;
+		
+		$url = "static/attachments/".$target_file."";
+		
+		if (move_uploaded_file($File['file']["tmp_name"], $uri)) 
+		{
+			$Attachment_url = $url;
+			$Attachment_Location = 'Message';
+			$Attachment_Author = $AuthorID;		
+			
+			$data = array(
+				'url'					=>$Attachment_url,
+				'attachment_location'	=>$Attachment_Location,
+				'attachment_author'		=>$Attachment_Author,
+				'created_date'			=>$this->Users->Timestamp(),
+				'modified_date'			=>$this->Users->Timestamp(),
+			);
+			return $AttachmentID = $this->Users->Insert($data,PREFIX.'attachments');
+		} 
+		else 
+		{
+			return 0;
+		}		
+	}
+	
+	public function recentChatList()
+	{
+		$query = $this->Users->query("SELECT if(to_id=1,from_id,to_id)as userID FROM ".PREFIX."message_set WHERE to_id = ".$_SESSION['user_id']." OR from_id = ".$_SESSION['user_id']." GROUP BY `conv_id` ORDER BY `ID` DESC");
+		$results = $this->Users->resultset($query);
+		
+		$list = ''; 
+		foreach($results as $userKeys):	
+			$keys = $this->Users->get_single_row('id',$userKeys['userID'],PREFIX.'users');
+			$list .= '<ul>';			
+				if( $keys['role'] == 1 ): $role = 'Super Admin'; elseif( $keys['role'] == 2 ): $role = 'Employer'; elseif( $keys['role'] == 3 ): $role = 'Contractor'; elseif( $keys['role'] == 5 ): $role = 'Admin'; endif;
+				
+					if( $keys['id'] != $_SESSION['user_id'] ):
+						$list .='<li class="chatme" data-role="'.$keys["role"].'" data-userID="'.$keys["id"].'">'.$keys["username"].' ( '.$role.' ) </li>';
+					endif;
+				
+			$list .= '</ul>';
+		endforeach;
+		return $list;
+		
+	}
+	
+	public function getConversionID()
+	{
+		$this->check_login();
+		$ToUserID = $_POST['ToUserID'];
+		$FromUserID = $_POST['FromUserID'];		
+		
+		if(!empty($ToUserID) && $ToUserID != 0  && $FromUserID != 0 && !empty($FromUserID) ):
+		$getConversionID = $this->Users->query("SELECT * FROM ".PREFIX."conversation_set WHERE ( conv_to = '".$ToUserID."' AND conv_from = '".$FromUserID."' ) OR ( conv_to = '".$FromUserID."' AND conv_from = '".$ToUserID."' )");
+			
+		$IDResult = $this->Users->resultset($getConversionID);
+		
+		if(!empty($IDResult))
+		{
+			$result =  json_encode(array('conversionID'=>$IDResult[0]['id'],'status'=>'success'));
+		}
+		else
+		{
+			$data = array(
+				'conv_to'	=>$ToUserID,
+				'conv_from'	=>$FromUserID,
+				'created_date'	=>$this->Users->Timestamp(),
+				'modified_date'	=>$this->Users->Timestamp(),
+			);
+			$conversionID = $this->Users->Insert($data,PREFIX.'conversation_set');
+			
+			$result = json_encode(array('conversionID'=>$conversionID,'status'=>'success'));
+		}
+		echo $result;
+		exit();	
+		endif;
+		
+		
+	}
+	
+	public function getAttachmentdetails($ID)
+	{
+		$attachments =  $this->Users->get_single_row('id',$ID,PREFIX.'attachments');
+		//print_R($attachments);
+		if (filter_var($attachments['url'], FILTER_VALIDATE_URL) === FALSE) 
+		{
+			$ImagUrl = SITEURL.$attachments['url'];			
+		}
+		else
+		{			
+			$Img = strstr($attachments['url'], 'static');
+			$ImagUrl = SITEURL.$Img;
+		}
+		
+		$imgExts = array("gif", "jpg", "jpeg", "png", "tiff", "tif");
+		$urlExt = pathinfo($ImagUrl, PATHINFO_EXTENSION);
+		if (in_array($urlExt, $imgExts)) 
+		{
+			return '<a href="'.$ImagUrl.'" target="_blank"><img class="attachment_file" src="'.$ImagUrl.'"></a>';
+		}
+		else
+		{
+			return '<a href="'.$ImagUrl.'" download><img class="attachment_file" src="'.SITEURL.'/static/images/Attach-icon.png"></a>';
+		}	
+		
+	}
+	
+	public function getMessages()
+	{
+		$this->check_login();
+		$ConversionId = $_POST['ConversionId'];
+		if( !empty($ConversionId) )
+		{
+			$message = '';
+			$where = 'conv_id = "'.$ConversionId.'"';			
+			$messages = $this->Users->custom_where($where,PREFIX.'message_set');
+			$total = count($messages);
+			foreach( $messages as $keys ):
+				$Attached = '';
+				//$Touser = $this->Users->getProfileData($keys['to_id']);	
+				$from_id = $this->Users->getProfileData($keys['from_id']);
+				$message_Date = date('d/m/y',$keys["message_time"]);	
+				$message_Time = date('H:i A',$keys["message_time"]);	
+				
+				if( $keys["attachment"] != 0 )
+				{
+					$Attached = $this->getAttachmentdetails($keys["attachment"]);
+				}
+				
+				
+				
+				$message .='<div class="message-text">
+					<figure class="msg-user-img offline ou">
+						<img src="'.$from_id["image"].'">
+					</figure>
+					<time class="datestamp"> 
+						<span class="time">'.$message_Time.'</span>
+						<span class="date">'.$message_Date.'</span>
+					</time>
+					<figcaption>
+					  <h4>'.$from_id["username"].'</h4>';
+					
+					if( !empty( $Attached ) )
+					{
+						$message .='<p>'.$Attached.'</p>';
+					}
+
+					  
+				$message .='<p>'.$keys["message"].'</p>
+					  <!--<div class="goto-proposal"><a href="#">Go to the proposal</a></div>-->
+					</figcaption>
+				</div>';			
+						
+			endforeach;	
+			if( empty($message) )
+			{	$message = "Start the Chat";	}
+			echo json_encode (array( 'count' => $total , 'message' => $message) );
+			//echo $message;
+		}
+		
+	}
 }

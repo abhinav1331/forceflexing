@@ -16,6 +16,7 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 				
 				//get the submitted and active applications
 				$applied_jobs=$this->Model->filter_data('SELECT aj.created_date,aj.id as applied_job_id, aj.message,j.id,j.job_title,j.job_slug from '.PREFIX.'applied_jobs as aj inner join '.PREFIX.'jobs as j on aj.job_id=j.id where aj.contractor_id='.$this->userid.' and aj.status=0 and j.jobjob_status=1');
+				
 				$appliedjobs=array();
 				$activejobs=array();
 				foreach($applied_jobs as $j)
@@ -55,11 +56,11 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 									$activejobs[]=$j;
 									$temp=1;
 								}
-								else
-								{
-									$appliedjobs[]=$j;
-								}
 							}
+						}
+						if($temp == 0)
+						{
+							$appliedjobs[]=$j;
 						}
 					}
 					else
@@ -67,7 +68,6 @@ if(isset($_COOKIE['force_username']) && isset($_COOKIE['force_password']) || iss
 						$appliedjobs[]=$j;
 					}
 				}
-				
 				
 				$template->set('submitted_jobs',$appliedjobs);
 				

@@ -432,3 +432,11 @@ table.dataTable thead .sorting:after {
     border-left-width: 0;
   }
 }
+.attachment_file{
+	height:100px;
+	width:100px;
+}
+.msg-user-img > img{
+	height:20px;
+	width:20px;
+}

@@ -20,7 +20,13 @@ $(document).ready(function(){
 			 data:{content:str,search:'ContractorSearch'},
 			 success:function(res)
 			 {
-				 console.log(res);
+				 var obj = JSON.parse(res);
+				 			
+				 var page = Math.ceil(obj.count/2);
+				 
+				 $('#results').html(obj.content);
+				 getPage.die();
+				 getPage(page,obj.page_number,searchurl);
 			 }
 		 });
 		 

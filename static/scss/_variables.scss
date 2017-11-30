@@ -1,0 +1,28 @@
+// VARIABLES used
+
+// Main fonts
+$main-font-regular: 'gotham_bookregular';
+$main-font-light: 'gotham_lightregular';
+$main-font-bold: 'gotham_boldregular';
+$main-font-italic: 'gotham_bookitalic';
+$main-font-medium: 'gotham_mediumregular';
+
+//Alternate Font Used
+$alt-font-regular: 'FuturaLT-Regular';
+$alt-font-heavy: 'futura_hv_btheavy';
+
+$width-full : 100%;
+$height-full : 100%;
+
+
+//Colors
+$white: #fff;
+$black: #000;
+$primary-color: #414141;
+$grey: #626262;
+$link-color: #0e7bcb;
+$link-hover-color: desaturate( $link-color, 20% );
+
+
+$lh-single : 1;
+$lh-double : 2;

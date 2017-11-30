@@ -9,8 +9,9 @@
 							<h3>Select a menu to edit: <?php echo $menus;  ?> OR <a href="">Create a New Menu</a> </h3>	
 						</div>
 
-						
+						<?php if(isset($_GET['action'])): ?>
 							<div class="col-lg-3">
+							
 							<div class="panel-group" id="accordion">
 							  <div class="panel panel-default">
 								<div class="panel-heading">
@@ -48,9 +49,9 @@
 									</div>
 								</div>
 							  </div>							  
+							</div>							
 							</div>
-								
-							</div>
+							<?php  endif; ?>
 							<div class="col-lg-9">
 							<div class="panel panel-default">
 								<div class="panel-heading">Menu Name <form method="POST" action="<?php echo $action; ?>"><input type="text" name="menu_name" <?php if(isset($menuName)){	echo "value='$menuName'";	}  if(isset($menuid)){	echo "rel='$menuid'";	} ?> > <?php echo $button; ?> </form> </div>

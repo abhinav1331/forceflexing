@@ -1,4 +1,4 @@
-/* Nice scroll */
+ /*Nice scroll */
 jQuery(document).ready(function() 
 {
 	"use strict";
@@ -9,10 +9,29 @@ jQuery(document).ready(function()
 			cursorwidth: 4,
 			autohidemode: true,
 			background: "#fff",
-			horizrailenabled: true,
+			horizrailenabled: false,
 			/*touchbehavior : true*/
 	});	
-	jQuery("div[id*='ascrail'], div[id*='ascrail']>div").css({'box-shadow':'inset 0 0 3px #000','z-index':'9999'});
+	
+		jQuery(".has-scrollbar").niceScroll({
+			cursoropacitymax: 0.8,
+			cursorcolor: "#666",
+			cursorborder: "none",
+			cursorwidth: 4,
+			autohidemode: true,
+			background: "#fff",
+			horizrailenabled: false,
+			/*touchbehavior : true*/
+	});
+	
+	// jQuery('[data-toggle="tooltip"]').tooltip(); 
+		
+	if(jQuery('#msg-thread').length >0 )
+		jQuery('#msg-thread').scrollTop(jQuery('#msg-thread')[0].scrollHeight);
+
+	
+	
+	jQuery("div[id*='ascrail'], div[id*='ascrail']>div").css({'box-shadow':'inset 0 0 3px #000','z-index':'999'});
 	
 	jQuery('.bootstrap-select .dropdown-menu').niceScroll({
 			cursoropacitymax: 0.7,
@@ -37,6 +56,32 @@ jQuery(document).ready(function()
 	});
  
 //******REGISTRATION MODULE ************
+jQuery('#password').keydown(function () 
+{
+	jQuery('.pwd-tip').show();
+});
+
+jQuery('#password').blur(function () 
+{
+	jQuery('.pwd-tip').hide();
+});
+
+jQuery('#first_name,#last_name').keydown(function (e) 
+{
+	if ( e.ctrlKey || e.altKey) 
+	{
+		e.preventDefault();
+	} 
+	else 
+	{
+		var key = e.keyCode;
+		if (!((key == 8) || (key == 9) || (key == 32) || (key == 46) || (key >= 35 && key <= 40) || (key >= 65 && key <= 90))) 
+		{
+			e.preventDefault();
+		}
+	}
+});
+
 jQuery('#contrator-sign-up,#employer-sign-up').validate({
 	ignore: "",
 	rules: {
@@ -65,7 +110,6 @@ jQuery('#contrator-sign-up,#employer-sign-up').validate({
 		terms: {required : true}
 	}
 });
-
 /****************FORGET PASSWORD************/
 
 jQuery('#forget_password_email').validate({
@@ -112,7 +156,7 @@ jQuery('#change_password').validate({
 		{
 			required: true,
 			minlength: 6,
-			equalTo : "#confirm_password"
+			equalTo : "#new_password"
 		}
 	}
 });
@@ -590,14 +634,14 @@ jQuery(function($) {
 /**********************************How Many Emplyee In th List*************************/
 jQuery(document).ready(function(){
 	if(jQuery("input[name='jp_reqemp']:checked").val() == "one"){
-		jQuery("input[id='jp_mul_emp']").css("cssText", "display: none !important;");
+		jQuery("select[id='jp_mul_emp']").css("cssText", "display: none !important;");
 	}
 	jQuery("input[name='jp_reqemp']").bind('change', function() {
 		var changedValue = jQuery(this).val();
 		if(changedValue == "one") {
-			jQuery("input[id='jp_mul_emp']").css("cssText", "display: none !important;");
+			jQuery("select[id='jp_mul_emp']").css("cssText", "display: none !important;");
 		} else {
-			jQuery("input[id='jp_mul_emp']").show();
+			jQuery("select[id='jp_mul_emp']").show();
 		}
 	});
 });
@@ -620,7 +664,7 @@ jQuery(document).ready(function(){
 			return false;
 		} else {
 			var US = "US";
-			jQuery( "<div class='activityReunion' id='activityReunion"+commingValue+"'> <table width='100%' border='0' cellspacing='0' cellpadding='0'> <tr> <th scope='row'>Activites Name:</th> <td> <div class='row'> <div class='col-md-7'> <input name='jp_activity_name[]' id='jp_activity_name' type='text' class='input small half-width'> </div></div></td></tr><tr> <th scope='row'>Select:</th> <td> <label class='radio-custom'> <input type='radio' name='jp_start_stop_time"+commingValue+"[]' value='fixed' id='jp_start_stop_time_fix' checked> <span class='radio'></span>fixed start and stop time <a href='javascript:void(0);' class='calendar-icon'>date</a></label> <span class='sep'>or</span> <label class='radio-custom'> <input type='radio' name='jp_start_stop_time"+commingValue+"[]' value='flexible' id='jp_start_stop_time_flex'> <span class='radio'></span>flexible start/stop <a href='javascript:void(0);' class='calendar-icon'>date</a></label> </td></tr><tr> <th scope='row'>Fixed:</th> <td><div class='row'> <div class='col-md-6'> <div class='row'> <div class='col-md-6'> <input type='text' name='jp_act_start_date[]' id='jp_act_start_date"+commingValue+"' class='input small calendar-icon jp_act_start_date'> </div><div class='col-md-6'> <input type='text'  name='jp_act_start_time[]' id='jp_act_start_time' class='input small watch-icon jp_act_start_time'> </div></div></div><div class='col-md-6'> <div class='row'> <div class='col-md-6'> <input type='text' name='jp_act_end_date[]' id='jp_act_end_date"+commingValue+"' class='input small calendar-icon jp_act_start_date'> </div><div class='col-md-6'> <input type='text'  name='jp_act_end_time[]' id='jp_act_end_time' class='input small watch-icon jp_act_start_time'> </div></div></div></div></td></tr><tr> <th scope='row'>Enter address:</th> <td><div class='row'> <div class='col-md-6'> <div class='row'> <div class='col-md-6'> <select  onchange='onchangeState(this);' data-attribute='activityReunion"+commingValue+"' name='jp_act_state[]' id='sel12 stateId' class='input small states'> <option value=''>Select State</option> <option value='3919'>Alabama</option><option value='3920'>Alaska</option><option value='3921'>Arizona</option><option value='3922'>Arkansas</option><option value='3923'>Byram</option><option value='3924'>California</option><option value='3925'>Cokato</option><option value='3926'>Colorado</option><option value='3927'>Connecticut</option><option value='3928'>Delaware</option><option value='3929'>District of Columbia</option><option value='3930'>Florida</option><option value='3931'>Georgia</option><option value='3932'>Hawaii</option><option value='3933'>Idaho</option><option value='3934'>Illinois</option><option value='3935'>Indiana</option><option value='3936'>Iowa</option><option value='3937'>Kansas</option><option value='3938'>Kentucky</option><option value='3939'>Louisiana</option><option value='3940'>Lowa</option><option value='3941'>Maine</option><option value='3942'>Maryland</option><option value='3943'>Massachusetts</option><option value='3944'>Medfield</option><option value='3945'>Michigan</option><option value='3946'>Minnesota</option><option value='3947'>Mississippi</option><option value='3948'>Missouri</option><option value='3949'>Montana</option><option value='3950'>Nebraska</option><option value='3951'>Nevada</option><option value='3952'>New Hampshire</option><option value='3953'>New Jersey</option><option value='3954'>New Jersy</option><option value='3955'>New Mexico</option><option value='3956'>New York</option><option value='3957'>North Carolina</option><option value='3958'>North Dakota</option><option value='3959'>Ohio</option><option value='3960'>Oklahoma</option><option value='3961'>Ontario</option><option value='3962'>Oregon</option><option value='3963'>Pennsylvania</option><option value='3964'>Ramey</option><option value='3965'>Rhode Island</option><option value='3966'>South Carolina</option><option value='3967'>South Dakota</option><option value='3968'>Sublimity</option><option value='3969'>Tennessee</option><option value='3970'>Texas</option><option value='3971'>Trimble</option><option value='3972'>Utah</option><option value='3973'>Vermont</option><option value='3974'>Virginia</option><option value='3975'>Washington</option><option value='3976'>West Virginia</option><option value='3977'>Wisconsin</option><option value='3978'>Wyoming</option></select> </div><div class='col-md-6'>  <select name='jp_act_city[]' id='sel13 cityId' class='input small cities'> <option value=''>Select City</option> </select> </div></div></div><div class='col-md-6'> <div class='row'> <div class='col-md-6'> <input type='text' class='input small' name='jp_act_street[]' id='jp_act_street' placeholder='street' ><!--<select name='' class='input small'> <option>street</option> </select>--> </div><div class='col-md-6'> <input onkeyup='isValidPostalCode(this)' type='text' class='input small' name='jp_act_zip[]' id='jp_act_zip' placeholder='zip'><div class='messahe-zip'></div> </div></div></div></div></td></tr><tr> <th scope='row'>Name contact:</th> <td><div class='row'> <div class='col-md-6'> <input name='jp_act_cont_fname[]' id='jp_act_cont_fname' type='text' placeholder='first name' class='input small'> </div><div class='col-md-6'> <input name='jp_act_cont_lname[]' id='jp_act_cont_lname' type='text' placeholder='last name' class='input small'> </div></div></td></tr><tr> <th scope='row'>Contact:</th> <td><div class='row'> <div class='col-md-6'> <input name='jp_act_cont_phne[]' id='jp_act_cont_phne' type='text' placeholder='phone' class='input small'> </div><div class='col-md-6'> <input name='jp_act_cont_email[]' id='jp_act_cont_email' type='text' placeholder='email' class='input small'> </div></div></td></tr><tr> <th scope='row'>Notes/tasks:</th> <td><textarea name='jp_act_notes[]' id='jp_act_notes' cols='' rows='' class='input small' placeholder='text here'></textarea></td></tr></table> </div>" ).insertAfter( ".activityReunion:last" );
+			jQuery( "<div class='activityReunion' id='activityReunion"+commingValue+"'> <table width='100%' border='0' cellspacing='0' cellpadding='0'> <tr> <th scope='row'>"+commingValue+".) Activites Name:</th> <td> <div class='row'> <div class='col-md-7'> <input name='jp_activity_name[]' id='jp_activity_name' type='text' class='input small half-width'> </div></div></td></tr><tr> <th scope='row'>Select:</th> <td> <label class='radio-custom'> <input type='radio' name='jp_start_stop_time"+commingValue+"[]' value='fixed' id='jp_start_stop_time_fix' checked> <span class='radio'></span>fixed start and stop time <a href='javascript:void(0);' class='calendar-icon'>date</a></label> <span class='sep'>or</span> <label class='radio-custom'> <input type='radio' name='jp_start_stop_time"+commingValue+"[]' value='flexible' id='jp_start_stop_time_flex'> <span class='radio'></span>flexible start/stop <a href='javascript:void(0);' class='calendar-icon'>date</a></label> </td></tr><tr> <th scope='row'>Fixed:</th> <td><div class='row'> <div class='col-md-6'> <div class='row'> <div class='col-md-6'> <input type='text' name='jp_act_start_date[]' id='jp_act_start_date"+commingValue+"' class='input small calendar-icon jp_act_start_date'> </div><div class='col-md-6'> <input type='text'  name='jp_act_start_time[]' id='jp_act_start_time' class='input small watch-icon jp_act_start_time'> </div></div></div><div class='col-md-6'> <div class='row'> <div class='col-md-6'> <input type='text' name='jp_act_end_date[]' id='jp_act_end_date"+commingValue+"' class='input small calendar-icon jp_act_start_date'> </div><div class='col-md-6'> <input type='text'  name='jp_act_end_time[]' id='jp_act_end_time' class='input small watch-icon jp_act_start_time'> </div></div></div></div></td></tr><tr> <th scope='row'>Enter address:</th> <td><div class='row'> <div class='col-md-6'> <div class='row'> <div class='col-md-6'> <select  onchange='onchangeState(this);' data-attribute='activityReunion"+commingValue+"' name='jp_act_state[]' id='sel12 stateId' class='input small states'> <option value=''>Select State</option> <option value='3919'>Alabama</option><option value='3920'>Alaska</option><option value='3921'>Arizona</option><option value='3922'>Arkansas</option><option value='3923'>Byram</option><option value='3924'>California</option><option value='3925'>Cokato</option><option value='3926'>Colorado</option><option value='3927'>Connecticut</option><option value='3928'>Delaware</option><option value='3929'>District of Columbia</option><option value='3930'>Florida</option><option value='3931'>Georgia</option><option value='3932'>Hawaii</option><option value='3933'>Idaho</option><option value='3934'>Illinois</option><option value='3935'>Indiana</option><option value='3936'>Iowa</option><option value='3937'>Kansas</option><option value='3938'>Kentucky</option><option value='3939'>Louisiana</option><option value='3940'>Lowa</option><option value='3941'>Maine</option><option value='3942'>Maryland</option><option value='3943'>Massachusetts</option><option value='3944'>Medfield</option><option value='3945'>Michigan</option><option value='3946'>Minnesota</option><option value='3947'>Mississippi</option><option value='3948'>Missouri</option><option value='3949'>Montana</option><option value='3950'>Nebraska</option><option value='3951'>Nevada</option><option value='3952'>New Hampshire</option><option value='3953'>New Jersey</option><option value='3954'>New Jersy</option><option value='3955'>New Mexico</option><option value='3956'>New York</option><option value='3957'>North Carolina</option><option value='3958'>North Dakota</option><option value='3959'>Ohio</option><option value='3960'>Oklahoma</option><option value='3961'>Ontario</option><option value='3962'>Oregon</option><option value='3963'>Pennsylvania</option><option value='3964'>Ramey</option><option value='3965'>Rhode Island</option><option value='3966'>South Carolina</option><option value='3967'>South Dakota</option><option value='3968'>Sublimity</option><option value='3969'>Tennessee</option><option value='3970'>Texas</option><option value='3971'>Trimble</option><option value='3972'>Utah</option><option value='3973'>Vermont</option><option value='3974'>Virginia</option><option value='3975'>Washington</option><option value='3976'>West Virginia</option><option value='3977'>Wisconsin</option><option value='3978'>Wyoming</option></select> </div><div class='col-md-6'>  <select name='jp_act_city[]' id='sel13 cityId' class='input small cities'> <option value=''>Select City</option> </select> </div></div></div><div class='col-md-6'> <div class='row'> <div class='col-md-6'> <input type='text' class='input small' name='jp_act_street[]' id='jp_act_street' placeholder='street' ><!--<select name='' class='input small'> <option>street</option> </select>--> </div><div class='col-md-6'> <input onkeyup='isValidPostalCode(this)' type='text' class='input small' name='jp_act_zip[]' id='jp_act_zip' placeholder='zip'><div class='messahe-zip'></div> </div></div></div></div></td></tr><tr> <th scope='row'>Name contact:</th> <td><div class='row'> <div class='col-md-6'> <input name='jp_act_cont_fname[]' id='jp_act_cont_fname' type='text' placeholder='first name' class='input small'> </div><div class='col-md-6'> <input name='jp_act_cont_lname[]' id='jp_act_cont_lname' type='text' placeholder='last name' class='input small'> </div></div></td></tr><tr> <th scope='row'>Contact:</th> <td><div class='row'> <div class='col-md-6'> <input name='jp_act_cont_phne[]' id='jp_act_cont_phne' type='text' placeholder='phone' class='input small'> </div><div class='col-md-6'> <input name='jp_act_cont_email[]' id='jp_act_cont_email' type='text' placeholder='email' class='input small'> </div></div></td></tr><tr> <th scope='row'>Notes/tasks:</th> <td><textarea name='jp_act_notes[]' id='jp_act_notes' cols='' rows='' class='input small' placeholder='text here'></textarea></td></tr></table> </div>" ).insertAfter( ".activityReunion:last" );
 		}
 
 		var lengthValue = jQuery(".activityReunion").length;
@@ -630,7 +674,7 @@ jQuery(document).ready(function(){
 			jQuery( "<input onclick='removeActivity();' type='button' value='-' id='btn-remove-activity' name='btn-remove-activity' class='input inline small'>" ).insertAfter( "#btn-add-activity" );
 		}
 		jQuery(".jp_act_start_date").each(function(){
-			jQuery(this).datepicker({ dateFormat: 'yy-mm-dd' });
+			jQuery(this).datepicker({ minDate:0 ,dateFormat: 'yy-mm-dd' });
 		});
 		jQuery('.jp_act_start_time').each(function(){
 			jQuery(this).timepicker({ 'timeFormat': 'H:i:s' });;
@@ -676,7 +720,7 @@ jQuery(document).ready(function(){
 				}
 			}
 			jQuery(".flex-date-picker").each(function(){
-				jQuery(this).datepicker({ dateFormat: 'yy-mm-dd' });
+				jQuery(this).datepicker({ minDate:0,dateFormat: 'yy-mm-dd' });
 			});
 			
 		});
@@ -820,10 +864,10 @@ jQuery(document).ready(function(){
 			jQuery(this).timepicker({ 'timeFormat': 'H:i:s' });
 		});
 		jQuery(".jp_act_start_date").each(function(){
-			jQuery(this).datepicker({ dateFormat: 'yy-mm-dd' });
+			jQuery(this).datepicker({  minDate:0,dateFormat: 'yy-mm-dd' });
 		});
 		jQuery(".flex-date-picker").each(function(){
-			jQuery(this).datepicker({ dateFormat: 'yy-mm-dd' });
+			jQuery(this).datepicker({  minDate:0,dateFormat: 'yy-mm-dd' });
 		});
 	});
 /***************************DatePicker Module*******************************/
@@ -944,7 +988,7 @@ function isValidPostalCode(event) {
 		var onchangeValue = jQuery(event).val();
 		jQuery.ajax({
 			type: "POST",
-			url:"http://force.imarkclients.com/postjob/onchangeValue",
+			url:"http://force.stagingdevsite.com/postjob/onchangeValue",
 			data:{onchangeValue:onchangeValue,format:'raw'},
 			success:function(resp){
 				location.reload();
@@ -955,24 +999,75 @@ function isValidPostalCode(event) {
 	/****************************Preview My Job Employer*******************************/
 		jQuery(document).ready(function(){
 			jQuery(".preview-jobpost").click(function(){
-				var formData = jQuery('#post_job').serialize();
-				alert(formData);
-				jQuery.ajax({
-					type: "POST",
-					url:"http://force.imarkclients.com/postjob/previewjob",
-					data:{formData:formData,format:'raw'},
-					success:function(resp){
-						window.open('http://force.imarkclients.com/postjob/preview', '_blank');
-					}
-				});
+				if(jQuery("#post_job").valid() == true) {
+					var formData = jQuery('#post_job').serialize();
+					// alert(formData);
+					jQuery.ajax({
+						type: "POST",
+						url:"http://force.stagingdevsite.com/postjob/previewjob",
+						data:{formData:formData,format:'raw'},
+						success:function(resp){
+							window.open('http://force.stagingdevsite.com/postjob/preview', '_blank');
+						}
+					});
+				} else {
+					var validator = jQuery("#post_job").validate();
+					validator.focusInvalid();
+					return false;
+				}
 			});
 		});
 	/****************************Preview My Job Employer******************************/
 	
-/***********************Contractor Profile Module******************************/
+/***********************CONTRACTOR PROFILE MODULE******************************/
 					
 					
 jQuery(document).ready(function(){
+
+/*Available tags for speciality*/
+if(jQuery('#sp_val').length > 0)
+{
+	var valsss=jQuery('#sp_val').val();
+	var avth = jQuery.parseJSON(valsss);
+}
+function split( val ) {
+  return val.split( /,\s*/ );
+}
+function extractLast( term ) {
+  return split( term ).pop();
+}
+ 
+jQuery( "#speciality-val" ).on( "keydown", function( event ) 
+{
+	if ( event.keyCode === jQuery.ui.keyCode.TAB &&
+		jQuery( this ).autocomplete( "instance" ).menu.active ) {
+	  event.preventDefault();
+	}
+}).autocomplete({
+minLength: 0,
+source: function( request, response ) {
+  // delegate back to autocomplete, but extract the last term
+  response( jQuery.ui.autocomplete.filter(
+	avth, extractLast( request.term ) ) );
+},
+focus: function() {
+  // prevent value inserted on focus
+  return false;
+},
+select: function( event, ui ) {
+  var terms = split( this.value );
+  // remove the current input
+  terms.pop();
+  // add the selected item
+  terms.push( ui.item.value );
+  // add placeholder to get the comma-and-space at the end
+  terms.push( "" );
+  this.value = terms.join( ", " );
+  return false;
+}
+});
+	
+	
 	/**********Add skill***********/
 	jQuery('.add_skill').click(function()
 	{
@@ -988,28 +1083,57 @@ jQuery(document).ready(function(){
 						/**********Save Skill function**********/
 	jQuery(document).on('click','#save_skills',function()
 	{
-		
-		jQuery('.add-personal-details .pro-skills').html('');
 		var skill="";
 		var all_skills=[];
 		var htmldata="";
-		jQuery(".single-skill").each(function(){
+		jQuery(".single-skill").each(function(event){
 			skill=jQuery(this).val();
-			htmldata += '<span class="industry-tag">'+skill+'</span>';
-			all_skills.push(skill);
+			if(skill != "")
+			{
+				htmldata += '<span class="industry-tag">'+skill+'</span>';
+				all_skills.push(skill);
+			}
 		});
 		
+		//htmldata += '<br><a href="#" data-toggle="modal" data-target="#skill">Edit Skill</a>';
 		/*** Ajax to save skills ***/
-		jQuery.ajax({
-			type:"post",
-			datatype: "html",
-			url : '/contractor/save_data',
-			data :{'fieldname':'skills','fieldval': all_skills}
-		});
-			
-		jQuery('.add-personal-details .pro-skills').html(htmldata);
-		jQuery('#skill').modal('hide');
+		if(all_skills.length === 0)
+		{
+			jQuery('.single-skill').addClass('error');
+		}
+		else
+		{
+			jQuery('.single-skill').removeClass('error');
+			jQuery.ajax({
+				type:"post",
+				datatype: "html",
+				url : '/contractor/save_data',
+				data :{'fieldname':'skills','fieldval': all_skills}
+			});
+			jQuery('.add-personal-details .pro-skills').html('');
+			jQuery('.add-personal-details .pro-skills').html(htmldata);
+			jQuery('.skills-main a').addClass('edit-me').html('<i class="fa fa-pencil"></i>');
+			jQuery('#skill').modal('hide');
+		}
 	});
+	
+	/**Remove empty skills when modal is closed**/
+	jQuery("#skill").on("hidden.bs.modal", function(){
+		if(jQuery('.single-skill').length > 1)
+		{
+			var i =1;
+			jQuery('.single-skill').each(function() 
+			{ 
+				if(jQuery(this).val() == "" && i > 1)
+				{
+					jQuery(this).siblings().remove();
+					jQuery(this).remove().end();
+				}
+				i++;
+			});
+		}
+	});
+	
 	
 			/**************Save hourly wages *********/
 	jQuery(document).on('click','#save_wages',function(){
@@ -1020,8 +1144,9 @@ jQuery(document).ready(function(){
 			url : '/contractor/save_data',
 			data :{'fieldname':'hourly_wages','fieldval': wages}
 		});
-		htmldata=wages+' $/hr';
+		htmldata='<strong>Hourly Wage: </strong>$'+wages+'/hr';
 		jQuery('.hourly_wage_val').html(htmldata);
+		jQuery('.hour-main a').addClass('edit-me').html('<i class="fa fa-pencil"></i>');
 		jQuery('#hourly_wage').modal('hide');
 	});	
 	
@@ -1041,7 +1166,8 @@ jQuery(document).ready(function(){
 			data :{'fieldname':'languages','fieldval': lan}
 		});
 			
-		jQuery('.add-professional-details .all-languages').html(lan);
+		jQuery('.add-professional-details .all-languages').html('<strong>Languages: </strong>'+lan);
+		jQuery('.lan-main a').addClass('edit-me').html('<i class="fa fa-pencil"></i>');
 		jQuery('#lang').modal('hide');
 	});
 	
@@ -1055,28 +1181,130 @@ jQuery(document).ready(function(){
 				url : '/contractor/save_data',
 				data :{'fieldname':'free_type','fieldval': type}
 				});
-			jQuery('.freelance-type').html(type);
+			jQuery('.freelance-type').html('<strong>Type of Contractor: </strong>'+type);
+			jQuery('.type-main a').addClass('edit-me').html('<i class="fa fa-pencil"></i>');
 			jQuery('#contrac-type').modal('hide');
 		});
 	
 	
 	
-					/*****Save overview*******/
+	/*****Save overview*******/
 	jQuery('#overview').blur(function(){
 		var desc=jQuery(this).val();
-		jQuery.ajax({
+		if(jQuery(this).val())
+		{
+			jQuery.ajax({
+				type:"post",
+				datatype: "html",
+				url : '/contractor/save_data',
+				data :{'fieldname':'description','fieldval': desc},
+				success : function(response)
+				{
+					if(response === "updated" || response === "inserted")
+					{
+						toastr.success('Your data has been Saved!!')
+					}
+				}
+			});
+		}
+	});
+	
+	/**Save Bank Details**/
+	jQuery('#save_bank_details').click(function()
+	{
+		/*check for validations*/
+		
+		var flag=1;
+		
+		/*Routing number*/
+		if(jQuery('#routing_number').length >  0 && jQuery('#routing_number').val()== "")
+		{
+			jQuery('#routing_number').addClass('error');
+			flag=0;
+		} 
+		else
+		{
+			jQuery('#routing_number').removeClass('error');
+			flag=1;
+		}
+		
+		/*transit_number*/
+		if(jQuery('#transit_number').length >  0 && jQuery('#transit_number').val()== "")
+		{
+			jQuery('#transit_number').addClass('error');
+			flag=0;
+		} 
+		else
+		{
+			jQuery('#transit_number').removeClass('error');
+			flag=1;
+		}
+		/*institution_number*/
+		if(jQuery('#institution_number').length >  0 && jQuery('#institution_number').val()== "")
+		{
+			jQuery('#institution_number').addClass('error');
+			flag=0;
+		} 
+		else
+		{
+			jQuery('#institution_number').removeClass('error');
+			flag=1;
+		}
+		
+		
+		/*Account Number*/
+		if(jQuery('#account_number').val()== "")
+		{
+			jQuery('#account_number').addClass('error');
+			flag=0;
+		}
+		else
+		{
+			jQuery('#account_number').removeClass('error');
+			flag=1;
+		}
+		
+		if(flag == 1)
+		{
+			var routing_number="";
+			var account_number=jQuery('#account_number').val();
+			//run ajax
+			if(jQuery('#routing_number').length > 0)
+				routing_number=jQuery('#routing_number').val();
+			else
+				routing_number=jQuery('#transit_number').val() +'--'+jQuery('#institution_number').val();
+			//decrypt the account number
+			var key = CryptoJS.enc.Hex.parse("0123456789abcdef0123456789abcdef");
+			var iv =  CryptoJS.enc.Hex.parse("abcdef9876543210abcdef9876543210");
+			routing_number=CryptoJS.AES.encrypt(routing_number, key, {iv:iv});
+			encrypted_routing_number = routing_number.ciphertext.toString(CryptoJS.enc.Base64);
+			
+			account_number=CryptoJS.AES.encrypt(account_number, key, {iv:iv});
+			encrypted_account_number=account_number.ciphertext.toString(CryptoJS.enc.Base64);  
+			
+			
+			jQuery.ajax({
 			type:"post",
 			datatype: "html",
-			url : '/contractor/save_data',
-			data :{'fieldname':'description','fieldval': desc},
+			url : '/contractor/save_bank_details',
+			data :{'an':encrypted_account_number,'rn':encrypted_routing_number},
 			success : function(response)
 			{
-				if(response === "updated" || response === "inserted")
+				if(jQuery('#routing_number').length > 0)
 				{
-					toastr.success('Your data has been Saved!!')
+					jQuery('#routing_number').val(encrypted_routing_number);
 				}
+				else
+				{
+					jQuery('#transit_number').val(encrypted_routing_number);
+					jQuery('#institution_number').val(encrypted_routing_number);
+				}
+				jQuery('#account_number').val(encrypted_account_number);
+				toastr.success(response);
 			}
-		});
+			});
+		}
+			
 	});
 	
 	/********Fetch cities from state id*********/
@@ -1117,19 +1345,59 @@ jQuery(document).ready(function(){
 	
 	/*******Save City and state *********/
 	jQuery('#save_location').click(function(){
-		var state=jQuery('#location-state option:selected').text();
+		/*check state amd city value*/
+		var flag=1;
+		var stateval=jQuery('#location-state option:selected').val();
 		var city=jQuery('#location-city').val();
-		var loc=[];
-		loc.push(state);
-		loc.push(city);
-		jQuery.ajax({
-			type:"post",
-			datatype: "html",
-			url : '/contractor/save_data',
-			data :{'fieldname':'location','fieldval': loc}
-		});
-		jQuery('.add-personal-details .pro-location').html(state+', '+city);
-		jQuery('#location').modal('hide');
+		
+		if(stateval == "")
+		{
+			flag=0;
+			jQuery('#location-state').addClass('error');
+		}
+		else
+		{
+			flag=1;
+			jQuery('#location-state').removeClass('error');
+		}
+		
+		if(city == "")
+		{
+			flag=0;
+			jQuery('#location-city').addClass('error');
+		}
+		else
+		{
+			flag=1;
+			jQuery('#location-city').removeClass('error');
+		}
+		
+		if(flag==0)
+		{
+			return false;
+		}
+		else if(flag == 1)
+		{
+			var state=jQuery('#location-state option:selected').text();
+			var loc=[];
+			loc.push(state);
+			loc.push(city);
+			jQuery.ajax({
+				type:"post",
+				datatype: "html",
+				url : '/contractor/save_data',
+				data :{'fieldname':'location','fieldval': loc}
+			});
+			
+			/*remove the empty classs after the location is saved*/
+			if(jQuery('.add-personal-details .pro-location').hasClass('empty'))
+				jQuery('.add-personal-details .pro-location').removeClass('empty');
+				
+			
+			jQuery('.add-personal-details .pro-location').html(state+', '+city);
+			jQuery('.loc-main a').addClass('edit-me').html('<i class="fa fa-pencil"></i>');
+			jQuery('#location').modal('hide');
+		}
 	});
 	
 	
@@ -1211,6 +1479,7 @@ jQuery(document).ready(function(){
 		var company_name="";
 		var frm ="";
 		var to ="";
+		var company_desc="";
 		var all_emp_hitory=[];
 		var temp=1;
 		jQuery('.employment').each(function()
@@ -1218,15 +1487,26 @@ jQuery(document).ready(function(){
 				var hist=[];
 				designation=jQuery(this).find('#designation').val();
 				company_name=jQuery(this).find('#company_name').val();
+				company_desc=jQuery(this).find('#company_desc').val();
 				if(designation == "")
 				{
+					jQuery(this).find('#designation').addClass('error');
 					toastr.error('Kindly enter a Designation value!!');
 					temp=0;
 				}
+				else
+				{
+					jQuery(this).find('#designation').removeClass('error');
+				}
 				if(company_name == "")
 				{
+					jQuery(this).find('#company_name').addClass('error');
 					toastr.error('Kindly enter a company Name!!');
 					temp=0;
+				}
+				else
+				{
+					jQuery(this).find('#company_name').removeClass('error');
 				}
 				frm=jQuery(this).find('.from_eh').val();
 				to=jQuery(this).find('.to_eh').val();
@@ -1257,6 +1537,7 @@ jQuery(document).ready(function(){
 				hist.push(company_name);
 				hist.push(frm);
 				hist.push(to);
+				hist.push(company_desc);
 				all_emp_hitory.push(hist);
 		});
 		if(temp==1)
@@ -1294,6 +1575,7 @@ jQuery(document).ready(function(){
 	jQuery('#save_education').click(function()
 	{
 		var qualification="";
+		var area_of_study="";
 		var frm ="";
 		var to ="";
 		var all_educ=[];
@@ -1305,6 +1587,12 @@ jQuery(document).ready(function(){
 				if(qualification == "")
 				{
 					toastr.error('Kindly enter Qualification!!');
+					temp= 0;	
+				}
+				area_of_study=jQuery(this).find('#area-of-study').val();
+				if(area_of_study == "")
+				{
+					toastr.error('Kindly enter Area Of Study!!');
 					temp= 0;	
 				}
 				frm=jQuery(this).find('#from-edu').val();
@@ -1326,6 +1614,7 @@ jQuery(document).ready(function(){
 				}
 				
 				edu.push(qualification);
+				edu.push(area_of_study);
 				edu.push(frm);
 				edu.push(to);
 				all_educ.push(edu);
@@ -1434,16 +1723,19 @@ jQuery(document).ready(function(){
 			url : '/contractor/save_data',
 			data :{'fieldname':'availability','fieldval': avail}
 			});
-		jQuery('.pro-availability').html(avail+'/hrs weekly');
+		jQuery('.pro-availability').html('<strong>Availability: </strong>'+avail);
+		jQuery('.avail-main a').addClass('edit-me').html('<i class="fa fa-pencil"></i>');
 		jQuery('#availability').modal('hide');
 	});
 
 	/***Save Industries*****/
 	jQuery(document).on('click','#save_industries',function(){
 		var indust=jQuery('#indus').val();
-		indust = indust.replace(/,\s*$/, "");
-		var htmlind="";
-		jQuery.ajax({
+		if( indust != "")
+		{
+			indust = indust.replace(/,\s*$/, "");
+			var htmlind="";
+			jQuery.ajax({
 			type:"post",
 			datatype: "html",
 			url : '/contractor/save_data',
@@ -1456,7 +1748,9 @@ jQuery(document).ready(function(){
 				 htmlind += '<span class="industry-tag">'+indusarr[i]+'</span>';
 			}
 			jQuery('.pro-industries').html(htmlind);
+			jQuery('.indus-main a').addClass('edit-me').html('<i class="fa fa-pencil"></i>');
 			jQuery('#industries').modal('hide');
+		}
 	});
 	
 	/****save speciality**/
@@ -1473,6 +1767,7 @@ jQuery(document).ready(function(){
 			htmlind += '<span class="industry-tag">'+spe+'</span>';
 			
 			jQuery('.pro-speciality').html(htmlind);
+			jQuery('.speciality-main a').addClass('edit-me').html('<i class="fa fa-pencil"></i>');
 			jQuery('#speciality').modal('hide');
 	});
 	
@@ -1484,7 +1779,13 @@ jQuery(document).ready(function(){
 });
 
 
-/***************Job Search Module*******************/
+/*******************GLOBAL CONTRACTOR PROFILE*********************************/
+/*jQuery(document).on('change','#job_history',function(){
+	var order= jQuery(this).val();
+	
+});*/
+
+/***************JOB SEARCH MODULE*******************/
 	jQuery('#fixed').click(function(){
 		jQuery('.pay-rate-fixed').toggle();
 	});
@@ -1688,21 +1989,31 @@ jQuery('#save_job,.flex_alert').click(function(e){
 });
 jQuery('#apply_for_job').click(function(e){
 	e.preventDefault();
-	if(jQuery(this).attr('data-already_applied') === 'yes')
+	var contractor_profile_exists=jQuery(this).attr('data-cpe');
+	
+	if(contractor_profile_exists == "yes")
 	{
-		var applied_jobid=jQuery(this).attr('data-applied-job-id');
-		window.location.href = base_url+'contractor/view_posted_job/?applied_job='+applied_jobid+'';
+		if(jQuery(this).attr('data-already_applied') === 'yes')
+		{
+			var applied_jobid=jQuery(this).attr('data-applied-job-id');
+			window.location.href = base_url+'contractor/view_posted_job/?applied_job='+applied_jobid+'';
+		}
+		else
+		{
+			var slug=jQuery('#job_slug').val();
+			window.location.href = base_url+'contractor/apply_for_job/'+slug+'';
+		}
 	}
-	else
+	else if(contractor_profile_exists == "no")
 	{
-		var slug=jQuery('#job_slug').val();
-		window.location.href = base_url+'contractor/apply_for_job/'+slug+'';
+		jQuery('#complete_profile').modal('show');
 	}
 });									
 
 										
-										/*********************JOB DESCRIPTION MODULE ENDS*****************/
-	/******APPLY FOR A JOB *****/
+/*********************JOB DESCRIPTION MODULE ENDS*****************/
+
+/******APPLY FOR A JOB *****/
 /*validation for apply job*/	
 jQuery(document).ready(function(){
 	var minimum_activity=1;
@@ -1865,11 +2176,11 @@ jQuery(document).on('click','.edit_answer',function(){
  jQuery(document).on('click','.update_answer',function(){
 	var answer=jQuery(this).prev('.ff-description').find('p').text();
 	var applied_answer_id=jQuery(this).prev('.ff-description').find('.applied-answer-id').val();
-	
+	var applied_job_id=jQuery('#applied_job_id').val();
 	jQuery.ajax({
 		type: "POST",
 		url:"/contractor/update_posted_job",
-		data:{"fieldname":'answer',"fieldval":answer,"applied_answer_id":applied_answer_id},
+		data:{"fieldname":'answer',"fieldval":answer,"applied_answer_id":applied_answer_id,"applied_job_id":applied_job_id},
 		success:function(resp)
 		{
 			jQuery('.update_answer').prev('.ff-description').addClass('filled');
@@ -2050,6 +2361,7 @@ jQuery('#decline_contract').click(function(){
 jQuery('#empavselect').change(function(){
 	readURL(this);
 });
+
 function readURL(input) 
 {
   if (input.files && input.files[0]) 
@@ -2111,6 +2423,7 @@ jQuery('#company_profile').validate({
 		company_first_name:{required: true},
 		company_last_name:{required: true},
 		company_address_1:{required: true},
+		company_stripe_id:{required: true},
 		company_email:
 		{
 			required: true,
@@ -2463,5 +2776,664 @@ jQuery(document).on('click','#withdraw_activity_button',function(){
 			}
 		}
 		
+	});
+});
+
+
+/***********CHAT MODULE************/
+
+/*load chat messages*/
+jQuery(document).on('click','#load_messages',function(e){
+	e.preventDefault();
+	jQuery('.loader').show();
+	var self=jQuery(this);
+	var job_id=jQuery(this).attr('data-attr-job');
+	var conv_id=jQuery(this).attr('data-attr-con');
+	jQuery.ajax({
+		type:"POST",
+		data:{"conv_id":conv_id,"job_id":job_id,"action":"loadmsg"},
+		url: base_url+'inbox/load_messages/',
+		success: function(resp)
+		{
+			var res=jQuery.parseJSON(resp);
+			jQuery('.name-title').html(res.author_detail);
+			jQuery('#msg-thread').html(res.messages);
+			jQuery('.convo-box').removeClass('active');
+			jQuery('#msg-thread').scrollTop(jQuery('#msg-thread')[0].scrollHeight);
+			self.parents('.convo-box').addClass('active');
+			jQuery('.loader').hide();
+			
+		}
+	});
+});
+
+/*Load Messages on scroll*/
+//jQuery(document).on('scroll','#msg-thread',function()
+jQuery('#msg-thread').scroll(function()
+{
+    if (jQuery('#msg-thread').scrollTop() == 0)
+    {
+		var last_load=1;
+		var con_id=jQuery('#conv_data').attr('data-attr-con');
+		var job_id=jQuery('#conv_data').attr('data-attr-job');
+		var offset=jQuery('#conv_data').attr('data-attr-offset');
+		if(offset == 0)
+			last_load=0;
+		if(last_load === 1)
+		{
+			jQuery.ajax({
+			type:"POST",
+			data:{"conv_id":con_id,"job_id":job_id,"offset":offset},
+			url: base_url+'inbox/con_messages/',
+			success: function(resp)
+			{
+				jQuery('#conv_data').remove();
+				jQuery(resp).insertBefore( ".message-text:first-child" );
+			}
+			});
+		}
+	}
+});
+
+/*emojis js*/
+ var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36251023-1']);
+  _gaq.push(['_setDomainName', 'jqueryscript.net']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+jQuery(document).ready(function(e) 
+{
+	jQuery('#create').click(function(e) 
+	{
+		e.preventDefault();
+		jQuery('#text-custom-trigger').emojiPicker({
+		  width: '300px',
+		  height: '200px',
+		  button: false
+		});
+		jQuery('#text-custom-trigger').emojiPicker('toggle');
+	});
+});
+/*emojis js end*/
+
+/*Ajax to save message*/
+jQuery('.submit-btn').click(function(){
+	jQuery('#previewholder').hide();
+	var msg=jQuery('#text-custom-trigger').val();
+	var conv_id=jQuery('#conv_data').attr('data-attr-con');
+	var job_id=jQuery('#conv_data').attr('data-attr-job');
+	var sender=jQuery('#conv_data').attr('data-attr-sender');
+	var rec=jQuery('#conv_data').attr('data-attr-rec');
+	var attachment="";
+	if(jQuery('#message_attachment').val() != "")
+		attachment=	jQuery('#message_attachment').val();
+	
+	jQuery.ajax({
+		type:"POST",
+		data:{"conv_id":conv_id,"job_id":job_id,"sender":sender,"rec":rec,"msg":msg,"action":"save","attachment":attachment},
+		url:base_url+'inbox/load_messages/',
+		success:function(resp)
+		{
+			var res=jQuery.parseJSON(resp);
+			jQuery('#message_attachment').val('');
+			jQuery('.name-title').html(res.author_detail);
+			jQuery('#msg-thread').html(res.messages);
+			jQuery('#text-custom-trigger').val('');
+			jQuery('.convo-box').removeClass('active');
+			jQuery('#msg-thread').scrollTop(jQuery('#msg-thread')[0].scrollHeight);
+			jQuery( "a[data-attr-con$='"+conv_id+"']" ).parents('.convo-box').addClass('active');
+		}
+	})
+});
+
+/*check for new message every two seconds*/
+/*setInterval(function() {
+		var conv_id=jQuery('#conv_data').attr('data-attr-con');
+		var job_id=jQuery('#conv_data').attr('data-attr-job');
+		jQuery.ajax({
+		type:"POST",
+		data:{"conv_id":conv_id,"job_id":job_id,"action":"loadmsg"},
+		url: base_url+'inbox/load_messages/',
+		success: function(resp)
+		{
+			var res=jQuery.parseJSON(resp);
+			jQuery('.name-title').html(res.author_detail);
+			jQuery('#msg-thread').html(res.messages);
+			jQuery('.convo-box').removeClass('active');
+			jQuery( "a[data-attr-con$='"+conv_id+"']" ).parents('.convo-box').addClass('active');
+		}
+		});
+}, 2000);*/
+
+/*anchor as an attachment*/
+jQuery('#attach').click(function(){
+	jQuery('#upload').click();
+});
+
+/*Save attachment*/
+jQuery(document).on('change','#upload',function(e)
+{
+	var fileName = e.target.files[0].name;
+	readURL(this,fileName);
+});
+
+function readURL(input,fileName) 
+{
+  if (input.files && input.files[0]) 
+  {
+	var reader = new FileReader();
+	reader.onload = function(e) 
+	{
+		dataURL=e.target.result;
+		var mimeType = dataURL.split(",")[0].split(":")[1].split(";")[0];
+		if(mimeType === "")
+		{
+			jQuery('#previewholder').html('');
+			alert('Please inpuit a valid format');
+			return;
+		}
+		else
+		{
+			jQuery('#previewholder').show();
+			jQuery('.submit-btn').attr('disabled','disabled');
+		}
+		var base64result = e.target.result.split(',')[1];
+		jQuery.ajax({
+		type:"post",
+		datatype: "html",
+		url : '/inbox/save_attachment',
+		data :{'attachment':base64result,'name':fileName},
+		success: function(res)
+		{
+			if(res > 0)
+			{
+				jQuery('#message_attachment').val(res);
+				jQuery('#previewholder .progress .progress-bar').text('Uploaded successfully').addClass('progress-bar-success');
+				jQuery('.submit-btn').removeAttr('disabled');
+			}
+			else if(res == 0)
+			{
+				jQuery('#previewholder .progress .progress-bar').text('Uploading Failed').addClass('progress-bar-danger');
+			}
+		}
+		});
+	}
+	reader.readAsDataURL(input.files[0]);
+  }
+}
+
+/*sort conversation*/
+jQuery(document).on('change','#sort_con',function(){
+	var order=jQuery(this).val();
+	jQuery('.loader').show();
+	jQuery.ajax({
+		type:"POST",
+		data:{"order":order,"action":"ajaxdata"},
+		url: base_url+'inbox/',
+		success: function(resp)
+		{
+			var res=jQuery.parseJSON(resp);
+			jQuery('.conversation-list').html(res.conversation);
+			jQuery('.name-title').html(res.msgs.author_detail);
+			jQuery('#msg-thread').html(res.msgs.messages);
+			jQuery('#msg-thread').scrollTop(jQuery('#msg-thread')[0].scrollHeight);
+			jQuery('.loader').hide();
+		}
+		});
+});
+
+/*change visibility*/
+jQuery('.toggle-avialability a').click(function(){
+	jQuery('.toggle-avialability a').removeClass('active');
+	jQuery(this).addClass('active');
+	if(jQuery(this).text() == "Online")
+	{
+		jQuery('.msg-user-img.cu').removeClass('offline').addClass('available');
+		var user_avail="available";
+	}
+	else if(jQuery(this).text() == "Invisible")
+	{
+		jQuery('.msg-user-img.cu').removeClass('available').addClass('offline');
+		var user_avail="offline";
+	}
+	jQuery.ajax({
+			type:"GET",
+			data:{"avail":user_avail},
+			url:base_url+'inbox/update_user_avail/'
+		});
+});
+
+/*on click of plus sign load contractor as well as employer based on user role
+/*jQuery(document).on('change','#opponent_user_id',function(){
+	var role=jQuery('#user_role').attr('data-user_role');
+	if(role == 3)
+	{
+		var employer_id=jQuery('#opponent_user_id').val();
+		/*call ajax
+		jQuery.ajax({
+			type:"POST",
+			data:{"employer_id":employer_id},
+			url: base_url+'inbox/get_job_list',
+			success: function(resp)
+			{
+				if(resp)
+					jQuery('#ff_jobs').html(resp);
+			}
+		});
+	}
+});*/
+
+jQuery(document).on('click','#new_conversation',function(e){
+	var opponent_user_id=jQuery('#opponent_user_id').val();
+	var message=jQuery('#new_con_message').val();
+	var job_id=jQuery('#ff_jobs').val();
+	if(opponent_user_id == "")
+	{
+		e.preventDefault();
+		jQuery('#opponent_user_id').addClass('error');
+	}
+	else if(job_id == "")
+	{
+		e.preventDefault();
+		jQuery('#ff_jobs').addClass('error');
+	}
+	else if(message == "")
+	{
+		e.preventDefault();
+		jQuery('#new_con_message').addClass('error');
+	}
+	else
+	{
+		jQuery('#opponent_user_id').removeClass('error');
+		jQuery('#new_con_message').removeClass('error');
+		jQuery('#ff_jobs').removeClass('error');
+		var mess=jQuery('#new_con_message').val();
+		jQuery.ajax({
+			type:"POST",
+			data:{"opponent_id":opponent_user_id,"job_id":job_id,"message":mess},
+			url:base_url+'inbox/load_new_conversation',
+			success: function(resp)
+			{
+				location.reload();
+			}
+		});
+	}
+});
+
+
+/*********CHAT MODULE ENDS****/
+
+/**Global contractor profile initialize calender**/
+if (jQuery("#inactive_dates").length > 0) 
+{
+	var inactive_dates=jQuery("#inactive_dates").val();
+	var datearray=jQuery.parseJSON( inactive_dates);
+	if(datearray.length > 0)
+	{
+		var unavailableDates = [];
+
+		for (i = 0; i < datearray.length; i++) 
+		{ 
+			var startdate = datearray[i]['startdate'];
+			var enddate = datearray[i]['enddate'];
+			obj = {};
+			obj['start'] = startdate;
+			obj['end'] = enddate;
+			unavailableDates.push(obj);
+		}
+	}
+	jQuery('.available_dates').availabilityCalendar(unavailableDates);
+}
+
+/**SUBMIT JOB REPORT MODULE**/
+/* if(jQuery('[data-timepicker]').length > 0)
+{
+	jQuery('[data-timepicker]').timepicker({timeFormat: "hh:mm tt"});
+}
+
+if(jQuery('#activity_date').length > 0)
+{
+	jQuery('#activity_date,.repl').datepicker({ dateFormat: 'mm-dd-yy' });
+} */
+
+jQuery('body').on('focus',".datepick", function(){
+    jQuery(this).datepicker({ dateFormat: 'mm-dd-yy' });
+});
+
+jQuery('body').on('focus',".timepick", function(){
+    jQuery(this).timepicker({timeFormat: "hh:mm tt"});
+});
+
+
+/*Start rating*/
+(function ( $ ) {
+ 
+    $.fn.rating = function( method, options ) {
+		method = method || 'create';
+        // This is the easiest way to have default options.
+        var settings = $.extend({
+            // These are the defaults.
+			limit: 5,
+			value: 0,
+			glyph: "glyphicon-star",
+            coloroff: "gray",
+			coloron: "gold",
+			size: "1.0em",
+			cursor: "default",
+			onClick: function () {},
+            endofarray: "idontmatter"
+        }, options );
+		var style = "";
+		style = style + "font-size:" + settings.size + "; ";
+		style = style + "color:" + settings.coloroff + "; ";
+		style = style + "cursor:" + settings.cursor + "; ";
+	
+
+		
+		if (method == 'create')
+		{
+			//this.html('');	//junk whatever was there
+			
+			//initialize the data-rating property
+			this.each(function(){
+				attr = $(this).attr('data-rating');
+				if (attr === undefined || attr === false) { $(this).attr('data-rating',settings.value); }
+			})
+			
+			//bolt in the glyphs
+			for (var i = 0; i < settings.limit; i++)
+			{
+				this.append('<span data-value="' + (i+1) + '" class="ratingicon glyphicon ' + settings.glyph + '" style="' + style + '" aria-hidden="true"></span>');
+			}
+			
+			//paint
+			this.each(function() { paint($(this)); });
+
+		}
+		if (method == 'set')
+		{
+			this.attr('data-rating',options);
+			this.each(function() { paint($(this)); });
+		}
+		if (method == 'get')
+		{
+			return this.attr('data-rating');
+		}
+		//register the click events
+		this.find("span.ratingicon").click(function() {
+			rating = $(this).attr('data-value')
+			$(this).parent().attr('data-rating',rating);
+			paint($(this).parent());
+			settings.onClick.call( $(this).parent() );
+		})
+		function paint(div)
+		{
+			rating = parseInt(div.attr('data-rating'));
+			div.find("input").val(rating);	//if there is an input in the div lets set it's value
+			div.find("span.ratingicon").each(function(){	//now paint the stars
+				
+				var rating = parseInt($(this).parent().attr('data-rating'));
+				var value = parseInt($(this).attr('data-value'));
+				if (value > rating) { $(this).css('color',settings.coloroff); }
+				else { $(this).css('color',settings.coloron); }
+			})
+		}
+
+    };
+ 
+}( jQuery ));
+
+jQuery(document).ready(function(){
+
+	jQuery(".starRates").rating('create',{coloron:'#f9bc39',onClick:function()
+	{
+		var rating=this.attr('data-rating');
+		jQuery(this+' input[type=hidden]').val(rating);
+	}
+	});
+	
+});
+/*Validation on submitting report*/
+jQuery('#submit_report,#save_report').click(function()
+{
+	jQuery.validator.addClassRules("repl", { required:true});
+
+	jQuery('#submit-job-report').validate({
+	ignore: "",
+	rules: 
+	{
+		report_confirmation:{required: true},
+		contracted_rate_pay:{required: true},
+		hours_per_contract:{required: true,number: true},
+		total_payment_price:{required: true},
+		total_activities:{required: true}
+	}
+	});
+});
+
+jQuery('.uploadReceipt').click(function(){
+	jQuery(this).prev().click();
+});
+
+jQuery(document).on('change','.upload_rec',function(e){
+	var fileName = e.target.files[0].name;
+	jQuery(this).next().next().html('<span>'+fileName+'</span>');
+});
+
+jQuery('#hours_per_contract').blur(function(){
+	if(jQuery.isNumeric(jQuery(this).val()))
+	{
+		var rate_of_pay=jQuery('#contracted_rate_pay').val();
+		var hours=jQuery(this).val();
+		var total=parseInt(rate_of_pay) * parseInt(hours);
+		jQuery('.total_payment_price').val(total);
+	}
+});
+
+jQuery('#overage').change(function()
+{
+	if(jQuery(this).val() != "")
+	{
+		var rate_of_pay=jQuery('#contracted_rate_pay').val();
+		var hours=jQuery('#hours_per_contract').val();
+		if(hours == "" || hours == null)
+			hours=0;
+		
+		var total=parseInt(rate_of_pay) * parseInt(hours);
+		
+		var overage=jQuery(this).val();
+		var overage_price=jQuery('#overage_price').val();
+		var overage_min_time=jQuery('#overage_price').attr('data-overage_min-time');
+		
+		if(overage >= overage_min_time)
+			total= parseInt(total) + parseInt(overage_price);
+		
+		
+		jQuery('.total_payment_price').val(total);
+	}
+});
+
+
+jQuery(document).ready(function () {
+	//var i=jQuery( "input[name^='call_summary'] :last" ).attr( name);
+	var template = jQuery.validator.format(jQuery.trim(jQuery("#addChild").html()));
+	jQuery('.add-more-report').click(function(e){
+		var i = parseInt(jQuery('#ival').val()) + parseInt(1);
+		jQuery('#ival').val(i);
+		jQuery(template(i++)).appendTo(".report_submission:last");
+		e.preventDefault();
+	});
+});
+
+jQuery(document).on('click','.remove_report',function(){
+	var i = parseInt(jQuery('#ival').val()) - parseInt(1);
+	jQuery('#ival').val(i);
+	jQuery(this).parents('.replicate').remove();
+});
+
+//on click of cancel
+jQuery('#cancel_report').click(function(e){
+	e.preventDefault();
+	var id=jQuery(this).attr('data-id');
+	window.location.href = base_url+'contractor/activity_detail/?contract_id='+id+'';
+});
+
+/**SUBMIT JOB REPORT MODULE ENDS**/
+
+/****JOB DISPUTE MODULE****/
+
+jQuery('#dispute_charges').click(function(){
+	var activity_status_id=jQuery(this).attr('data-attr-id');
+	window.location.href = base_url+'employer/view_report/?id='+activity_status_id+'&action=dispute';
+});
+
+//job dispute cancel dispute form
+jQuery('#cance_dispute').click(function(e){
+	e.preventDefault();
+	var activity_status_id=jQuery(this).attr('data-attr-id');
+	window.location.href = base_url+'employer/view_report/?id='+activity_status_id+'';
+});
+
+/****JOB DISPUTE MODULE ENDS****/
+
+/***JOB FEEDBACK FORM**/
+jQuery('#feedback_form').validate({
+	rules: 
+	{
+		reason_contract_ended:{required: true},
+		recommendation_score:{required: true},
+		orga_prepa:{required: true},
+		training:{required: true},
+        communication:{required: true},
+        ajd:{required: true},
+        ajc: {required : true},
+        experience: {required : true},
+	}
+});
+
+/*calculate the average score*/
+jQuery("input[name='orga_prepa'],input[name='training'],input[name='communication'],input[name='ajd'],input[name='ajc']").change(function() 
+{
+	calculate_average();
+});
+
+function calculate_average()
+{
+	var orga_prep=jQuery("input[name='orga_prepa']:checked").val();
+	var training=jQuery("input[name='training']:checked").val();
+	var communication=jQuery("input[name='communication']:checked").val();
+	var ajd=jQuery("input[name='ajd']:checked").val();
+	var ajc=jQuery("input[name='ajc']:checked").val();
+	var totl=parseInt(orga_prep) + parseInt(training) +  parseInt(communication) +  parseInt(ajd) + parseInt(ajc) ;
+	totl=parseInt(totl)/5;
+	jQuery('#total').html('Total Score: '+totl);
+	jQuery('#average_score').val(totl);
+}
+
+/***JOB FEEDBACK FORM ENDS**/
+
+/***JOB REPORTS MODULE START****/
+
+/*datatable buttons*/
+jQuery('#transac,#expense').DataTable( {
+        dom: 'Bfrtip',
+        buttons: 
+		[
+			{ "extend": 'pdf', "text":'Get PDF',"className": 'btn btn-blue'},
+			{ "extend": 'csv', "text":'Get CSV',"className": 'btn btn-gray'}
+        ]
+} ); 
+
+jQuery('#week_month_status').dataTable( {
+       "aoColumns": [ null,{ "bSortable": false },{ "bSortable": false },{ "bSortable": false },{ "bSortable": false },{ "bSortable": false },{ "bSortable": false },{ "bSortable": false },null],
+	   searching: false,
+	   paging: false
+});
+
+/*On change of the date filter*/
+jQuery(document).on('change','.date-range',function(){
+	var date_range=jQuery(this).val();
+	var ty=jQuery('.tabs-nav .active a').attr('href');
+	if(jQuery('.employer-repo').length > 0)
+		var uri=base_url+'employer/daterangefilter/';
+	else
+		var uri=base_url+'contractor/daterangefilter/';
+		
+	
+	if(date_range != "")
+	{
+		jQuery.ajax({
+			type:"GET",
+			data:{'date_range':date_range,"type":ty},
+			url:uri,
+			success: function(resp)
+			{
+				if(resp !== "")
+				{
+					if(ty === "#transactions")
+						jQuery('#transac tbody').html(resp);
+					else if(ty == "#expenseReports")
+						jQuery('#expense tbody').html(resp);
+				}
+				else
+				{
+					if(ty === "#transactions")
+						jQuery('#transac tbody').html("");
+					else if(ty == "#expenseReports")
+						jQuery('#expense tbody').html("");
+				}
+			}
+		});
+	}
+});
+
+/*on change of projected and actual button*/
+jQuery('#past,#future,#weekly,#monthly').click(function(){
+	jQuery(this).siblings().removeClass("btn-blue").addClass("btn-gray");
+	jQuery(this).removeClass("btn-gray").addClass("btn-blue");
+	
+	var timespace=jQuery('.summary-btn-group .btn-blue').text();
+	var timeduration=jQuery('.text-right .btn-blue').text();
+	
+	if(jQuery('.employer-repo').length > 0)
+		var uri=base_url+'employer/activity_sheet/';
+	else
+		var uri=base_url+'contractor/activity_sheet/';
+	
+	jQuery.ajax({
+		type:"POST",
+		data:{"timespace":timespace,"timeduration":timeduration},
+		dataType: 'json',
+		url:uri,
+		success:function(resp)
+		{
+			jQuery('#week_month_status thead tr').html(resp.header);
+			jQuery('#week_month_status tbody').html(resp.rows);
+		}
+	});
+});
+
+	
+/****JOB REPORT MODULE ENDS*******/
+
+
+/***JOB NOTIFICATIONS****/
+jQuery('.remove-notif').click(function(){
+	var noti_id=jQuery(this).attr('id');
+	jQuery.ajax({
+		type:"POST",
+		data:{"notifi_id":noti_id},
+		dataType: 'json',
+		url:base_url+'contractor/deleteNoti/',
+		success:function()
+		{
+			location.reload();
+		}
 	});
 });

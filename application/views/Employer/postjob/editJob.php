@@ -72,8 +72,13 @@
                       <th scope="row">Activites Name:</th>
                       <td>
   						<div class="row">
-  							<div class="col-md-7">
-  							  <input name="jp_activity_name[]" id="jp_activity_name" type="text" class="input small half-width" value="<?php echo $job_activi['activity_name']; ?>">
+                <div class="col-md-7">
+                  <input name="jp_activity_name[]" id="jp_activity_name" type="text" class="input small half-width" value="<?php echo $job_activi['activity_name']; ?>">
+                </div>
+  							<div class="col-md-5 checkbox-container">
+                  <label for="closeJob">Close Activity</label>
+                  <input <?php if($job_activi['job_status'] ==1) { echo "checked"; } ?> id="closeJob" type="checkbox" onclick="JobStatus(this);">
+                  <input type="hidden" class="thisJobIdActivity" value="<?php echo $job_activi['id']; ?>">
   							</div>
   						</div>
   					</td>
@@ -982,6 +987,7 @@
 </main>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
 <?php 
 if($jobs[0]['job_activity'] == "one") {
 ?>

@@ -3,15 +3,15 @@ class Model
 {
 	
   private $host = 'localhost';
-  private $dbName = 'imarkcli_forceflexing';
-  private $user = 'imarkcli_forcefl';
-  private $pass = 'e8m]~$wfz@3Z';
+  private $dbName = 'db710569245';
+  private $user = 'dbo710569245';
+  private $pass = 'im@rk123#@';
      
   private $dbh;
   private $error;
   private $qError;
   
-  private $stmt;
+  private $stmt = NULL;
   
   public function __construct()
   {
@@ -180,6 +180,18 @@ class Model
 		$this->query("SELECT * FROM `".$table."` WHERE `".$field."` = '".$value."' order by ".$orderby." ".$order."");
 		return $result = $this->resultset();
 	}
+
+
+
+	public function get_DataTable_groupMy($table,$field,$value,$order="DESC")
+	{
+		if($table == "flex_roles")
+			$orderby="roleid";
+		else
+			$orderby="id";
+		$this->query("SELECT * FROM `".$table."` WHERE `".$field."` = '".$value."' GROUP BY MONTH(`job_created`) order by ".$orderby." ".$order."");
+		return $result = $this->resultset();
+	}
 	public function get_Job_Detail($table,$field,$value)
 	{
 		// echo "SELECT * FROM `".$table."` WHERE `".$field."` = '".$value."' order by `id` DESC";
@@ -217,11 +229,11 @@ class Model
 		{
 			if($x==$total)
 				{	
-					$updata .=$key."='". $val."'"; 	
+					$updata .=$key."='". addslashes($val)."'"; 	
 				}
 			else
 				{	
-					$updata .=$key."='". $val. "',"; 
+					$updata .=$key."='". addslashes($val). "',"; 
 				}
 			$x++;
 		}

@@ -78,6 +78,8 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) {
 				$emplyerdetails=$this->Model->Get_column('*','id',$job_id['job_author'],PREFIX.'users');
 				
 				$getUserRecord = $this->Model->get_Data_table(PREFIX.'job_activities','job_id',$job_id['id']);
+				
+				$jobs = $this->Model->get_Data_table(PREFIX.'jobs','job_author',$current_user_data['id']);
 				$jobActivityStatusPending = $this->EModel->jobActivityStatus($job_id['id'],0);
 
 				$jobActivityStatusComplete = $this->EModel->jobActivityStatus($job_id['id'],1);
@@ -99,7 +101,19 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) {
 					return $getPerice;
 				}
 				$this->loadview('main/header')->render();
-				$this->loadview('Employer/contract/navigation')->render();
+				if (!empty($dataNavi)) {
+					$profileImg = $dataNavi[0]['company_image'];
+				} else {
+					$profileImg = "";
+				}
+				$c=array('to_id'=>$current_user_data['id'],'is_read'=>0);
+				$unread_msg_count=$this->Model->get_count_with_multiple_cond($c,PREFIX.'message_set');
+				$getUserNavigation = $this->loadview('Employer/main/navigation');
+				$getUserNavigation->set("nameEmp" , $current_user_data['username']);
+				$getUserNavigation->set("profile_img" , $profileImg);
+				$getUserNavigation->set("dataFull" , $current_user_data);
+				$getUserNavigation->set("unread_msg_count" , $unread_msg_count);
+				$getUserNavigation->render();
 				$template = $this->loadview('Employer/contract/index');
 				$template->set("jobApplication" , $jobApplication);
 				$template->set("Model" , $this->Model);
@@ -107,9 +121,11 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) {
 				$template->set("total_price" , $total_price);
 				$template->set('current_user_data',$current_user_data);
 				$template->set('job_id',$job_idd);
+				$template->set('jobs',$jobs);
 				$template->set('job_idd',$job_id);
 				$template->set('job_additional_hours',$job_additional_hours);
 				$template->set('user_id',$user_idd);
+				$template->set('SendMail',$this->SendMail);
 				$template->render();
 				$modalTemplate = $this->loadview('Employer/contract/modal');
 				$modalTemplate->set('states',$all_results);
@@ -130,7 +146,7 @@ if (isset($_COOKIE['force_username']) || isset($_SESSION['force_username'])) {
 			$this->redirect('');
 		}
 	} else {
-		$this->redirect('');
+		$this->redirect('login');
 	}
 } else {
 		$this->redirect('');
